@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – s
+# 1HassOS Apps Repository – 
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
