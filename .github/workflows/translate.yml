@@ -146,7 +146,8 @@ jobs:
             git checkout -b i18n-update origin/main
           fi
           
-          git reset --hard origin/main
+          # Use checkout -B to safely reset without breaking .git
+          git checkout -B i18n-update origin/main
           git checkout i18n-working -- . 2>/dev/null || true
           
           # Remove cache (keep translations only)
