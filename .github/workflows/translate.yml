@@ -1,7 +1,8 @@
-name: Translate
+name: Automatic Translation
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
@@ -10,76 +11,121 @@ on:
       - "DOCS.md"
       - "apps/**/README.md"
       - "apps/**/DOCS.md"
-      - "apps/**/translations/de.*"
+      - "apps/**/translations/de.yaml"
+      - "apps/**/translations/de.yml"
+      - "apps/**/translations/de.json"
       - ".github/scripts/translate.py"
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: i18n
+  cancel-in-progress: false
+
 jobs:
   translate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Create or switch to i18n-update
+      - name: Fetch branches
         run: |
-          git fetch origin
+          git fetch origin --prune
+
+      - name: Checkout or create i18n-update
+        run: |
 
           if git ls-remote --exit-code --heads origin i18n-update; then
+
             git checkout i18n-update
             git pull origin i18n-update
+
           else
+
             git checkout -b i18n-update origin/main
+
           fi
 
-      - name: Merge latest main
+      - name: Rebase on latest main
         run: |
+
           git fetch origin main
-          git merge origin/main --no-edit || true
+
+          if ! git rebase origin/main; then
+            echo "::error::Rebase failed."
+            git rebase --abort
+            exit 1
+          fi
 
       - name: Update translate.py from main
         run: |
+
           git checkout origin/main -- .github/scripts/translate.py
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install requests pyyaml
 
-      - name: Build translation file list
+      - name: Build translation list
         run: |
-          {
-            git ls-files README.md
-            git ls-files DOCS.md
-            git ls-files "apps/**/README.md"
-            git ls-files "apps/**/DOCS.md"
-            git ls-files "apps/**/translations/de.yaml"
-            git ls-files "apps/**/translations/de.yml"
-            git ls-files "apps/**/translations/de.json"
-          } | sort -u > files.txt
 
-      - name: Translate
+          rm -f files.txt
+
+          git ls-files README.md >> files.txt
+          git ls-files DOCS.md >> files.txt
+
+          git ls-files "README_*.md" >> files.txt
+          git ls-files "DOCS_*.md" >> files.txt
+
+          git ls-files "apps/**/README.md" >> files.txt
+          git ls-files "apps/**/DOCS.md" >> files.txt
+
+          git ls-files "apps/**/README_*.md" >> files.txt
+          git ls-files "apps/**/DOCS_*.md" >> files.txt
+
+          git ls-files "apps/**/translations/de.yaml" >> files.txt
+          git ls-files "apps/**/translations/de.yml" >> files.txt
+          git ls-files "apps/**/translations/de.json" >> files.txt
+
+          sort -u files.txt -o files.txt
+
+          echo "Files:"
+          cat files.txt
+
+      - name: Run translator
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
-          TARGET_LANGUAGES: en
+          TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
         run: |
+
           python .github/scripts/translate.py files.txt
 
-      - name: Commit changes
+      - name: Commit translation changes
+        id: commit
         run: |
+
           git add \
-            .translation_cache.json \
             .github/scripts/translate.py \
+            .translation_cache.json \
             README*.md \
             DOCS*.md \
             apps/**/README*.md \
@@ -89,26 +135,79 @@ jobs:
             apps/**/translations/*.json || true
 
           if git diff --cached --quiet; then
-            echo "Nothing changed."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          git commit -m "chore(i18n): update translations"
+          git commit \
+            -m "chore(i18n): update translations"
 
-      - name: Push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Push i18n-update
+        if: steps.commit.outputs.changed == 'true'
         run: |
-          git push origin i18n-update
 
-      - name: Create or update PR
+          git push origin i18n-update --force-with-lease
+
+      - name: Check for existing PR
+        id: pr
+        if: steps.commit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh pr view i18n-update >/dev/null 2>&1; then
-            echo "PR already exists."
-          else
-            gh pr create \
+
+          NUMBER=$(
+            gh pr list \
               --base main \
               --head i18n-update \
-              --title "Automatic translation update" \
-              --body "Automated translation update."
-          fi
+              --state open \
+              --json number \
+              --jq '.[0].number'
+          )
+
+          echo "number=$NUMBER" >> "$GITHUB_OUTPUT"
+
+      - name: Create Pull Request
+        if: |
+          steps.commit.outputs.changed == 'true' &&
+          steps.pr.outputs.number == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          gh pr create \
+            --base main \
+            --head i18n-update \
+            --title "chore(i18n): automatic translation update" \
+            --body "$(cat <<EOF
+This PR was created automatically.
+
+### Updated
+
+- Documentation
+- README files
+- Translation files
+
+Generated by GitHub Actions.
+EOF
+)"
+
+      - name: Update labels
+        if: |
+          steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          PR=$(
+            gh pr list \
+              --base main \
+              --head i18n-update \
+              --json number \
+              --jq '.[0].number'
+          )
+
+          gh pr edit "$PR" \
+            --add-label i18n \
+            --add-label automated || true

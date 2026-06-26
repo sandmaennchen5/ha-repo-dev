@@ -13,7 +13,7 @@ Home  Assistant App-Repository mit vollautomatischer Badge- und Dashboard-Generi
 
 ### Manuell
 
-1. Öffne Home Assistant.
+1. Öffne Home Assistant.,
 2. **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**
 3. URL hinzufügen:
    ```
