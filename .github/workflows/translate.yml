@@ -120,12 +120,22 @@ jobs:
       - name: Update i18n-cache branch with new cache
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          # Save cache to temp location
+          # Save cache and translations to temp
           cp -r .i18n_cache /tmp/i18n_cache_backup
+          find . -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
+            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" | \
+            tar -cf /tmp/translations.tar -T -
+          
+          # Stash current changes on i18n-working
+          git stash --include-untracked
           
           # Switch to i18n-cache and reset
           git checkout i18n-cache
-          git pull origin i18n-cache
+          git reset --hard origin/i18n-cache
           
           # Replace cache with updated version
           rm -rf .i18n_cache
@@ -143,8 +153,9 @@ jobs:
         run: |
           git fetch origin
           
-          # Work directly from i18n-working, don't go back to main
+          # Switch back to i18n-working to get translations
           git checkout i18n-working
+          git stash pop || true  # Restore stashed translations
           
           if git fetch origin i18n-update 2>/dev/null; then
             git checkout i18n-update
