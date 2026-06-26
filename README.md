@@ -5,7 +5,7 @@
 [![Docker Lint][docker-lint-badge]][docker-lint-url]
 [![YAML Lint][yaml-lint-badge]][yaml-lint-url]
 
-Home Assistant App-Repository mit vollautomatischer Badge- und Dashboard-Generierung.
+Home  Assistant App-Repository mit vollautomatischer Badge- und Dashboard-Generierung.
 
 ## Installation
 
