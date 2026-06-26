@@ -1,0 +1,53 @@
+name: i18n Update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-i18n:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. MAIN auschecken
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          path: main
+
+      # 2. Prüfen, ob Branch existiert – wenn nicht, erstellen
+      - name: Create branch if missing
+        run: |
+          git ls-remote --exit-code --heads origin i18n-update || \
+          git branch i18n-update main
+
+      # 3. Ziel-Branch auschecken
+      - name: Checkout i18n-update
+        uses: actions/checkout@v4
+        with:
+          ref: i18n-update
+          fetch-depth: 0
+          path: target
+
+      # 4. Dateien aus main vorbereiten
+      - name: Prepare selected files
+        run: |
+          mkdir selected
+          cp -r main/Apps/*/README.md selected/ || true
+          cp -r main/Apps/Translation selected/ || true
+
+      # 5. Dateien im Branch überschreiben (ohne alles zu löschen)
+      - name: Overwrite selected files
+        run: |
+          cp -r selected/* target/
+
+      # 6. Commit + Push
+      - name: Commit and push
+        run: |
+          cd target
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -A
+          git commit -m "i18n update: sync selected files" || echo "No changes"
+          git push origin i18n-update
