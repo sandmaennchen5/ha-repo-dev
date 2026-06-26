@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – sandma,fffl
+# 1HassOS Apps Repository – sandm
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
@@ -16,4 +16,5 @@ Home  Assistant App-Repository avec génération entièrement automatique de bad
 1. Ouvrez Home Assistant.,
 2. **Paramètres → → Add-ons Magasin d'→add-ons ** → Repositories
 3. Ajouter une URL :
-   ``
+   ```
+   h
