@@ -3,3 +3,4 @@
 .translation_cache.json
 __pycache__/
 *.pyc
+.i18n_cache/
