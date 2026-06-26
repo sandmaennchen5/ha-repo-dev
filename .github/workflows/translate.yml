@@ -90,8 +90,8 @@ jobs:
         if: steps.detect.outputs.mode != 'skip'
         id: prep
         run: |
-          git fetch origin i18n-update 2>/dev/null || true
-          git checkout -B i18n-update origin/main
+          git fetch origin i18-update 2>/dev/null || true
+          git checkout -B i18-update origin/main
 
           # Stage translation files
           find . -type f \( \
@@ -114,7 +114,7 @@ jobs:
 
       - name: Push
         if: steps.commit.outputs.done == 'true'
-        run: git push origin i18n-update -f
+        run: git push origin i18-update -f
 
       - name: Save cache
         if: steps.detect.outputs.mode != 'skip'
@@ -124,7 +124,7 @@ jobs:
           git rm -rf . 2>/dev/null || true
 
           mkdir -p .i18n_cache
-          git checkout i18n-update -- .i18n_cache 2>/dev/null || true
+          git checkout i18-update -- .i18n_cache 2>/dev/null || true
           git add .i18n_cache 2>/dev/null || true
           git commit -m "chore(i18n): cache" 2>/dev/null || true
           git push origin i18n-cache -f 2>/dev/null || true
@@ -134,10 +134,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git checkout i18n-update
+          git checkout i18-update
 
-          PR=$(gh pr list -B main -H i18n-update --json number -q '.[0].number' 2>/dev/null || echo "")
+          PR=$(gh pr list -B main -H i18-update --json number -q '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR" ]; then
-            gh pr create -B main -H i18n-update --title "Update translations" --body "Auto translation" --label i18n || true
+            gh pr create -B main -H i18-update --title "Update translations" --body "Auto translation" --label i18n || true
           fi
