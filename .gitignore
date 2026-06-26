@@ -1,6 +1,7 @@
 .dashboard/
 .history/
 .translation_cache.json
+.i18n_cache/
 __pycache__/
 *.pyc
 @eaDir/
