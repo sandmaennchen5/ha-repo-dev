@@ -1,4 +1,4 @@
-### Home Assistant Add-On: Test
+### Home Assistant Add-On: opjo
 ## Newt Client für Pangolin-Reverse-Proxy-Tunnel
 
 [![Builder][builder-badge]][builder-url]
