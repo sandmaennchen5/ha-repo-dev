@@ -22,6 +22,10 @@ CACHE_DIR.mkdir(exist_ok=True)
 CACHE_FILE = CACHE_DIR / "translation_cache.json"
 CHANGED_CACHE_FILE = CACHE_DIR / "changed_files.json"
 
+# Chunk size for splitting long texts
+CHUNK_SIZE = 400
+OVERLAP = 50  # Overlap between chunks to preserve context
+
 
 def load_json_cache(path: Path) -> dict:
     """Load JSON cache safely; return empty dict for missing/empty/invalid files."""
@@ -60,6 +64,25 @@ def save_cache():
     CHANGED_CACHE_FILE.write_text(json.dumps(CHANGED_FILES_CACHE, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def split_into_chunks(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = OVERLAP) -> list[str]:
+    """Split text into chunks with overlap to preserve context."""
+    if len(text) <= chunk_size:
+        return [text]
+    
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = min(start + chunk_size, len(text))
+        chunk = text[start:end]
+        chunks.append(chunk)
+        
+        # Move start position, accounting for overlap
+        start = end - overlap if end < len(text) else end
+    
+    return chunks
+
+
 def deepl_translate(text: str, lang: str) -> Optional[str]:
     """Translate using DeepL API."""
     if not DEEPL_KEY:
@@ -91,7 +114,7 @@ def deepl_translate(text: str, lang: str) -> Optional[str]:
 
 
 def google_translate_fallback(text: str, lang: str) -> Optional[str]:
-    """Fallback: Free MyMemory API (no key needed)."""
+    """Fallback: Free MyMemory API with chunk support (no key needed)."""
     try:
         lang_map = {
             "en": "en",
@@ -109,29 +132,73 @@ def google_translate_fallback(text: str, lang: str) -> Optional[str]:
 
         target = lang_map.get(lang.lower(), lang.lower())
 
-        # MyMemory free API
-        api_url = "https://api.mymemory.translated.net/get"
-        params = {
-            "q": text[:500],  # Limit to 500 chars per request
-            "langpair": f"de|{target}",
-        }
+        # For long texts, split into chunks
+        if len(text) > 500:
+            chunks = split_into_chunks(text, chunk_size=400)
+            translated_chunks = []
+            
+            for chunk in chunks:
+                # MyMemory free API
+                api_url = "https://api.mymemory.translated.net/get"
+                params = {
+                    "q": chunk,
+                    "langpair": f"de|{target}",
+                }
 
-        r = requests.get(api_url, params=params, timeout=15)
-        r.raise_for_status()
+                r = requests.get(api_url, params=params, timeout=15)
+                r.raise_for_status()
 
-        data = r.json()
-        status = data.get("responseStatus")
+                data = r.json()
+                status = data.get("responseStatus")
 
-        if status == 200:
-            translated = data.get("responseData", {}).get("translatedText", "")
-            if translated and translated.strip():
-                return translated
-            else:
-                print(f"Fallback: Empty response from MyMemory (lang: {lang})")
-                return None
+                if status == 200:
+                    translated = data.get("responseData", {}).get("translatedText", "")
+                    if translated and translated.strip():
+                        translated_chunks.append(translated)
+                    else:
+                        print(f"Fallback: Empty response from MyMemory (lang: {lang})")
+                        return None
+                else:
+                    print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
+                    return None
+            
+            # Merge chunks and remove duplicate overlap
+            result = ""
+            for i, chunk in enumerate(translated_chunks):
+                if i == 0:
+                    result = chunk
+                else:
+                    # Remove overlapping part from previous chunk
+                    if len(result) > OVERLAP:
+                        result = result[:-OVERLAP] + chunk
+                    else:
+                        result += chunk
+            
+            return result if result.strip() else None
         else:
-            print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
-            return None
+            # For short texts, translate directly
+            api_url = "https://api.mymemory.translated.net/get"
+            params = {
+                "q": text,
+                "langpair": f"de|{target}",
+            }
+
+            r = requests.get(api_url, params=params, timeout=15)
+            r.raise_for_status()
+
+            data = r.json()
+            status = data.get("responseStatus")
+
+            if status == 200:
+                translated = data.get("responseData", {}).get("translatedText", "")
+                if translated and translated.strip():
+                    return translated
+                else:
+                    print(f"Fallback: Empty response from MyMemory (lang: {lang})")
+                    return None
+            else:
+                print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
+                return None
 
     except requests.exceptions.Timeout:
         print(f"Fallback: API timeout (lang: {lang})")
@@ -144,7 +211,7 @@ def google_translate_fallback(text: str, lang: str) -> Optional[str]:
 
 
 def translate_service(text: str, lang: str) -> str:
-    """Try DeepL first, fallback to free service."""
+    """Try DeepL first, fallback to free service with chunks."""
     if not isinstance(text, str) or not text.strip():
         return text
 
@@ -161,7 +228,7 @@ def translate_service(text: str, lang: str) -> str:
             CACHE[k] = result
             return result
 
-    # Fallback to free translation
+    # Fallback to free translation with chunk support
     result = google_translate_fallback(text, lang)
     if result:
         CACHE[k] = result
