@@ -2,6 +2,12 @@ name: Automatic Translation
 
 on:
   workflow_dispatch:
+    inputs:
+      translate_all:
+        description: "Translate all files (ignore change detection)"
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - main
@@ -38,12 +44,23 @@ jobs:
       - name: Check for changes
         id: check
         run: |
-          git diff --name-only HEAD~1 HEAD | grep -E '(README|DOCS|translations/de)' > /tmp/changed.txt || true
-          if [ -s /tmp/changed.txt ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.translate_all }}" = "true" ]; then
             echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "translate_mode=all" >> $GITHUB_OUTPUT
+            echo "Translate ALL mode enabled"
+            find . -type f \( -name "README.md" -o -name "DOCS.md" -o -path "*/translations/de.*" \) > /tmp/changed.txt
             cat /tmp/changed.txt
           else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
+            git diff --name-only HEAD~1 HEAD | grep -E '(README|DOCS|translations/de)' > /tmp/changed.txt || true
+            if [ -s /tmp/changed.txt ]; then
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              echo "translate_mode=changed" >> $GITHUB_OUTPUT
+              echo "Translate CHANGED files mode"
+              cat /tmp/changed.txt
+            else
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "No changes detected"
+            fi
           fi
 
       - name: Setup or update i18n-update branch
@@ -78,7 +95,13 @@ jobs:
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
-        run: python .github/scripts/translate.py /tmp/changed.txt
+          TRANSLATE_MODE: ${{ steps.check.outputs.translate_mode }}
+        run: |
+          if [ "$TRANSLATE_MODE" = "all" ]; then
+            python .github/scripts/translate.py --all /tmp/changed.txt
+          else
+            python .github/scripts/translate.py /tmp/changed.txt
+          fi
 
       - name: Commit translations and cache to i18n-update branch
         if: steps.check.outputs.has_changes == 'true'
