@@ -43,4 +43,4 @@ jobs:
           # Alle README.md in Apps/*/
           cp -r main/Apps/*/README.md selected/ 2>/dev/null || true
           # Übersetzungen
-          cp -r main/Apps/Translation selected
+          cp -r main/apps/newt/translations/* selected
