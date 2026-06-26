@@ -70,24 +70,18 @@ jobs:
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
         run: python .github/scripts/translate.py /tmp/changed.txt
 
-      - name: Commit and push
+      - name: Commit everything to i18n-update branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
-            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
-            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
-            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
-            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
-            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \) \
-            -exec git add {} \;
+          git add .
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "chore(i18n): update translations"
+          git commit -m "chore(i18n): update translations with cache"
           git push origin i18n-update
 
-      - name: Create or update PR
+      - name: Create or update PR with only translations
         if: steps.check.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
