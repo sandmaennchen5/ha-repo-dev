@@ -1,10 +1,10 @@
-[EN] # Home Assistant App: Example app
+# Home Assistant App: Example App
 
-## How to use
+## How to Use
 
-This app really does nothing. It is just an example.
+This app doesn't actually do anything. It's just an example.
 
-When started it will print the configured message or "Hello world" in the log.
+When launched, it will print the configured message or "Hello world" to the log.
 
-It will also print "All done!" in `/share/example_app_output.txt` to show
-simple example of the usage of `map` in app config.
+It will also print "All done!" to `/share/example_app_output.txt` to demonstrate
+a simple example of how to use `map` in the app configuration.
