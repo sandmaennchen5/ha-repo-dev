@@ -1,4 +1,4 @@
-name: 🌍 Translation
+name: Translation
 
 on:
   workflow_dispatch:
@@ -51,23 +51,23 @@ jobs:
             if [ "${{ github.event.inputs.translate_all }}" = "true" ]; then
               echo "translate_all=true" >> $GITHUB_OUTPUT
               echo "has_changes=true" >> $GITHUB_OUTPUT
-              echo "🔄 Manual: TRANSLATE ALL"
+              echo "Manual: TRANSLATE ALL"
             else
               echo "translate_all=false" >> $GITHUB_OUTPUT
               echo "has_changes=true" >> $GITHUB_OUTPUT
-              echo "🔄 Manual: changed files"
+              echo "Manual: changed files"
             fi
           else
-            git diff --name-only HEAD~1 HEAD | grep -E '(README|DOCS|translations/de)' > /tmp/changed.txt || true
+            git diff --name-only HEAD~1 HEAD | grep -E "(README|DOCS|translations/de)" > /tmp/changed.txt || true
 
             if [ -s /tmp/changed.txt ]; then
               echo "has_changes=true" >> $GITHUB_OUTPUT
               echo "translate_all=false" >> $GITHUB_OUTPUT
-              echo "📌 Push changes detected"
+              echo "Push changes detected:"
               cat /tmp/changed.txt
             else
               echo "has_changes=false" >> $GITHUB_OUTPUT
-              echo "ℹ No translation files changed"
+              echo "No translation files changed"
             fi
           fi
 
@@ -79,20 +79,20 @@ jobs:
 
       - name: Install dependencies
         if: steps.check.outputs.has_changes == 'true'
-        run: pip install requests pyyaml
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pyyaml
 
       - name: Load cache
         if: steps.check.outputs.has_changes == 'true'
         run: |
           mkdir -p .i18n_cache
-
-          # Try to get cache from i18n-cache branch
           if git fetch origin i18n-cache 2>/dev/null; then
             git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null || echo "{}" > .i18n_cache/translation_cache.json
-            echo "✓ Cache restored from i18n-cache"
+            echo "Cache restored"
           else
             echo "{}" > .i18n_cache/translation_cache.json
-            echo "ℹ No cache yet (first run)"
+            echo "No cache yet"
           fi
 
       - name: Run translations
@@ -112,29 +112,29 @@ jobs:
         id: prepare
         run: |
           git fetch origin i18n-update 2>/dev/null || true
-
-          # Create or reset to main
           git checkout -B i18n-update origin/main
 
-          # Copy translation files from working directory
-          find . -type f \( \
-            -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+          # Create list of translation files
+          find . -type f \
+            \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
             -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
             -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \
             -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
             -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
-            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
-          \) ! -path "./.i18n_cache/*" ! -path "./.git/*" > /tmp/trans_files.txt
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \) \
+            ! -path "./.i18n_cache/*" ! -path "./.git/*" > /tmp/trans_files.txt
 
           FILE_COUNT=$(wc -l < /tmp/trans_files.txt)
           echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
 
           if [ "$FILE_COUNT" -gt 0 ]; then
             echo "Found $FILE_COUNT translation files"
-            cat /tmp/trans_files.txt | xargs -I {} git add "{}"
+            while IFS= read -r file; do
+              git add "$file"
+            done < /tmp/trans_files.txt
             echo "has_trans=true" >> $GITHUB_OUTPUT
           else
-            echo "✗ No translation files generated"
+            echo "No translation files generated"
             echo "has_trans=false" >> $GITHUB_OUTPUT
           fi
 
@@ -145,29 +145,29 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "chore(i18n): add translations"
             echo "committed=true" >> $GITHUB_OUTPUT
-            echo "✓ Committed $(git diff HEAD~1 --name-only | wc -l) files"
+            COMMIT_COUNT=$(git diff HEAD~1 --name-only | wc -l)
+            echo "Committed $COMMIT_COUNT files"
           else
             echo "committed=false" >> $GITHUB_OUTPUT
-            echo "✗ Nothing to commit"
+            echo "Nothing to commit"
           fi
 
       - name: Push i18n-update
         if: steps.commit.outputs.committed == 'true'
         run: |
           git push -u origin i18n-update --force-with-lease
-          echo "✓ Pushed i18n-update branch"
+          echo "Pushed i18n-update branch"
 
       - name: Update i18n-cache branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
           if [ ! -f ".i18n_cache/translation_cache.json" ]; then
-            echo "ℹ No cache to update"
+            echo "No cache to update"
             exit 0
           fi
 
           git fetch origin i18n-cache 2>/dev/null || true
 
-          # Create or checkout i18n-cache
           if git rev-parse --verify origin/i18n-cache >/dev/null 2>&1; then
             git checkout -B i18n-cache origin/i18n-cache
           else
@@ -175,7 +175,6 @@ jobs:
             git rm -rf . 2>/dev/null || true
           fi
 
-          # Copy cache
           mkdir -p .i18n_cache
           cp .i18n_cache/translation_cache.json .i18n_cache/
           git add .i18n_cache/
@@ -183,9 +182,9 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "chore(i18n): update cache"
             git push -u origin i18n-cache
-            echo "✓ Updated cache on i18n-cache branch"
+            echo "Cache updated"
           else
-            echo "ℹ Cache unchanged"
+            echo "Cache unchanged"
           fi
 
       - name: Create or update PR
@@ -193,45 +192,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Go back to i18n-update branch for PR check
           git checkout i18n-update
 
           PR_ID=$(gh pr list --base main --head i18n-update --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR_ID" ]; then
-            echo "🔄 Creating new PR..."
+            echo "Creating new PR..."
             gh pr create \
               --base main \
               --head i18n-update \
-              --title "🌍 Update translations" \
-              --body "Automatic translation update
-
-**Note:** Translation cache is maintained in the separate \`i18n-cache\` branch to keep this PR clean." \
+              --title "Update translations" \
+              --body "Automatic translation update - cache maintained in i18n-cache branch" \
               --label i18n \
-              --label automated || echo "✗ PR creation failed"
-
-            PR_ID=$(gh pr list --base main --head i18n-update --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
-            if [ ! -z "$PR_ID" ]; then
-              echo "✅ Created PR #$PR_ID"
-            fi
+              --label automated || echo "PR creation failed"
           else
-            echo "✅ PR #$PR_ID already exists (updated with new commits)"
-          fi
-
-      - name: Summary
-        run: |
-          echo "📊 Translation Workflow Summary"
-          echo "================================"
-          if [ "${{ steps.check.outputs.has_changes }}" = "true" ]; then
-            echo "✓ Changes detected"
-            echo "✓ Files generated: ${{ steps.prepare.outputs.file_count }}"
-            if [ "${{ steps.commit.outputs.committed }}" = "true" ]; then
-              echo "✓ Committed to i18n-update"
-              echo "✓ Pushed to origin"
-              echo "✓ PR created/updated"
-            else
-              echo "✗ No translations generated"
-            fi
-          else
-            echo "ℹ No changes to process"
+            echo "PR #$PR_ID already exists"
           fi
