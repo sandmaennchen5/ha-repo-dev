@@ -140,34 +140,24 @@ jobs:
         run: |
           git fetch origin
           
+          # Create or switch to i18n-update
           if git fetch origin i18n-update 2>/dev/null; then
             git checkout i18n-update
           else
             git checkout -b i18n-update origin/main
           fi
           
-          # Use checkout -B to safely reset without breaking .git
-          git checkout -B i18n-update origin/main
-          git checkout i18n-working -- . 2>/dev/null || true
-          
-          # Remove cache (keep translations only)
-          rm -rf .i18n_cache .github/scripts .github/workflows
-          
-          # Keep only translation files
-          find . -type f ! \( \
-            -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
-            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
-            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
-            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+          # Only copy translation files, NOT everything
+          git checkout i18n-working -- README.*.md DOCS.*.md 2>/dev/null || true
+          find apps -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
             -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
-            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \
-            -o -name ".git*" -o -name ".gitignore" -o -name "README.md" -o -name "DOCS.md" \
-            -o -path "*/.github/*" -o -path "*/translations/de.*" \) \
-            -delete
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" | \
+            xargs -I {} git checkout i18n-working -- {} 2>/dev/null || true
           
-          # Restore source files
-          git checkout origin/main -- README.md DOCS.md 2>/dev/null || true
-          find . -path "*/translations/de.*" -exec git checkout origin/main -- {} \;
+          # Also copy translated YAML/JSON files
+          find apps -path "*/translations/*.en.*" -o -path "*/translations/*.fr.*" \
+            -o -path "*/translations/*.es.*" | \
+            xargs -I {} git checkout i18n-working -- {} 2>/dev/null || true
           
           git add .
           
