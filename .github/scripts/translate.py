@@ -271,6 +271,24 @@ def get_changed_files() -> list[Path]:
         return []
 
 
+def get_all_files() -> list[Path]:
+    """Get all files that should be translated."""
+    files = []
+    
+    # Find all README.md and DOCS.md files
+    for pattern in ["README.md", "DOCS.md", "apps/**/README.md", "apps/**/DOCS.md"]:
+        files.extend(Path(".").glob(pattern))
+    
+    # Find all de.yaml, de.yml, de.json files
+    for pattern in ["apps/**/translations/de.yaml", "apps/**/translations/de.yml", "apps/**/translations/de.json"]:
+        files.extend(Path(".").glob(pattern))
+    
+    # Remove duplicates and filter valid files
+    files = list(set(f for f in files if f.exists()))
+    
+    return sorted(files)
+
+
 def should_process_file(file: Path) -> bool:
     """Check if file should be processed."""
     name = file.name
@@ -294,13 +312,18 @@ def main():
     """Main translation workflow."""
 
     if len(sys.argv) > 1:
-        # Use provided file list
-        input_file = Path(sys.argv[1])
-        files = [
-            Path(x.strip())
-            for x in input_file.read_text().splitlines()
-            if x.strip() and Path(x.strip()).exists()
-        ]
+        if sys.argv[1] == "--all":
+            # Translate all files
+            print("Translating ALL files...")
+            files = get_all_files()
+        else:
+            # Use provided file list
+            input_file = Path(sys.argv[1])
+            files = [
+                Path(x.strip())
+                for x in input_file.read_text().splitlines()
+                if x.strip() and Path(x.strip()).exists()
+            ]
     else:
         # Get changed files
         files = get_changed_files()
