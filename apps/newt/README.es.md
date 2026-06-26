@@ -1,5 +1,5 @@
-### Complemento de Home Assistant:
-## Newt Client para túneles de proxy inverso de Pangolin
+### Home Assistant Add-On:g
+## Newt Client für Pangolin-Reverse-Proxy-Tunnel
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
@@ -7,74 +7,74 @@
 [![Yaml Lint][yaml-lint-badge]][yaml-lint-url]
 
 <!-- BADGES-START -->
-![Versión](https://img.shields.io/badge/version-v1.13.0-blue)
-![Actualizado](https://img.shields.io/badge/updated-2026--06--26-green)
-![Etapa](https://img.shields.io/badge/stage-stable-orange)
-![Privilegiado](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
+![Version](https://img.shields.io/badge/version-v1.13.0-blue)
+![Updated](https://img.shields.io/badge/updated-2026--06--26-green)
+![Stage](https://img.shields.io/badge/stage-stable-orange)
+![Privileged](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
 ![Arch](https://img.shields.io/badge/arch-aarch64%2C%20amd64-green)
-![Red del host](https://img.shields.io/badge/host_network-True-blue)
-![API de Docker](https://img.shields.io/badge/docker_api-True-blue)
-![Módulos del kernel](https://img.shields.io/badge/kernel_modules-True-blue)
+![Host Network](https://img.shields.io/badge/host_network-True-blue)
+![Docker API](https://img.shields.io/badge/docker_api-True-blue)
+![Kernel Modules](https://img.shields.io/badge/kernel_modules-True-blue)
 ![Upstream](https://img.shields.io/badge/upstream-v1.13.0-yellow)
-![Repositorio](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
+![Repo](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
 <!-- BADGES-END -->
 
-Newt es un complemento de Home Assistant para el cliente de túnel WireGuard y el proxy TCP/UDP de Pangolin. Conecta de forma segura tu host de Home Assistant con un servidor Pangolin y permite el acceso a servicios privados a través de un túnel WireGuard en el espacio de usuario.
+Newt ist ein Home Assistant Add-on für den Pangolin WireGuard-Tunnel-Client und TCP/UDP-Proxy. Es verbindet deinen Home Assistant Host sicher mit einem Pangolin-Server und ermöglicht Zugriff auf private Dienste über einen User-Space WireGuard-Tunnel.
 
-## Resumen
+## Übersicht
 
-- Complemento para el cliente Pangolin Newt
-- Utiliza `host_network` para el acceso directo a la red del host
-- Requiere permisos adicionales: `NET_ADMIN`, `SYS_MODULE`
-- Arquitecturas compatibles: `aarch64`, `amd64`
+- Add-on für den Pangolin Newt-Client
+- Nutzt `host_network` für direkten Host-Netzwerkzugriff
+- Erfordert zusätzliche Berechtigungen: `NET_ADMIN`, `SYS_MODULE`
+- Unterstützte Architekturen: `aarch64`, `amd64`
 
-## Instalación
+## Installation
 
-[![Abre tu instancia de Home Assistant y muestra el cuadro de diálogo para añadir un repositorio de aplicaciones con una URL de repositorio específica ya rellenada.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
+[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
 
-1. Abre Home Assistant.
-2. Ve a **Configuración → Complementos → Tienda de complementos → ⋮ → Repositorios**.
-3. Añade el repositorio: `https://github.com/sandmaennchen5/ha-repo-dev`
-4. Instala el complemento **Newt**.
-5. Configura las opciones del complemento.
-6. Inicia el complemento.
+1. Öffne Home Assistant.
+2. Gehe zu **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**.
+3. Füge das Repository hinzu: `https://github.com/sandmaennchen5/ha-repo-dev`
+4. Installiere das Add-on **Newt**.
+5. Konfiguriere die Add-on-Optionen.
+6. Starte das Add-on.
 
-> Activa el acceso al socket de Docker: desactiva el **modo de protección** en la página principal del complemento.
+> Aktiviere den Docker-Socket-Zugriff: **Schutzmodus** auf der Hauptseite des Add-ons deaktivieren.
 
-## Configuración del complemento
+## Add-on-Konfiguration
 
-| Opción | Tipo | Descripción |
+| Option | Typ | Beschreibung |
 |--------|-----|--------------|
-| `endpoint` | `str` | URL del servidor de Pangolin, p. ej., `https://app.pangolin.net` |
-| `id` | `str` | ID de Newt del panel de control de Pangolin |
-| `secret` | `str` | Secreto de Newt del panel de control de Pangolin |
-| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (por defecto: `info`) |
+| `endpoint` | `str` | URL des Pangolin-Servers, z. B. `https://app.pangolin.net` |
+| `id` | `str` | Newt-ID aus dem Pangolin-Dashboard |
+| `secret` | `str` | Newt-Secret aus dem Pangolin-Dashboard |
+| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (Standard: `info`) |
 
-## ¿Dónde puedo encontrar el `id` y el `secret`?
+## Wo finde ich `id` und `secret`?
 
-1. Abre el panel de control de Pangolin.
-2. Selecciona el sitio que desees o crea uno nuevo.
-3. Copia el `id` y el `secret` generados de los datos de acceso del sitio.
+1. Öffne das Pangolin-Dashboard.
+2. Wähle die gewünschte Site aus oder lege eine neue an.
+3. Kopiere die generierte `id` und das `secret` aus den Site-Anmeldeinformationen.
 
-## Requisitos previos
+## Voraussetzungen
 
-- Un servidor Pangolin en funcionamiento o una instancia gestionada de Pangolin
-- Un sitio registrado en Pangolin con un Newt-ID y un secreto
+- Ein laufender Pangolin-Server oder eine verwaltete Pangolin-Instanz
+- Eine in Pangolin registrierte Site mit Newt-ID und Secret
 
-## Notas
+## Hinweise
 
-- El complemento utiliza `host_network` para que el túnel pueda funcionar directamente a través de la red del host.
-- Tras realizar cambios en la configuración, es necesario reiniciar el complemento.
+- Das Add-on nutzt `host_network`, damit der Tunnel direkt über das Host-Netzwerk betrieben werden kann.
+- Nach Änderungen an der Konfiguration muss das Add-on neu gestartet werden.
 
-## Documentación adicional
+## Weitere Dokumentation
 
-- Consulta [DOCS.md](DOCS.md) para obtener la documentación completa del complemento y la guía de resolución de problemas.
-- Consulta [CHANGELOG.md](CHANGELOG.md) para ver el resumen de versiones del proyecto original.
+- Siehe [DOCS.md](DOCS.md) für vollständige Add-on-Dokumentation und Troubleshooting.
+- Siehe [CHANGELOG.md](CHANGELOG.md) für den upstream Release-Überblick.
 
-## Enlaces
+## Links
 
-- [Documentación de Pangolin](https://docs.pangolin.net)
-- [Repositorio de Newt en GitHub](https://github.com/fosrl/newt)
+- [Pangolin Dokumentation](https://docs.pangolin.net)
+- [Newt GitHub Repository](https://github.com/fosrl/newt)
 
 [builder-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/hasos_app.yml?logo=buildkite
 [builder-url]: https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/hasos_app.yml
