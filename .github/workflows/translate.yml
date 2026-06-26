@@ -46,12 +46,17 @@ jobs:
             echo "has_changes=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Setup branches
+      - name: Setup or update i18n-update branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          git fetch origin i18n-update --depth=1 2>/dev/null || true
-          git push origin --delete i18n-update 2>/dev/null || true
-          git checkout -b i18n-update origin/main
+          if git fetch origin i18n-update 2>/dev/null; then
+            echo "i18n-update branch exists, checking out..."
+            git checkout i18n-update
+            git merge --no-edit origin/main
+          else
+            echo "i18n-update branch does not exist, creating..."
+            git checkout -b i18n-update origin/main
+          fi
 
       - name: Setup Python
         if: steps.check.outputs.has_changes == 'true'
@@ -70,18 +75,27 @@ jobs:
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
         run: python .github/scripts/translate.py /tmp/changed.txt
 
-      - name: Commit everything to i18n-update branch
+      - name: Commit translations and cache to i18n-update branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          git add .
+          find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
+            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \) \
+            -exec git add {} \;
+          
+          git add -f .i18n_cache/
+          
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-          git commit -m "chore(i18n): update translations with cache"
+          git commit -m "chore(i18n): update translations and cache"
           git push origin i18n-update
 
-      - name: Create or update PR with only translations
+      - name: Create or update PR
         if: steps.check.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
