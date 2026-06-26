@@ -22,8 +22,30 @@ CACHE_DIR.mkdir(exist_ok=True)
 CACHE_FILE = CACHE_DIR / "translation_cache.json"
 CHANGED_CACHE_FILE = CACHE_DIR / "changed_files.json"
 
-CACHE = json.loads(CACHE_FILE.read_text()) if CACHE_FILE.exists() else {}
-CHANGED_FILES_CACHE = json.loads(CHANGED_CACHE_FILE.read_text()) if CHANGED_CACHE_FILE.exists() else {}
+
+def load_json_cache(path: Path) -> dict:
+    """Load JSON cache safely; return empty dict for missing/empty/invalid files."""
+    if not path.exists():
+        return {}
+
+    try:
+        raw = path.read_text(encoding="utf-8").strip()
+        if not raw:
+            return {}
+
+        data = json.loads(raw)
+        if isinstance(data, dict):
+            return data
+
+        print(f"Warning: Cache file {path} does not contain a JSON object, resetting.")
+        return {}
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Warning: Could not read cache file {path}: {e}. Resetting.")
+        return {}
+
+
+CACHE = load_json_cache(CACHE_FILE)
+CHANGED_FILES_CACHE = load_json_cache(CHANGED_CACHE_FILE)
 
 # Translation services
 TRANSLATION_CACHE = {}
@@ -34,8 +56,8 @@ def cache_key(text: str, lang: str) -> str:
 
 
 def save_cache():
-    CACHE_FILE.write_text(json.dumps(CACHE, indent=2, ensure_ascii=False))
-    CHANGED_CACHE_FILE.write_text(json.dumps(CHANGED_FILES_CACHE, indent=2, ensure_ascii=False))
+    CACHE_FILE.write_text(json.dumps(CACHE, indent=2, ensure_ascii=False), encoding="utf-8")
+    CHANGED_CACHE_FILE.write_text(json.dumps(CHANGED_FILES_CACHE, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def deepl_translate(text: str, lang: str) -> Optional[str]:
