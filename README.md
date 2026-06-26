@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – sandm
+# 1HassOS Apps Repository – sandmtesr
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
