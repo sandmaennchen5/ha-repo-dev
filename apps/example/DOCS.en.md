@@ -1,8 +1,8 @@
-[EN] # Home Assistant App: Example app
+# Home Assistant App: Example app
 
 ## How to use
 
-This app really does nothing. It is just an example.
+This app really does nothing. It's just an example.
 
 When started it will print the configured message or "Hello world" in the log.
 
