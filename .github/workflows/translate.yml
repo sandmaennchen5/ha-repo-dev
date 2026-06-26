@@ -96,20 +96,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pyyaml
 
+      - name: Restore cache from i18n-update
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          mkdir -p .i18n_cache
+
+          # Restore cache from previous run in i18n-update
+          if git show i18n-update:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null; then
+            echo "✓ Cache restored from i18n-update branch"
+          else
+            echo "ℹ No cache found, starting fresh"
+          fi
+
       - name: Run translator
         if: steps.changes.outputs.has_changes == 'true'
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
         run: |
-          mkdir -p .i18n_cache
           python .github/scripts/translate.py changed_files.txt
+
+          # Show cache stats
+          if [ -f .i18n_cache/translation_cache.json ]; then
+            echo "Cache entries: $(jq 'length' .i18n_cache/translation_cache.json)"
+          fi
 
       - name: Commit changes
         if: steps.changes.outputs.has_changes == 'true'
         id: commit
         run: |
-          # Add all generated translation files (NOT cache)
+          # Save cache for next run
+          git add .i18n_cache/ 2>/dev/null || true
+
+          # Add all generated translation files
           find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
             -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
             -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
@@ -124,7 +143,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore(i18n): update translations"
+          git commit -m "chore(i18n): update translations and cache"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Push i18n-update
