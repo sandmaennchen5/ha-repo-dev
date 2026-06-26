@@ -64,6 +64,34 @@ jobs:
             echo "found=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Prepare translation branch
+        if: steps.changed.outputs.found == 'true'
+        shell: bash
+        run: |
+          cp changed.txt /tmp/changed.txt
+          cp german_changed.txt /tmp/german_changed.txt
+
+          git fetch origin main
+
+          if git ls-remote --exit-code --heads origin i18n-update >/dev/null 2>&1; then
+            git fetch origin i18n-update
+            git switch -C i18n-update origin/i18n-update
+          else
+            git switch -C i18n-update origin/main
+          fi
+
+          mapfile -t sync_files < <(
+            git ls-tree -r --name-only origin/main | \
+              grep -E '(^README\.md$|^DOCS\.md$|/README\.md$|/DOCS\.md$|/translations/de\.(yaml|yml|json)$|^\.github/scripts/translate\.py$)'
+          )
+
+          if [ "${#sync_files[@]}" -gt 0 ]; then
+            git checkout origin/main -- "${sync_files[@]}"
+          fi
+
+          cp /tmp/changed.txt changed.txt
+          cp /tmp/german_changed.txt german_changed.txt
+
       - name: Translate
         if: steps.changed.outputs.found == 'true'
         env:
@@ -75,7 +103,17 @@ jobs:
         with:
           commit-message: "chore(i18n): update translations"
           title: "🌍 Update translations"
+          base: main
           branch: i18n-update
           add-paths: |
+            changed.txt
+            german_changed.txt
+            .translation_cache.json
+            .github/scripts/translate.py
+            README.md
+            DOCS.md
+            **/README.md
+            **/DOCS.md
+            **/translations/de.*
             **/*.en.md
             **/translations/en.*
