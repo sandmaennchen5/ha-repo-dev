@@ -76,6 +76,7 @@ jobs:
             git add .i18n_cache/
             git commit -m "chore(i18n): initialize cache branch"
             git push -u origin i18n-cache
+            git checkout main
           fi
 
       - name: Setup i18n-working branch
@@ -123,16 +124,16 @@ jobs:
           cp -r .i18n_cache /tmp/i18n_cache_backup
           
           # Switch to i18n-cache and reset
-          git reset --hard
+          git checkout main  # Go back to main first
           git checkout i18n-cache
-          git reset --hard origin/i18n-cache
+          git pull origin i18n-cache
           
           # Replace cache with updated version
           rm -rf .i18n_cache
           cp -r /tmp/i18n_cache_backup .i18n_cache
           
           # Commit if there are changes
-          if ! git diff --quiet; then
+          if [ -n "$(git status --porcelain)" ]; then
             git add .i18n_cache/
             git commit -m "chore(i18n): update cache" || true
             git push origin i18n-cache
@@ -143,8 +144,9 @@ jobs:
         run: |
           git fetch origin
           
-          # Clean working directory
-          git reset --hard
+          # Go back to main branch first
+          git checkout main
+          git pull origin main
           
           if git fetch origin i18n-update 2>/dev/null; then
             git checkout i18n-update
