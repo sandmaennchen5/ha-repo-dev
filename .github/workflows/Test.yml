@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # MAIN auschecken
       - name: Checkout main
         uses: actions/checkout@v4
         with:
@@ -34,7 +35,7 @@ jobs:
           git checkout -b i18n-update
           git push origin i18n-update
 
-      # Branch auschecken
+      # Ziel-Branch IMMER sauber auschecken
       - name: Checkout i18n-update
         uses: actions/checkout@v4
         with:
@@ -42,20 +43,20 @@ jobs:
           fetch-depth: 0
           path: target
 
-      # Branch NUR LEEREN, wenn er NEU erstellt wurde
+      # Branch NUR beim ersten Mal leeren
       - name: Clear branch if new
         if: steps.check.outputs.exists == 'false'
         run: |
           cd target
           find . -mindepth 1 ! -name ".git" -exec rm -rf {} +
 
-      # Dateien vorbereiten
+      # Dateien aus main vorbereiten
       - name: Prepare selected files
         run: |
           mkdir selected
           cp -r main/Apps/*/README.md selected/ 2>/dev/null || true
 
-      # Dateien überschreiben (NICHT löschen)
+      # Dateien kopieren (überschreiben)
       - name: Copy selected files
         run: |
           cp -r selected/* target/ 2>/dev/null || true
