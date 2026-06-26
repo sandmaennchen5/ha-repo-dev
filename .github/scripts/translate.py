@@ -69,9 +69,8 @@ def deepl_translate(text: str, lang: str) -> Optional[str]:
 
 
 def google_translate_fallback(text: str, lang: str) -> Optional[str]:
-    """Fallback: Free Google Translate API (via urllib, no key needed)."""
+    """Fallback: Free MyMemory API (no key needed)."""
     try:
-        import urllib.parse
         lang_map = {
             "en": "en",
             "fr": "fr",
@@ -86,29 +85,38 @@ def google_translate_fallback(text: str, lang: str) -> Optional[str]:
             "de": "de",
         }
 
-        target = lang_map.get(lang, lang)
+        target = lang_map.get(lang.lower(), lang.lower())
 
-        # Simple Google Translate API call
-        url = "https://translate.googleapis.com/translate_a/element.js"
+        # MyMemory free API
+        api_url = "https://api.mymemory.translated.net/get"
         params = {
-            "cb": "googleTranslateElementInit"
-        }
-
-        # Actually use a better free API
-        api_url = f"https://api.mymemory.translated.net/get"
-        params = {
-            "q": text,
+            "q": text[:500],  # Limit to 500 chars per request
             "langpair": f"de|{target}",
         }
 
-        r = requests.get(api_url, params=params, timeout=10)
+        r = requests.get(api_url, params=params, timeout=15)
         r.raise_for_status()
 
         data = r.json()
-        if data.get("responseStatus") == 200:
-            return data.get("responseData", {}).get("translatedText")
+        status = data.get("responseStatus")
+
+        if status == 200:
+            translated = data.get("responseData", {}).get("translatedText", "")
+            if translated and translated.strip():
+                return translated
+            else:
+                print(f"Fallback: Empty response from MyMemory (lang: {lang})")
+                return None
+        else:
+            print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
+            return None
+
+    except requests.exceptions.Timeout:
+        print(f"Fallback: API timeout (lang: {lang})")
+    except requests.exceptions.RequestException as e:
+        print(f"Fallback: Network error - {e}")
     except Exception as e:
-        print(f"Fallback translation error: {e}")
+        print(f"Fallback: Unexpected error - {e}")
 
     return None
 
