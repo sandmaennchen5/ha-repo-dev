@@ -61,22 +61,37 @@ jobs:
             fi
           fi
 
-      - name: Setup or update i18n-update branch
+      - name: Setup or update i18n-cache branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          if git fetch origin i18n-update 2>/dev/null; then
-            echo "i18n-update branch exists, checking out..."
-            git checkout i18n-update
-            git checkout origin/main -- README.md DOCS.md apps/ 2>/dev/null || true
-            git add README.md DOCS.md apps/ || true
-            if ! git diff --cached --quiet; then
-              git commit -m "chore(i18n): sync sources from main" || true
-              git push origin i18n-update
-            fi
+          if git fetch origin i18n-cache 2>/dev/null; then
+            echo "i18n-cache branch exists"
           else
-            echo "i18n-update branch does not exist, creating..."
-            git checkout -b i18n-update origin/main
+            echo "Creating i18n-cache branch..."
+            git checkout --orphan i18n-cache
+            git rm -rf .
+            mkdir -p .i18n_cache
+            echo "{}" > .i18n_cache/translation_cache.json
+            echo "{}" > .i18n_cache/changed_files.json
+            git add .i18n_cache/
+            git commit -m "chore(i18n): initialize cache branch"
+            git push -u origin i18n-cache
           fi
+
+      - name: Setup i18n-working branch
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git fetch origin
+          if git fetch origin i18n-working 2>/dev/null; then
+            git checkout i18n-working
+            git reset --hard origin/main
+          else
+            git checkout -b i18n-working origin/main
+          fi
+          
+          # Copy cache from i18n-cache
+          git fetch origin i18n-cache
+          git checkout origin/i18n-cache -- .i18n_cache 2>/dev/null || mkdir -p .i18n_cache
 
       - name: Setup Python
         if: steps.check.outputs.has_changes == 'true'
@@ -101,27 +116,53 @@ jobs:
             python .github/scripts/translate.py /tmp/changed.txt
           fi
 
-      - name: Commit translations and cache to i18n-update branch
+      - name: Update i18n-cache branch with new cache
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          # Stage only translation files
-          find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+          git checkout i18n-cache
+          git checkout i18n-working -- .i18n_cache/
+          if ! git diff --cached --quiet; then
+            git add .i18n_cache/
+            git commit -m "chore(i18n): update cache" || true
+            git push origin i18n-cache
+          fi
+
+      - name: Extract translations to i18n-update
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git fetch origin
+          if git fetch origin i18n-update 2>/dev/null; then
+            git checkout i18n-update
+            git reset --hard origin/main
+          else
+            git checkout -b i18n-update origin/main
+          fi
+          
+          # Copy only translation files from i18n-working
+          git checkout i18n-working -- . 2>/dev/null || true
+          
+          # Remove non-translation files (keep only translated content)
+          find . -type f ! \( \
+            -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
             -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
             -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
             -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
             -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
-            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \) \
-            -exec git add {} \;
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \
+            -o -name ".git*" -o -name ".gitignore" -o -name "README.md" -o -name "DOCS.md" \
+            -o -path "*/.github/*" -o -path "*/translations/de.*" \) \
+            -delete
           
-          # Force-add cache (ignored in main but kept in branch)
-          git add -f .i18n_cache/
+          # Keep source files (README.md, DOCS.md, de.* translations)
+          git checkout origin/main -- README.md DOCS.md 2>/dev/null || true
+          find . -path "*/translations/de.*" -exec git checkout origin/main -- {} \;
           
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
+          git add .
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(i18n): update translations from i18n-working" || true
+            git push -u origin i18n-update
           fi
-          git commit -m "chore(i18n): update translations and cache"
-          git push origin i18n-update
 
       - name: Create or update PR
         if: steps.check.outputs.has_changes == 'true'
@@ -136,3 +177,9 @@ jobs:
           else
             echo "PR #$PR_ID already exists"
           fi
+
+      - name: Cleanup i18n-working branch
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          git push origin --delete i18n-working 2>/dev/null || true
+          echo "i18n-working branch deleted"
