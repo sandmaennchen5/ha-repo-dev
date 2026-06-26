@@ -87,12 +87,16 @@ jobs:
           git commit -m "chore(i18n): update translations"
           git push origin i18n-update
 
-      - name: Create PR
+      - name: Create or update PR
         if: steps.check.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_ID=$(gh pr list --base main --head i18n-update --json number --jq '.[0].number' 2>/dev/null || echo "")
+          
           if [ -z "$PR_ID" ]; then
-            gh pr create --base main --head i18n-update --title "🌍 Update translations" --body "Automatic translation update"
+            echo "Creating new PR..."
+            gh pr create --base main --head i18n-update --title "🌍 Update translations" --body "Automatic translation update" || echo "PR creation in progress or already exists"
+          else
+            echo "PR #$PR_ID already exists"
           fi
