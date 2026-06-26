@@ -1,5 +1,5 @@
-### Home Assistant Add-On:
-## Newt Client for Pangolin Reverse Proxy Tunnels
+### Home Assistant Add-On:g
+## Newt Client für Pangolin-Reverse-Proxy-Tunnel
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
@@ -19,61 +19,61 @@
 ![Repo](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
 <!-- BADGES-END -->
 
-Newt is a Home Assistant add-on for the Pangolin WireGuard tunnel client and TCP/UDP proxy. It securely connects your Home Assistant host to a Pangolin server and enables access to private services via a user-space WireGuard tunnel.
+Newt ist ein Home Assistant Add-on für den Pangolin WireGuard-Tunnel-Client und TCP/UDP-Proxy. Es verbindet deinen Home Assistant Host sicher mit einem Pangolin-Server und ermöglicht Zugriff auf private Dienste über einen User-Space WireGuard-Tunnel.
 
-## Overview
+## Übersicht
 
-- Add-on for the Pangolin Newt client
-- Uses `host_network` for direct host network access
-- Requires additional permissions: `NET_ADMIN`, `SYS_MODULE`
-- Supported architectures: `aarch64`, `amd64`
+- Add-on für den Pangolin Newt-Client
+- Nutzt `host_network` für direkten Host-Netzwerkzugriff
+- Erfordert zusätzliche Berechtigungen: `NET_ADMIN`, `SYS_MODULE`
+- Unterstützte Architekturen: `aarch64`, `amd64`
 
 ## Installation
 
-[![Open your Home Assistant instance and display the "Add App" repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
+[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
 
-1. Open Home Assistant.
-2. Go to **Settings → Add-ons → Add-on Store → ⋮ → Repositories**.
-3. Add the repository: `https://github.com/sandmaennchen5/ha-repo-dev`
-4. Install the **Newt** add-on.
-5. Configure the add-on options.
-6. Start the add-on.
+1. Öffne Home Assistant.
+2. Gehe zu **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**.
+3. Füge das Repository hinzu: `https://github.com/sandmaennchen5/ha-repo-dev`
+4. Installiere das Add-on **Newt**.
+5. Konfiguriere die Add-on-Optionen.
+6. Starte das Add-on.
 
-> Enable Docker socket access: Disable **Protection Mode** on the add-on’s main page.
+> Aktiviere den Docker-Socket-Zugriff: **Schutzmodus** auf der Hauptseite des Add-ons deaktivieren.
 
-## Add-on Configuration
+## Add-on-Konfiguration
 
-| Option | Type | Description |
+| Option | Typ | Beschreibung |
 |--------|-----|--------------|
-| `endpoint` | `str` | URL of the Pangolin server, e.g., `https://app.pangolin.net` |
-| `id` | `str` | Newt ID from the Pangolin dashboard |
-| `secret` | `str` | Newt secret from the Pangolin dashboard |
-| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (default: `info`) |
+| `endpoint` | `str` | URL des Pangolin-Servers, z. B. `https://app.pangolin.net` |
+| `id` | `str` | Newt-ID aus dem Pangolin-Dashboard |
+| `secret` | `str` | Newt-Secret aus dem Pangolin-Dashboard |
+| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (Standard: `info`) |
 
-## Where can I find `id` and `secret`?
+## Wo finde ich `id` und `secret`?
 
-1. Open the Pangolin dashboard.
-2. Select the desired site or create a new one.
-3. Copy the generated `id` and `secret` from the site credentials.
+1. Öffne das Pangolin-Dashboard.
+2. Wähle die gewünschte Site aus oder lege eine neue an.
+3. Kopiere die generierte `id` und das `secret` aus den Site-Anmeldeinformationen.
 
-## Prerequisites
+## Voraussetzungen
 
-- A running Pangolin server or a managed Pangolin instance
-- A site registered in Pangolin with a Newt ID and secret
+- Ein laufender Pangolin-Server oder eine verwaltete Pangolin-Instanz
+- Eine in Pangolin registrierte Site mit Newt-ID und Secret
 
-## Notes
+## Hinweise
 
-- The add-on uses `host_network` so that the tunnel can be operated directly over the host network.
-- The add-on must be restarted after making changes to the configuration.
+- Das Add-on nutzt `host_network`, damit der Tunnel direkt über das Host-Netzwerk betrieben werden kann.
+- Nach Änderungen an der Konfiguration muss das Add-on neu gestartet werden.
 
-## Additional Documentation
+## Weitere Dokumentation
 
-- See [DOCS.md](DOCS.md) for complete add-on documentation and troubleshooting.
-- See [CHANGELOG.md](CHANGELOG.md) for the upstream release overview.
+- Siehe [DOCS.md](DOCS.md) für vollständige Add-on-Dokumentation und Troubleshooting.
+- Siehe [CHANGELOG.md](CHANGELOG.md) für den upstream Release-Überblick.
 
 ## Links
 
-- [Pangolin Documentation](https://docs.pangolin.net)
+- [Pangolin Dokumentation](https://docs.pangolin.net)
 - [Newt GitHub Repository](https://github.com/fosrl/newt)
 
 [builder-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/hasos_app.yml?logo=buildkite

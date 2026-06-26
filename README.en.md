@@ -1,25 +1,25 @@
-# HassOS Apps Repository – sandmaennchen5
+# HassOS Apps Repository – sandmaennchen5.
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
 [![Docker Lint][docker-lint-badge]][docker-lint-url]
 [![YAML Lint][yaml-lint-badge]][yaml-lint-url]
 
-Home Assistant app repository with fully automated badge and dashboard generation.
+Home  Assistant App-Repository mit vollautomatischer Badge- und Dashboard-Generierung.
 
 ## Installation
 
-[![Add Repository][repoadd-badge]][repoadd]
+[![Repository hinzufügen][repoadd-badge]][repoadd]
 
-### Manually
+### Manuell
 
-1. Open Home Assistant.
-2. **Settings → Add-ons → Add-on Store → ⋮ → Repositories**
-3. Add URL:
+1. Öffne Home Assistant.,
+2. **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**
+3. URL hinzufügen:
    ```
    https://github.com/sandmaennchen5/ha-repo-dev
    ```
-4. Click **Add** and refresh the store.
+4. Klicke auf **Hinzufügen** und aktualisiere den Store.
 
 ## Apps
 
@@ -43,17 +43,17 @@ Secure remote access with Pangolin tunnels.
 
 ## Dashboard
 
-The automatically generated dashboard with badge matrix, health score, and history is available at:
+Das automatisch generierte Dashboard mit Badge-Matrix, Health-Score und History ist verfügbar auf:
 **[GitHub Pages Dashboard](https://sandmaennchen5.github.io/ha-repo-dev/)**
 
-## Support the Development
+## Unterstütze die Entwicklung
 
 [![PayPal][paypal-badge]][paypal-link]
 
 ## Support
 
 - [Home Assistant Community Forum][forum]
-- [Issues in this repository](https://github.com/sandmaennchen5/ha-repo-dev/issues)
+- [Issues in diesem Repository](https://github.com/sandmaennchen5/ha-repo-dev/issues)
 
 ---
 
