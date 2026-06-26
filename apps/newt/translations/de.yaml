@@ -1,6 +1,6 @@
 configuration:
   endpoint:
-    name: "Pangolin Endpunkt"
+    name: "Pangolin Endpunkt test"
     description: "URL des Pangolin-Servers, z. B. https://app.pangolin.net"
   id:
     name: "Newt ID"
