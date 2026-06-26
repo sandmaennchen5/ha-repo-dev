@@ -54,7 +54,7 @@ jobs:
       - name: Prepare selected files
         run: |
           mkdir selected
-          cp -r main/Apps/*/README.md selected/ 2>/dev/null || true
+          cp -r main/apps/newt/README.md selected/ 2>/dev/null || true
 
       # Dateien kopieren (überschreiben)
       - name: Copy selected files
