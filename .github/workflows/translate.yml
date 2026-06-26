@@ -73,7 +73,13 @@ jobs:
       - name: Commit and push
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          git add . || true
+          find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
+            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \) \
+            -exec git add {} \;
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
