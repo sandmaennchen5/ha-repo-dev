@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – sandmaennchen5jj
+# 1HassOS Apps Repository – sandmaennchen
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
