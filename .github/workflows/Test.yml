@@ -19,8 +19,14 @@ jobs:
       # 2. Prüfen, ob Branch existiert – wenn nicht, erstellen
       - name: Create branch if missing
         run: |
-          git ls-remote --exit-code --heads origin i18n-update || \
-          git branch i18n-update main
+          cd main
+          if git ls-remote --exit-code --heads origin i18n-update; then
+            echo "Branch exists"
+          else
+            echo "Branch missing → creating"
+            git checkout -b i18n-update
+            git push origin i18n-update
+          fi
 
       # 3. Ziel-Branch auschecken
       - name: Checkout i18n-update
@@ -34,20 +40,7 @@ jobs:
       - name: Prepare selected files
         run: |
           mkdir selected
-          cp -r main/Apps/*/README.md selected/ || true
-          cp -r main/Apps/Translation selected/ || true
-
-      # 5. Dateien im Branch überschreiben (ohne alles zu löschen)
-      - name: Overwrite selected files
-        run: |
-          cp -r selected/* target/
-
-      # 6. Commit + Push
-      - name: Commit and push
-        run: |
-          cd target
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add -A
-          git commit -m "i18n update: sync selected files" || echo "No changes"
-          git push origin i18n-update
+          # Alle README.md in Apps/*/
+          cp -r main/Apps/*/README.md selected/ 2>/dev/null || true
+          # Übersetzungen
+          cp -r main/Apps/Translation selected
