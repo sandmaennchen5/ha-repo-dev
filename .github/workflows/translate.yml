@@ -119,9 +119,20 @@ jobs:
       - name: Update i18n-cache branch with new cache
         if: steps.check.outputs.has_changes == 'true'
         run: |
+          # Save cache to temp location
+          cp -r .i18n_cache /tmp/i18n_cache_backup
+          
+          # Switch to i18n-cache and reset
+          git reset --hard
           git checkout i18n-cache
-          git checkout i18n-working -- .i18n_cache/
-          if ! git diff --cached --quiet; then
+          git reset --hard origin/i18n-cache
+          
+          # Replace cache with updated version
+          rm -rf .i18n_cache
+          cp -r /tmp/i18n_cache_backup .i18n_cache
+          
+          # Commit if there are changes
+          if ! git diff --quiet; then
             git add .i18n_cache/
             git commit -m "chore(i18n): update cache" || true
             git push origin i18n-cache
@@ -131,6 +142,10 @@ jobs:
         if: steps.check.outputs.has_changes == 'true'
         run: |
           git fetch origin
+          
+          # Clean working directory
+          git reset --hard
+          
           if git fetch origin i18n-update 2>/dev/null; then
             git checkout i18n-update
             git reset --hard origin/main
