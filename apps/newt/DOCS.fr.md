@@ -1,138 +1,138 @@
-### Home Assistant Add-On: Dokumentationh
-## Newt Client für Pangolin-Reverse-Proxy-Tunnel
+### Extension Home Assistant : Documentation
+## Client Newt pour le tunnel de proxy inverse Pangolin
 
-Das [Fossorial-System – mit Pangolin](https://docs.fossorial.io/) als Kernkomponente – ist ein selbst gehosteter, getunnelter Reverse-Proxy mit Identitäts- und Zugriffsmanagement, der entwickelt wurde, um private Ressourcen sicher über verschlüsselte WireGuard-Tunnel im Userspace bereitzustellen. Stellen Sie sich das wie selbst gehostete Cloudflare-Tunnel vor.
+Le [système Fossorial – avec Pangolin](https://docs.fossorial.io/) comme composant central – est un proxy inverse tunnelisé auto-hébergé avec gestion des identités et des accès, conçu pour mettre à disposition des ressources privées en toute sécurité via des tunnels WireGuard chiffrés dans l’espace utilisateur. Imaginez cela comme des tunnels Cloudflare auto-hébergés.
 
-Newt ist der Hauptclient, der eine Verbindung zu Pangolin herstellt und den Zugriff auf Dienste im selben Netzwerk wie Newt ermöglicht. Installieren Sie dies und verbinden Sie sich mit Ihrer Pangolin-Instanz, um den Fernzugriff auf Home Assistant über sichere WireGuard-Tunnel zu ermöglichen
+Newt est le client principal qui se connecte à Pangolin et permet d’accéder aux services situés sur le même réseau que Newt. Installez-le et connectez-vous à votre instance Pangolin pour permettre l’accès à distance à Home Assistant via des tunnels WireGuard sécurisés.
 
 ## Installation
 
-1. Öffne Home Assistant.
-2. Gehe zu **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**.
-3. Füge das Repository hinzu.
-4. Installiere das Add-on **Newt**.
-5. Konfiguriere die Add-on-Optionen.
-6. Starte das Add-on.
+1. Ouvrez Home Assistant.
+2. Allez dans **Paramètres → Extensions → Boutique d’extensions → ⋮ → Référentiels**.
+3. Ajoutez le référentiel.
+4. Installez l’extension **Newt**.
+5. Configurez les options de l’extension.
+6. Lancez l’extension.
 
-Ermöglicht Newt den Zugriff auf den Docker-Socket. **Sie müssen den „Schutzmodus“ auf der Hauptseite des Add-ons deaktivieren.**
+Autorisez Newt à accéder au socket Docker. **Vous devez désactiver le « mode de protection » sur la page principale de l’extension.**
 
-## Home Assitant als Resource..
+## Home Assistant en tant que ressource...
 
-1. Rufen Sie Ihr Pangolin-Dashboard auf und fügen Sie eine neue Ressource namens `Home Assistant` hinzu. Wählen Sie die richtige Site aus, die sich auf die Home Assistant Newt-Instanz bezieht, die Sie in den Voraussetzungen definiert haben, und geben Sie Ihrer Ressource eine Subdomain.
-2. Stelle sicher, dass die Option „SSL aktivieren“ aktiviert ist, damit du ein automatisch generiertes SSL-Zertifikat zur Verschlüsselung der Browserverbindungen erhältst.
-3. Fügen Sie im Bereich „Zielkonfiguration“ ein Ziel mit der Methode `HTTP`, der Domain `homeassistant.local.hass.io` und dem Port `8123` hinzu. Klicken Sie auf „Ziel hinzufügen“ und speichern Sie die Einstellungen.
-5. Besuche die [Home Assistant-Dokumentation](https://www.home-assistant.io/integrations/http) und befolge die Anweisungen, um einen `trusted_proxy` zu deiner `configuration.yaml`-Datei hinzuzufügen. Dieser lautet wahrscheinlich `172.30.33.0/24`. Stellen Sie sicher, dass Sie auch `use_x_forwarded_for: true` setzen, damit die IP-Adresse des Clients in Ihren Protokollen erscheint und nicht die IP-Adresse des Reverse-Proxys. Starten Sie Home Assistant neu.
-7. (Optional) Wenn Sie eine Ressource wünschen, die auf ein Home Assistant-Add-on verweist, verwenden Sie im Abschnitt „domain“ oder im Bereich „Target configuration“ den Slug des Add-ons. Sie finden diesen auf der Add-on-Konfigurationsseite in Home Assistant. In diesem Beispiel lautet der Slug „a0d7b954_tailscale“. Wenn ein `_` vorhanden ist, wie in diesem Beispiel, muss es durch ein `-` ersetzt werden. Die korrekte Domain für dieses Beispiel wäre also `a0d7b954-tailscale`. Ihr Port hängt vom Add-on ab; Sie müssen die Dokumentation oder Konfiguration des Add-ons zu Rate ziehen.
+1. Accédez à votre tableau de bord Pangolin et ajoutez une nouvelle ressource nommée `Home Assistant`. Sélectionnez le site correspondant à l’instance Home Assistant Newt que vous avez définie dans les prérequis, puis attribuez un sous-domaine à votre ressource.
+2. Assurez-vous que l’option « Activer SSL » est cochée afin d’obtenir un certificat SSL généré automatiquement pour le chiffrement des connexions du navigateur.
+3. Dans la section « Configuration de la cible », ajoutez une cible avec la méthode `HTTP`, le domaine `homeassistant.local.hass.io` et le port `8123`. Cliquez sur « Ajouter une cible » et enregistrez les paramètres.
+5. Rendez-vous sur la [documentation de Home Assistant](https://www.home-assistant.io/integrations/http) et suivez les instructions pour ajouter un `trusted_proxy` à votre fichier `configuration.yaml`. Celui-ci est probablement `172.30.33.0/24`. Assurez-vous également de définir `use_x_forwarded_for: true` afin que l’adresse IP du client apparaisse dans vos journaux, et non celle du proxy inverse. Redémarrez Home Assistant.
+7. (Facultatif) Si vous souhaitez créer une ressource faisant référence à un add-on Home Assistant, utilisez le slug de l’add-on dans la section « domain » ou dans la zone « Target configuration ». Vous le trouverez sur la page de configuration de l’add-on dans Home Assistant. Dans cet exemple, le slug est « a0d7b954_tailscale ». Si un caractère `_` est présent, comme dans cet exemple, il doit être remplacé par un `-`. Le domaine correct pour cet exemple serait donc `a0d7b954-tailscale`. Votre port dépend de l’add-on ; vous devez consulter la documentation ou la configuration de l’add-on.
 
-## Konfiguration
+## Configuration
 
-| Option | Pflichtfeld | Beschreibung |
+| Option | Champ obligatoire | Description |
 |---|---|---|
-| `endpoint` | ✅ | URL deines Pangolin-Servers, z. B. `https://app.pangolin.net` |
-| `id` | ✅ | Newt-ID aus dem Pangolin-Dashboard |
-| `secret` | ✅ | Newt-Secret aus dem Pangolin-Dashboard |
-| `log_level` | ❌ | Log-Level: `trace`, `debug`, `info`, `warn`, `error` (Standard: `info`) |
-| `docker_socket` | ❌ | Docker-Socket-Pfad für Label-Scraping, z. B. `/var/run/docker.sock` – siehe [Dokumentation](https://docs.pangolin.net/manage/sites/configure-site#docker-socket-integration) |
-| `docker_enforce_network_validation` | ❌ | Docker-Netzwerk-Validierung erzwingen (Standard: `false`) |
-| `dns` | ❌ | DNS-Server zur Auflösung des Endpunkts. (Standard: `9.9.9.9`) |
-| `disable_clients` | ❌ | Deaktiviere Clients auf der WireGuard-Schnittstelle. (Standard: `false`) |
-| `disable_ssh` | ❌ | Deaktivieren Sie SSH-Authentifizierungsdämonen und den nativen SSH-Modus (Standard: `false`) |
-| `no_cloud` | ❌ | Man kann nicht in die Cloud übergehen, wenn man verwaltete Knoten in Pangolin Cloud verwendet (Standard: `false`) |
-| `ping_interval` | ❌ | Intervall zum Pingen des Servers (Standard: `15s`) |
-| `ping_timeout` | ❌ | Timeout für jeden Ping (Standard: `7s`) |
-| `tls_client_cert_file` | ❌ | Pfad zur Client-Zertifikatsdatei (PEM/DER-Format) für mTLS |
-| `tls_client_key` | ❌ | Pfad zur Client-Privatschlüsseldatei (PEM/DER-Format) für mTLS |
-| `tls_client_ca` | ❌ | Pfad zur CA-Zertifikatsdatei zur Validierung von entfernten Zertifikaten (kann mehrfach angegeben werden) |
-| `udp_proxy_idle_timeout string` | ❌ | Idle-Timeout für UDP-Proxy-Client-Flows vor der Bereinigung (entspricht ). (Standard: `90s`) |
-| `interface` | ❌ | Name der WireGuard-Schnittstelle (Standard: `newt`) |
-| `mtu` | ❌ | MTU für die interne WireGuard-Schnittstelle. (Standard: `1280`) |
-| `native` | ❌ | Use native WireGuard interface (Standard: `false`) |
-| `metrics` | ❌ | Prometheus /metrics exporter aktivieren (Standard: `false`) |
-| `metrics_admin_addr` | ❌ | Admin/Metriken binden eine Adresse (Standard: `127.0.0.1:2112`) |
-| `metrics_async_bytes` | ❌ | Aktivieren Sie asynchrone Byte-Zählung (Hintergrundspülung; niedrigere Hot-Path-Overhead, entsprechend ) (Standard: `false`) |
-| `health_file` | ❌ | Pfad zur Gesundheitsdatei zur Verbindungsüberwachung |
-| `prefer_endpoint` | ❌ | Prefer this endpoint for the connection (if set, will override the endpoint from the server) |
-| `region` | ❌ | Optionales Region-Ressourcenattribut für Telemetrie und Metriken |
-| `name` | ❌ | Site-Name bei der Bereitstellung mit einem Provisionierungsschlüssel |
-| `blueprint_file` | ❌ | Pfad zur Blueprint-Datei zur Definition von Pangolin-Ressourcen und -Konfigurationen |
-| `provisioning_blueprint_file` | ❌ | Pfad zu einer nur für Bootstrap verwendeten Blueprint-Datei |
-| `config_file` | ❌ | Pfad zur JSON-Konfigurationsdatei, in der Newt Einstellungen lädt und gespeichert wird |
-| `ad_ca_cert_path` | ❌ | Pfad zur CA-Zertifikatsdatei für Auth Daemon (Standard: `/etc/ssh/ca.pem`) |
-| `ad_generate_random_password` | ❌ | Generiere ein zufälliges Passwort für authentifizierte Nutzer (Standard: `false`) |
-| `ad_pre_shared_key` | ❌ | Vor-geteilter Schlüssel zur Auth-Daemon-Authentifizierung. |
-| `ad_principals_file` | ❌ | Pfad zur Principals-Datei für Auth Daemon (Standard: `/var/run/auth-daemon/principals`) |
-| `enforce_hc_cert` | ❌ | Zertifikatsvalidierung für Gesundheitsprüfungen erzwingen (Standard: `false`) |
-| `port` | ❌ | Port für die Peers, um sich mit Newt zu verbinden |
-| `pprof` | ❌ | Aktiviere pprof-Debug-Endpunkte auf dem Admin-Server (Standard: `false`) |
-| `otlp` | ❌ | Aktivieren Sie OTLP-Exporteure (Metriken/Traces) (Standard: `false`) |
-| `updown` | ❌ | Pfad zum Updown-Skript für Ziel-Hinzufügen/Entfernen-Ereignisse (Standard: `false`) |
+| `endpoint` | ✅ | URL de votre serveur Pangolin, par exemple `https://app.pangolin.net` |
+| `id` | ✅ | ID Newt issu du tableau de bord Pangolin |
+| `secret` | ✅ | Clé secrète Newt issue du tableau de bord Pangolin |
+| `log_level` | ❌ | Niveau de journalisation : `trace`, `debug`, `info`, `warn`, `error` (par défaut : `info`) |
+| `docker_socket` | ❌ | Chemin d'accès au socket Docker pour l'extraction des étiquettes, par exemple `/var/run/docker.sock` – voir [la documentation](https://docs.pangolin.net/manage/sites/configure-site#docker-socket-integration) |
+| `docker_enforce_network_validation` | ❌ | Forcer la validation du réseau Docker (par défaut : `false`) |
+| `dns` | ❌ | Serveur DNS pour la résolution du point de terminaison. (Par défaut : `9.9.9.9`) |
+| `disable_clients` | ❌ | Désactiver les clients sur l'interface WireGuard. (Par défaut : `false`) |
+| `disable_ssh` | ❌ | Désactiver les démons d'authentification SSH et le mode SSH natif (par défaut : `false`) |
+| `no_cloud` | ❌ | Impossible de basculer vers le cloud si vous utilisez des nœuds gérés dans Pangolin Cloud (par défaut : `false`) |
+| `ping_interval` | ❌ | Intervalle entre les pings envoyés au serveur (par défaut : `15s`) |
+| `ping_timeout` | ❌ | Délai d'expiration pour chaque ping (par défaut : `7s`) |
+| `tls_client_cert_file` | ❌ | Chemin d'accès au fichier de certificat client (format PEM/DER) pour mTLS |
+| `tls_client_key` | ❌ | Chemin d'accès au fichier de clé privée du client (format PEM/DER) pour mTLS |
+| `tls_client_ca` | ❌ | Chemin d'accès au fichier de certificat CA pour la validation des certificats distants (peut être spécifié plusieurs fois) |
+| `udp_proxy_idle_timeout string` | ❌ | Délai d'inactivité pour les flux client du proxy UDP avant le nettoyage (correspond à ). (Par défaut : `90s`) |
+| `interface` | ❌ | Nom de l'interface WireGuard (par défaut : `newt`) |
+| `mtu` | ❌ | MTU pour l'interface WireGuard interne. (Par défaut : `1280`) |
+| `native` | ❌ | Utiliser l'interface WireGuard native (par défaut : `false`) |
+| `metrics` | ❌ | Activer l'exportateur Prometheus /metrics (par défaut : `false`) |
+| `metrics_admin_addr` | ❌ | Lier l'adresse de l'administrateur aux métriques (par défaut : `127.0.0.1:2112`) |
+| `metrics_async_bytes` | ❌ | Activer le comptage asynchrone des octets (vider en arrière-plan ; réduction de la surcharge sur le chemin actif, en conséquence) (par défaut : `false`) |
+| `health_file` | ❌ | Chemin d'accès au fichier d'intégrité pour la surveillance de la connexion |
+| `prefer_endpoint` | ❌ | Privilégier ce point de terminaison pour la connexion (si défini, il remplacera le point de terminaison fourni par le serveur) |
+| `region` | ❌ | Attribut facultatif de ressource de région pour la télémétrie et les métriques |
+| `name` | ❌ | Nom du site lors du provisionnement à l'aide d'une clé de provisionnement |
+| `blueprint_file` | ❌ | Chemin d'accès au fichier de blueprint définissant les ressources et les configurations Pangolin |
+| `provisioning_blueprint_file` | ❌ | Chemin d'accès à un fichier de blueprint utilisé uniquement pour le bootstrap |
+| `config_file` | ❌ | Chemin d'accès au fichier de configuration JSON dans lequel Newt charge et enregistre les paramètres |
+| `ad_ca_cert_path` | ❌ | Chemin d'accès au fichier de certificat CA pour le démon d'authentification (par défaut : `/etc/ssh/ca.pem`) |
+| `ad_generate_random_password` | ❌ | Générer un mot de passe aléatoire pour les utilisateurs authentifiés (par défaut : `false`) |
+| `ad_pre_shared_key` | ❌ | Clé pré-partagée pour l'authentification par le démon d'authentification. |
+| `ad_principals_file` | ❌ | Chemin d'accès au fichier des entités pour le démon d'authentification (par défaut : `/var/run/auth-daemon/principals`) |
+| `enforce_hc_cert` | ❌ | Forcer la validation du certificat pour les contrôles d'intégrité (par défaut : `false`) |
+| `port` | ❌ | Port permettant aux pairs de se connecter à Newt |
+| `pprof` | ❌ | Activer les points de terminaison de débogage pprof sur le serveur d’administration (par défaut : `false`) |
+| `otlp` | ❌ | Activer les exportateurs OTLP (métriques/traces) (par défaut : `false`) |
+| `updown` | ❌ | Chemin d'accès au script Updown pour les événements d'ajout/suppression de cibles (par défaut : `false`) |
 
 
-### Beispielkonfiguration
+### Exemple de configuration
 
 ```yaml
 endpoint: "https://app.pangolin.net"
-id: "meine-newt-id"
-secret: "mein-newt-secret"
+id: "mon-newt-id"
+secret: "mon-newt-secret"
 log_level: "info"
 ```
 
-Hinweis zur Optionen-Verarbeitung
+Remarque sur le traitement des options
 
-- String-Optionen werden als `--flag value` an `newt` übergeben.
-- Boolean-Optionen werden als Flag (`--flag`) gesetzt, wenn sie `true` sind.
+- Les options de type chaîne de caractères sont transmises à `newt` sous la forme `--flag value`.
+- Les options booléennes sont définies comme indicateur (`--flag`) lorsqu’elles sont à `true`.
 
-TLS CA(s)
+Autorités de certification TLS
 
-`tls_client_ca` kann entweder als einzelne Zeichenkette oder als YAML-Liste angegeben werden. Beispiele:
+`tls_client_ca` peut être spécifié soit sous la forme d’une chaîne de caractères unique, soit sous la forme d’une liste YAML. Exemples :
 
 ```yaml
-# einzelne Datei
+# fichier unique
 tls_client_ca: "/etc/ssl/ca.pem"
 
-# mehrere Dateien
+# plusieurs fichiers
 tls_client_ca:
-	- "/etc/ssl/ca.pem"
-	- "/etc/ssl/extra-ca.pem"
+  - "/etc/ssl/ca.pem"
+  - "/etc/ssl/extra-ca.pem"
 ```
 
-Die Einträge werden als je ein `--tls-client-ca` Flag an `newt` übergeben.
+Les entrées sont transmises à `newt` sous la forme d’un drapeau `--tls-client-ca` pour chacune d’entre elles.
 
-## Voraussetzungen
+## Prérequis
 
-- Ein laufender [Pangolin](https://github.com/fosrl/pangolin)-Server
-- Eine in Pangolin registrierte Site mit Newt-ID und Secret
-- Host-Netzwerkzugriff und WireGuard-Berechtigungen auf dem Home Assistant Host
+- Un serveur [Pangolin](https://github.com/fosrl/pangolin) en cours d’exécution
+- Un site enregistré dans Pangolin avec un Newt-ID et un secret
+- Accès au réseau de l'hôte et autorisations WireGuard sur l'hôte Home Assistant
 
-## So findest du `newt_id` und `newt_secret`
+## Comment trouver `newt_id` et `newt_secret`
 
-1. Öffne das Pangolin-Dashboard.
-2. Wähle die gewünschte Site aus oder erstelle eine neue.
-3. Kopiere die generierte `newt_id` und das `newt_secret` aus den Site-Zugangsdaten.
-4. Verwende dasselbe `pangolin_endpoint`, das in deiner Pangolin-Installation konfiguriert ist.
+1. Ouvrez le tableau de bord Pangolin.
+2. Sélectionnez le site souhaité ou créez-en un nouveau.
+3. Copiez le `newt_id` et le `newt_secret` générés à partir des informations d'accès au site.
+4. Utilisez le même `pangolin_endpoint` que celui configuré dans votre installation Pangolin.
 
-## Hinweise
+## Remarques
 
-- Das Add-on nutzt `host_network`, damit der Tunnel direkt über das Host-Netzwerk betrieben werden kann.
-- Es benötigt die Berechtigungen `NET_ADMIN` und `SYS_MODULE`.
-- Nach Änderungen an der Konfiguration muss das Add-on neu gestartet werden.
-- `newt_id` und `newt_secret` müssen zur selben Pangolin-Site gehören.
-- Teile `newt_secret` nicht mit unbefugten Personen.
+- L'extension utilise `host_network` afin que le tunnel puisse fonctionner directement via le réseau hôte.
+- Elle nécessite les autorisations `NET_ADMIN` et `SYS_MODULE`.
+- Après toute modification de la configuration, l'extension doit être redémarrée.
+- `newt_id` et `newt_secret` doivent appartenir au même site Pangolin.
+- Ne communiquez pas `newt_secret` à des personnes non autorisées.
 
-## Wie es funktioniert
+## Fonctionnement
 
-Newt verbindet sich per WebSocket mit dem Pangolin-Server und erstellt einen WireGuard-Tunnel im User Space. Alle proxied TCP/UDP-Verbindungen werden an lokale Dienste weitergeleitet, ohne dass Kernel-WireGuard oder komplexe NAT-Routing-Regeln benötigt werden.
+Newt se connecte au serveur Pangolin via WebSocket et crée un tunnel WireGuard dans l’espace utilisateur. Toutes les connexions TCP/UDP proxyées sont redirigées vers des services locaux, sans nécessiter de WireGuard au niveau du noyau ni de règles de routage NAT complexes.
 
-## Troubleshooting
+## Dépannage
 
-- Prüfe die Add-on-Logs, wenn der Start fehlschlägt.
-- Stelle sicher, dass `pangolin_endpoint` erreichbar ist und ein gültiges TLS-Zertifikat verwendet.
-- Vergewissere dich, dass `newt_id` und `newt_secret` korrekt aus derselben Pangolin-Site stammen.
-- Setze `log_level` auf `debug`, um detailliertere Informationen zu erhalten.
-- Wenn du die Konfiguration änderst, stoppe das Add-on komplett und starte es neu.
+- Vérifiez les journaux de l’extension si le démarrage échoue.
+- Assurez-vous que `pangolin_endpoint` est accessible et utilise un certificat TLS valide.
+- Assurez-vous que `newt_id` et `newt_secret` proviennent bien du même site Pangolin.
+- Définissez `log_level` sur `debug` pour obtenir des informations plus détaillées.
+- Si vous modifiez la configuration, arrêtez complètement l'extension et redémarrez-la.
 
-## Weitere Informationen
+## Informations complémentaires
 
-- [Pangolin Site-Konfiguration](https://docs.pangolin.net/manage/sites/configure-site)
-- [Newt GitHub Repository](https://github.com/fosrl/newt)
-- [Newt Release 1.13.0](https://github.com/fosrl/newt/releases/tag/1.13.0)
+- [Configuration du site Pangolin](https://docs.pangolin.net/manage/sites/configure-site)
+- [Dépôt GitHub de Newt](https://github.com/fosrl/newt)
+- [Version 1.13.0 de Newt](https://github.com/fosrl/newt/releases/tag/1.13.0)

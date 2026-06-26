@@ -1,5 +1,5 @@
-### Home Assistant Add-On:g
-## Newt Client für Pangolin-Reverse-Proxy-Tunnel
+### Extension Home Assistant :
+## Newt Client pour les tunnels de proxy inverse Pangolin
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
@@ -8,79 +8,79 @@
 
 <!-- BADGES-START -->
 ![Version](https://img.shields.io/badge/version-v1.13.0-blue)
-![Updated](https://img.shields.io/badge/updated-2026--06--26-green)
+![Mise à jour](https://img.shields.io/badge/updated-2026--06--26-green)
 ![Stage](https://img.shields.io/badge/stage-stable-orange)
-![Privileged](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
+![Privilégié](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
 ![Arch](https://img.shields.io/badge/arch-aarch64%2C%20amd64-green)
-![Host Network](https://img.shields.io/badge/host_network-True-blue)
-![Docker API](https://img.shields.io/badge/docker_api-True-blue)
-![Kernel Modules](https://img.shields.io/badge/kernel_modules-True-blue)
+![Réseau hôte](https://img.shields.io/badge/host_network-True-blue)
+![API Docker](https://img.shields.io/badge/docker_api-True-blue)
+![Modules du noyau](https://img.shields.io/badge/kernel_modules-True-blue)
 ![Upstream](https://img.shields.io/badge/upstream-v1.13.0-yellow)
 ![Repo](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
 <!-- BADGES-END -->
 
-Newt ist ein Home Assistant Add-on für den Pangolin WireGuard-Tunnel-Client und TCP/UDP-Proxy. Es verbindet deinen Home Assistant Host sicher mit einem Pangolin-Server und ermöglicht Zugriff auf private Dienste über einen User-Space WireGuard-Tunnel.
+Newt est un add-on Home Assistant pour le client de tunnel WireGuard Pangolin et le proxy TCP/UDP. Il connecte votre hôte Home Assistant de manière sécurisée à un serveur Pangolin et permet d’accéder à des services privés via un tunnel WireGuard en espace utilisateur.
 
-## Übersicht
+## Présentation
 
-- Add-on für den Pangolin Newt-Client
-- Nutzt `host_network` für direkten Host-Netzwerkzugriff
-- Erfordert zusätzliche Berechtigungen: `NET_ADMIN`, `SYS_MODULE`
-- Unterstützte Architekturen: `aarch64`, `amd64`
+- Extension pour le client Pangolin Newt
+- Utilise `host_network` pour un accès direct au réseau de l’hôte
+- Nécessite des autorisations supplémentaires : `NET_ADMIN`, `SYS_MODULE`
+- Architectures prises en charge : `aarch64`, `amd64`
 
 ## Installation
 
-[![Open your Home Assistant instance and show the add app repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
+[![Ouvrez votre instance Home Assistant et affichez la boîte de dialogue d'ajout d'un référentiel d'applications avec une URL de référentiel spécifique préremplie.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fsandmaennchen5%2Fha-repo-dev)
 
-1. Öffne Home Assistant.
-2. Gehe zu **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**.
-3. Füge das Repository hinzu: `https://github.com/sandmaennchen5/ha-repo-dev`
-4. Installiere das Add-on **Newt**.
-5. Konfiguriere die Add-on-Optionen.
-6. Starte das Add-on.
+1. Ouvre Home Assistant.
+2. Rends-toi dans **Paramètres → Extensions → Boutique d’extensions → ⋮ → Référentiels**.
+3. Ajoute le référentiel : `https://github.com/sandmaennchen5/ha-repo-dev`
+4. Installe l’extension **Newt**.
+5. Configure les options de l’extension.
+6. Lancez l’add-on.
 
-> Aktiviere den Docker-Socket-Zugriff: **Schutzmodus** auf der Hauptseite des Add-ons deaktivieren.
+> Activez l’accès au socket Docker : désactivez le **mode de protection** sur la page principale de l’add-on.
 
-## Add-on-Konfiguration
+## Configuration de l’add-on
 
-| Option | Typ | Beschreibung |
+| Option | Type | Description |
 |--------|-----|--------------|
-| `endpoint` | `str` | URL des Pangolin-Servers, z. B. `https://app.pangolin.net` |
-| `id` | `str` | Newt-ID aus dem Pangolin-Dashboard |
-| `secret` | `str` | Newt-Secret aus dem Pangolin-Dashboard |
-| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (Standard: `info`) |
+| `endpoint` | `str` | URL du serveur Pangolin, par exemple `https://app.pangolin.net` |
+| `id` | `str` | ID Newt issu du tableau de bord Pangolin |
+| `secret` | `str` | Clé secrète Newt issue du tableau de bord Pangolin |
+| `extras.log_level` | `str` | `trace`, `debug`, `info`, `warn`, `error` (par défaut : `info`) |
 
-## Wo finde ich `id` und `secret`?
+## Où trouver `id` et `secret` ?
 
-1. Öffne das Pangolin-Dashboard.
-2. Wähle die gewünschte Site aus oder lege eine neue an.
-3. Kopiere die generierte `id` und das `secret` aus den Site-Anmeldeinformationen.
+1. Ouvrez le tableau de bord Pangolin.
+2. Sélectionnez le site souhaité ou créez-en un nouveau.
+3. Copiez l’`id` et le `secret` générés à partir des informations d’identification du site.
 
-## Voraussetzungen
+## Prérequis
 
-- Ein laufender Pangolin-Server oder eine verwaltete Pangolin-Instanz
-- Eine in Pangolin registrierte Site mit Newt-ID und Secret
+- Un serveur Pangolin en cours d’exécution ou une instance Pangolin gérée
+- Un site enregistré dans Pangolin avec un Newt-ID et un secret
 
-## Hinweise
+## Remarques
 
-- Das Add-on nutzt `host_network`, damit der Tunnel direkt über das Host-Netzwerk betrieben werden kann.
-- Nach Änderungen an der Konfiguration muss das Add-on neu gestartet werden.
+- L’extension utilise `host_network` afin que le tunnel puisse fonctionner directement via le réseau hôte.
+- Après toute modification de la configuration, l’extension doit être redémarrée.
 
-## Weitere Dokumentation
+## Documentation complémentaire
 
-- Siehe [DOCS.md](DOCS.md) für vollständige Add-on-Dokumentation und Troubleshooting.
-- Siehe [CHANGELOG.md](CHANGELOG.md) für den upstream Release-Überblick.
+- Consultez [DOCS.md](DOCS.md) pour la documentation complète de l’extension et le dépannage.
+- Consultez [CHANGELOG.md](CHANGELOG.md) pour l’aperçu des versions en amont.
 
-## Links
+## Liens
 
-- [Pangolin Dokumentation](https://docs.pangolin.net)
-- [Newt GitHub Repository](https://github.com/fosrl/newt)
+- [Documentation Pangolin](https://docs.pangolin.net)
+- [Dépôt GitHub de Newt](https://github.com/fosrl/newt)
 
-[builder-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/hasos_app.yml?logo=buildkite
-[builder-url]: https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/hasos_app.yml
-[lint-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/yaml-lint.yaml?logo=lintcode&label=Lint
-[lint-url]: https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/yaml-lint.yaml
-[docker-lint-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/docker-lint.yaml?logo=Docker&label=DockerLint
-[docker-lint-url]: https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/docker-lint.yaml
-[yaml-lint-badge]: https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/yaml-lint.yaml?logo=yaml&label=YamlLint
-[yaml-lint-url]: https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/yaml-lint.yaml
+[builder-badge] : https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/hasos_app.yml?logo=buildkite
+[builder-url] : https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/hasos_app.yml
+[lint-badge] : https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/yaml-lint.yaml?logo=lintcode&label=Lint
+[lint-url] : https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/yaml-lint.yaml
+[docker-lint-badge] : https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/docker-lint.yaml?logo=Docker&label=DockerLint
+[docker-lint-url] : https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/docker-lint.yaml
+[yaml-lint-badge] : https://img.shields.io/github/actions/workflow/status/sandmaennchen5/ha-repo-dev/yaml-lint.yaml?logo=yaml&label=YamlLint
+[yaml-lint-url] : https://github.com/sandmaennchen5/ha-repo-dev/actions/workflows/yaml-lint.yaml

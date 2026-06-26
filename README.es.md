@@ -1,59 +1,59 @@
-# HassOS Apps Repository – sandmaennchen5.
+# Repositorio de aplicaciones de HassOS – sandmaennchen5
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
 [![Docker Lint][docker-lint-badge]][docker-lint-url]
 [![YAML Lint][yaml-lint-badge]][yaml-lint-url]
 
-Home  Assistant App-Repository mit vollautomatischer Badge- und Dashboard-Generierung.
+Repositorio de aplicaciones de Home Assistant con generación totalmente automática de insignias y paneles de control.
 
-## Installation
+## Instalación
 
-[![Repository hinzufügen][repoadd-badge]][repoadd]
+[![Añadir repositorio][repoadd-badge]][repoadd]
 
-### Manuell
+### Manualmente
 
-1. Öffne Home Assistant.,
-2. **Einstellungen → Add-ons → Add-on Store → ⋮ → Repositories**
-3. URL hinzufügen:
+1. Abre Home Assistant.
+2. **Configuración → Complementos → Tienda de complementos → ⋮ → Repositorios**
+3. Añade la URL:
    ```
    https://github.com/sandmaennchen5/ha-repo-dev
    ```
-4. Klicke auf **Hinzufügen** und aktualisiere den Store.
+4. Haz clic en **Añadir** y actualiza la tienda.
 
-## Apps
+## Aplicaciones
 
 <!-- APPS-LIST-START -->
 ## [🛰️ Newt - Pangolin Tunnels](apps/newt/)
 
-Secure remote access with Pangolin tunnels.
+Acceso remoto seguro con los túneles de Pangolin.
 
-![Version](https://img.shields.io/badge/version-v1.13.0-blue)
-![Updated](https://img.shields.io/badge/updated-2026--06--26-green)
-![Stage](https://img.shields.io/badge/stage-stable-orange)
-![Privileged](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
+![Versión](https://img.shields.io/badge/version-v1.13.0-blue)
+![Actualizado](https://img.shields.io/badge/updated-2026--06--26-green)
+![Etapa](https://img.shields.io/badge/stage-stable-orange)
+![Privilegiado](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)
 ![Arch](https://img.shields.io/badge/arch-aarch64%2C%20amd64-green)
-![Host Network](https://img.shields.io/badge/host_network-True-blue)
-![Docker API](https://img.shields.io/badge/docker_api-True-blue)
-![Kernel Modules](https://img.shields.io/badge/kernel_modules-True-blue)
+![Red del host](https://img.shields.io/badge/host_network-True-blue)
+![API de Docker](https://img.shields.io/badge/docker_api-True-blue)
+![Módulos del kernel](https://img.shields.io/badge/kernel_modules-True-blue)
 ![Upstream](https://img.shields.io/badge/upstream-v1.13.0-yellow)
-![Repo](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
+![Repositorio](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)
 
 <!-- APPS-LIST-END -->
 
-## Dashboard
+## Panel de control
 
-Das automatisch generierte Dashboard mit Badge-Matrix, Health-Score und History ist verfügbar auf:
-**[GitHub Pages Dashboard](https://sandmaennchen5.github.io/ha-repo-dev/)**
+El panel de control generado automáticamente, con la matriz de insignias, la puntuación de estado y el historial, está disponible en:
+**[Panel de control de GitHub Pages](https://sandmaennchen5.github.io/ha-repo-dev/)**
 
-## Unterstütze die Entwicklung
+## Apoya el desarrollo
 
 [![PayPal][paypal-badge]][paypal-link]
 
-## Support
+## Asistencia
 
-- [Home Assistant Community Forum][forum]
-- [Issues in diesem Repository](https://github.com/sandmaennchen5/ha-repo-dev/issues)
+- [Foro de la comunidad de Home Assistant][forum]
+- [Incidencias en este repositorio](https://github.com/sandmaennchen5/ha-repo-dev/issues)
 
 ---
 
