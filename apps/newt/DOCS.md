@@ -1,4 +1,4 @@
-### Home Assistant Add-On: Dokumentationh
+### Home Assistant Add-On: Dokumentation
 ## Newt Client für Pangolin-Reverse-Proxy-Tunnel
 
 Das [Fossorial-System – mit Pangolin](https://docs.fossorial.io/) als Kernkomponente – ist ein selbst gehosteter, getunnelter Reverse-Proxy mit Identitäts- und Zugriffsmanagement, der entwickelt wurde, um private Ressourcen sicher über verschlüsselte WireGuard-Tunnel im Userspace bereitzustellen. Stellen Sie sich das wie selbst gehostete Cloudflare-Tunnel vor.
