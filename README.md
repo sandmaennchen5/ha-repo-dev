@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – 
+# 1HassOS Apps Repository – sandma
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
