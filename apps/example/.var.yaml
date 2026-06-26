@@ -1,0 +1,20 @@
+hidden: false
+icon: "📦"
+stage: "lab"
+hide_root_readme: true
+
+upstream_version: ""
+upstream_repo: ""
+upstream_commit: ""
+
+build: ""
+lint: ""
+yaml_lint: ""
+code_quality: ""
+
+image_size: ""
+custom_shield: ""
+custom_flag: ""
+
+updated: "2026-06-26"
+source: ""

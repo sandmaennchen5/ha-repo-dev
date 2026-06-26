@@ -1,0 +1,5 @@
+.dashboard/
+.history/
+.translation_cache.json
+__pycache__/
+*.pyc

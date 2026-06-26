@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block titlebar %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Apps
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.apps }}
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Badges
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.badges }}
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Health
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.health_score }}%
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            History
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.snapshots }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h2>
+
+            Apps
+
+        </h2>
+
+        <input
+            id="search"
+            placeholder="Suchen">
+
+    </div>
+
+    <table id="appsTable">
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                App
+
+            </th>
+
+            <th>
+
+                Version
+
+            </th>
+
+            <th>
+
+                Score
+
+            </th>
+
+            <th>
+
+                Badges
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for app in apps %}
+
+        <tr>
+
+            <td>
+
+                <a href="{{ base_url }}/apps/{{ app.slug }}/">
+
+                    {{ app.name }}
+
+                </a>
+
+            </td>
+
+            <td>
+
+                {{ app.version }}
+
+            </td>
+
+            <td>
+
+                {{ app.score }}%
+
+            </td>
+
+            <td>
+
+                {{ app.badges|length }}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Top Apps
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                App
+
+            </th>
+
+            <th>
+
+                Score
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for app in apps|sort(attribute='score', reverse=True) %}
+
+        {% if loop.index <= 10 %}
+
+        <tr>
+
+            <td>
+
+                <a href="{{ base_url }}/apps/{{ app.slug }}/">
+
+                    {{ app.name }}
+
+                </a>
+
+            </td>
+
+            <td>
+
+                {{ app.score }}%
+
+            </td>
+
+        </tr>
+
+        {% endif %}
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        {% block title %}
+        Dashboard
+        {% endblock %}
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ base_url }}/{{ asset_path }}/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+{% if theme.rounded %}
+rounded
+{% endif %}
+
+{% if theme.compact_tables %}
+compact-tables
+{% endif %}
+
+{% if not theme.cards %}
+no-cards
+{% endif %}
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                {{ site.title }}
+
+            </h1>
+
+            <div class="subtitle">
+
+                {{ site.subtitle }}
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        {% if config.navigation
+              and config.navigation.enabled %}
+
+            {% for item in config.navigation["items"] %}
+
+            <a href="{{ base_url }}{{ item.url }}">
+
+                {% if theme.show_icons and item.icon %}
+                {{ item.icon }}
+                {% endif %}
+
+                {{ item.title }}
+
+            </a>
+
+            {% endfor %}
+
+        {% endif %}
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                {% block titlebar %}
+                Dashboard
+                {% endblock %}
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            {% block content %}
+            {% endblock %}
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "{{ base_url }}";
+
+</script>
+
+<script src="{{ base_url }}/{{ asset_path }}/dashboard.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/charts.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/matrix.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/lab.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/theme.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/favorites.js"></script>
+
+<script src="{{ base_url }}/{{ asset_path }}/settings.js"></script>
+
+</body>
+
+</html>

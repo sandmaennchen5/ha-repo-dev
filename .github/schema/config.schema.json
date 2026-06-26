@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "version": {},
+    "slug": { "type": "string" },
+    "url": { "type": "string" },
+    "arch": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "image": { "type": "string" },
+    "init": { "type": "boolean" },
+    "host_network": { "type": "boolean" },
+    "docker_api": { "type": "boolean" },
+    "kernel_modules": { "type": "boolean" },
+    "ingress": { "type": "boolean" },
+    "panel_icon": { "type": "string" },
+    "panel_title": { "type": "string" },
+    "watchdog": {},
+    "auto_update": { "type": "boolean" },
+    "hassio_api": { "type": "boolean" },
+    "hassio_role": { "type": "string" },
+    "homeassistant_api": { "type": "boolean" },
+    "privileged": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "apparmor": { "type": "boolean" },
+    "startup": { "type": "string" },
+    "boot": { "type": "string" },
+    "map": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "ports": { "type": "object" },
+    "options": { "type": "object" },
+    "schema": { "type": "object" }
+  },
+  "required": ["name"]
+}

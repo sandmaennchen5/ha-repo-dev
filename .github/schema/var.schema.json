@@ -1,0 +1,67 @@
+{
+  "type": "object",
+  "properties": {
+    "hidden": { "type": "boolean" },
+    "icon": { "type": "string" },
+    "stage": { "type": "string", "enum": ["stable", "beta", "lab", ""] },
+    "hide_root_readme": { "type": "boolean" },
+    "hide_app_readme": { "type": "boolean" },
+    "hide_badges": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "hide_groups": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "badge_overrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string" },
+          "color": { "type": "string" },
+          "style": { "type": "string" },
+          "prefix": { "type": "string" },
+          "suffix": { "type": "string" },
+          "template": { "type": "string" },
+          "url": { "type": "string" },
+          "logo": { "type": "string" },
+          "logoColor": { "type": "string" },
+          "query": { "type": "object" },
+          "enabled": { "type": "boolean" },
+          "show_empty": { "type": "boolean" },
+          "empty_value": {},
+          "fallback": {},
+          "uppercase": { "type": "boolean" },
+          "lowercase": { "type": "boolean" }
+        }
+      }
+    },
+    "group_overrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "color": { "type": "string" },
+          "style": { "type": "string" },
+          "query": { "type": "object" },
+          "logo": { "type": "string" },
+          "logoColor": { "type": "string" }
+        }
+      }
+    },
+    "image_size": { "type": "string" },
+    "upstream_version": { "type": "string" },
+    "upstream_repo": { "type": "string" },
+    "upstream_commit": { "type": "string" },
+    "build": { "type": "string" },
+    "lint": { "type": "string" },
+    "yaml_lint": { "type": "string" },
+    "code_quality": { "type": "string" },
+    "custom_shield": { "type": "string" },
+    "custom_flag": { "type": "string" },
+    "updated": { "type": "string" },
+    "source": { "type": "string" }
+  }
+}

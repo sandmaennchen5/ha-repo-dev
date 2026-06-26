@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}
+Matrix
+{% endblock %}
+
+{% block titlebar %}
+Matrix
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-header">
+
+```
+<h2>
+
+    Badge Matrix
+
+</h2>
+
+<input
+    id="matrixSearch"
+    placeholder="App suchen">
+```
+
+</div>
+
+<div class="panel">
+
+```
+<div class="matrix-tools">
+
+    <button id="sortByName">
+
+        App
+
+    </button>
+
+    <button id="sortByScore">
+
+        Score
+
+    </button>
+
+    <button id="exportCsv">
+
+        CSV
+
+    </button>
+
+    <button id="exportMarkdown">
+
+        Markdown
+
+    </button>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="hideEmpty"
+
+            {% if config.matrix.hide_empty_default %}
+            checked
+            {% endif %}>
+
+        Leere Spalten ausblenden
+
+    </label>
+
+</div>
+
+
+<div class="table-scroll">
+
+    <table id="matrixTable">
+
+        <thead>
+
+        <tr>
+
+            <th class="sticky-column">
+
+                App
+
+            </th>
+
+            {% for badge in matrix_badges %}
+
+            <th>
+
+                {{ badge }}
+
+            </th>
+
+            {% endfor %}
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for app in apps %}
+
+        <tr data-score="{{ app.score }}">
+
+            <td class="sticky-column">
+
+                <a href="{{ base_url }}/apps/{{ app.slug }}/">
+
+                    {{ app.name }}
+
+                </a>
+
+            </td>
+
+            {% for badge_name in matrix_badges %}
+
+            <td>
+
+                {% for badge in app.badges %}
+
+                    {% if badge.label == badge_name
+                          and badge.value %}
+
+                        <img
+                            src="{{ badge.url }}"
+                            height="20"
+                            alt="{{ badge.label }}"
+                            title="{{ badge.label }}">
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </td>
+
+            {% endfor %}
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+```
+
+</div>
+
+{% endblock %}

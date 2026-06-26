@@ -1,0 +1,72 @@
+name: "Newt - Pangolin Tunnels"
+version: "1.13.0"
+slug: "newt"
+description: "Secure remote access with Pangolin tunnels."
+url: "https://github.com/fosrl/newt"
+arch:
+  - aarch64
+  - amd64
+image: ghcr.io/sandmaennchen5/ha-newt
+init: false
+docker_api: true
+host_network: true
+privileged:
+  - NET_ADMIN
+  - SYS_MODULE
+ports:
+  2112/tcp: null
+kernel_modules: true
+options:
+  endpoint: "https://app.pangolin.de"
+  id: "1234567890"
+  secret: ""
+  docker:
+    docker_socket: "/var/run/docker.sock"
+    docker_enforce_network_validation: false
+  extras:
+    log_level: "info"
+schema:
+  endpoint: str
+  id: str
+  secret: str
+  client:
+    disable_clients: bool?
+    disable_ssh: bool?
+  docker:
+    docker_socket: str?
+    docker_enforce_network_validation: bool?
+  extras:
+    ad_ca_cert_path: str?
+    ad_generate_random_password: bool?
+    ad_pre_shared_key: str?
+    ad_principals_file: str?
+    auth_daemon: bool?
+    blueprint_file: str?
+    config_file: str?
+    dns: str?
+    enforce_hc_cert: bool?
+    health_file: str?
+    interface: str?
+    log_level: list(trace|debug|info|warn|error)
+    metrics: bool?
+    metrics_admin_addr: str?
+    metrics_async_bytes: bool?
+    mtu: str?
+    name: str?
+    native: bool?
+    no_cloud: bool?
+    otlp: bool?
+    ping_interval: str?
+    ping_timeout: str?
+    port: str?
+    pprof: bool?
+    prefer_endpoint: str?
+    provisioning_blueprint_file: str?
+    provisioning_key: str?
+    region: str?
+    tls_client_ca: str?
+    tls_client_cert: str?
+    tls_client_cert_file: str?
+    tls_client_key: str?
+    udp_proxy_idle_timeout: str?
+    updown: str?

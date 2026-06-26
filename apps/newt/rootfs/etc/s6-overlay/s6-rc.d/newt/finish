@@ -1,0 +1,5 @@
+#!/usr/bin/execlineb -S0
+# Called by s6 when the newt service exits.
+# $1 = exit code of run script, $2 = signal (if killed)
+# We do NOT tell s6 to down the service (no "exit 125"), so s6 will restart run.sh.
+foreground { s6-echo "[newt/finish] Newt exited – s6 will restart run (exit=$1 sig=$2)" }

@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}
+Apps
+{% endblock %}
+
+{% block titlebar %}
+Apps
+{% endblock %}
+
+{% block content %}
+
+<div class="panel-header">
+
+    <h2>
+
+        Apps
+
+    </h2>
+
+    <input
+        id="appsSearch"
+        placeholder="App suchen">
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="hideEmpty"
+
+            {% if config.apps.hide_empty_default %}
+            checked
+            {% endif %}>
+
+        Leere Apps ausblenden
+
+    </label>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="favoritesOnly">
+
+        Nur Favoriten
+
+    </label>
+
+</div>
+
+<div class="panel">
+
+    <table id="appsTable">
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                ★
+
+            </th>
+
+            <th>
+
+                Name
+
+            </th>
+
+            <th>
+
+                Version
+
+            </th>
+
+            <th>
+
+                Score
+
+            </th>
+
+            <th>
+
+                Green
+
+            </th>
+
+            <th>
+
+                Yellow
+
+            </th>
+
+            <th>
+
+                Red
+
+            </th>
+
+            <th>
+
+                Badges
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for app in apps %}
+
+        <tr
+            data-slug="{{ app.slug }}"
+            data-score="{{ app.score }}"
+            data-badges="{{ app.real_badges }}">
+
+            <td>
+
+                <button
+                    class="favorite-btn"
+                    data-slug="{{ app.slug }}">
+
+                    ☆
+
+                </button>
+
+            </td>
+
+            <td>
+
+                <a href="{{ base_url }}/apps/{{ app.slug }}/">
+
+                    {{ app.name }}
+
+                </a>
+
+            </td>
+
+            <td>
+
+                {{ app.version }}
+
+            </td>
+
+            <td>
+
+                {{ app.score }}%
+
+            </td>
+
+            <td>
+
+                {{ app.green }}
+
+            </td>
+
+            <td>
+
+                {{ app.yellow }}
+
+            </td>
+
+            <td>
+
+                {{ app.red }}
+
+            </td>
+
+            <td>
+
+                {{ app.real_badges }}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    () => {
+
+        const search =
+            document.getElementById(
+                "appsSearch"
+            );
+
+        const table =
+            document.getElementById(
+                "appsTable"
+            );
+
+        const hideEmpty =
+            document.getElementById(
+                "hideEmpty"
+            );
+
+        const favoritesOnly =
+            document.getElementById(
+                "favoritesOnly"
+            );
+
+        function applyFilters() {
+
+            const filter =
+                (
+                    search?.value ||
+                    ""
+                )
+                .toLowerCase();
+
+            table
+                .querySelectorAll(
+                    "tbody tr"
+                )
+                .forEach(
+
+                    row => {
+
+                        let visible =
+                            true;
+
+                        if (
+
+                            filter &&
+                            !row.innerText
+                                .toLowerCase()
+                                .includes(
+                                    filter
+                                )
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        const badges =
+                            Number(
+                                row.dataset.badges
+                            );
+
+                        if (
+
+                            hideEmpty?.checked &&
+                            badges === 0
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        if (
+
+                            favoritesOnly?.checked &&
+                            typeof isFavorite === "function" &&
+                            !isFavorite(
+                                row.dataset.slug
+                            )
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        row.style.display =
+                            visible
+                            ? ""
+                            : "none";
+
+                    }
+
+                );
+
+        }
+
+        search?.addEventListener(
+
+            "input",
+
+            applyFilters
+
+        );
+
+        hideEmpty?.addEventListener(
+
+            "change",
+
+            applyFilters
+
+        );
+
+        favoritesOnly?.addEventListener(
+
+            "change",
+
+            applyFilters
+
+        );
+
+        applyFilters();
+
+    }
+
+);
+
+</script>
+
+{% endblock %}

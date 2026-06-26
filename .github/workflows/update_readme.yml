@@ -1,0 +1,49 @@
+name: Update README Badges
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**/config.yaml"
+      - "apps/**/.var.yaml"
+      - ".github/config.yaml"
+      - ".github/scripts/badge_generator.py"
+      - ".github/scripts/readme_generator.py"
+      - ".github/scripts/utils.py"
+      - ".github/scripts/plugin_loader.py"
+      - ".github/scripts/plugins/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-readme
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.5.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate README badges
+        run: python .github/scripts/readme_generator.py
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(badges): update README badges"
+          file_pattern: "README.md apps/**/README.md"

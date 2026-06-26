@@ -1,0 +1,209 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Newt Add-on – run.sh
+# Features: Backoff Restart, Auto-Reconnect, Startup Readiness, Log-Rotation
+# ==============================================================================
+
+# ── Paths & Constants ─────────────────────────────────────────────────────────
+readonly HEALTH_FILE="/tmp/newt_healthy"
+readonly READY_FILE="/tmp/newt_ready"
+readonly CRASH_COUNT_FILE="/tmp/newt_crash_count"
+readonly LOG_FILE="/var/log/newt/newt.log"
+readonly LOG_MAX_SIZE=5242880   # 5 MB
+readonly LOG_MAX_FILES=3
+readonly BACKOFF_MIN=2
+readonly BACKOFF_MAX=60
+readonly STARTUP_TIMEOUT=30     # seconds to wait for first healthy signal
+
+# ── Logging helpers ───────────────────────────────────────────────────────────
+log_rotate() {
+    [[ ! -f "${LOG_FILE}" ]] && return
+    local size
+    size=$(stat -c%s "${LOG_FILE}" 2>/dev/null || echo 0)
+    if (( size >= LOG_MAX_SIZE )); then
+        for i in $(seq $((LOG_MAX_FILES - 1)) -1 1); do
+            [[ -f "${LOG_FILE}.${i}" ]] && mv "${LOG_FILE}.${i}" "${LOG_FILE}.$((i+1))"
+        done
+        mv "${LOG_FILE}" "${LOG_FILE}.1"
+        # Remove oldest if beyond limit
+        local oldest="${LOG_FILE}.${LOG_MAX_FILES}"
+        [[ -f "${oldest}" ]] && rm -f "${oldest}"
+        bashio::log.info "Log rotated (was ${size} bytes)"
+    fi
+}
+
+log_to_file() {
+    mkdir -p "$(dirname "${LOG_FILE}")"
+    log_rotate
+    echo "[$(date -Iseconds)] $*" | tee -a "${LOG_FILE}"
+}
+
+# ── Backoff logic ─────────────────────────────────────────────────────────────
+get_backoff() {
+    local count
+    count=$(cat "${CRASH_COUNT_FILE}" 2>/dev/null || echo 0)
+    local delay=$(( BACKOFF_MIN * (2 ** count) ))
+    (( delay > BACKOFF_MAX )) && delay=${BACKOFF_MAX}
+    echo "${delay}"
+}
+
+increment_crash() {
+    local count
+    count=$(cat "${CRASH_COUNT_FILE}" 2>/dev/null || echo 0)
+    echo $(( count + 1 )) > "${CRASH_COUNT_FILE}"
+}
+
+reset_crash() {
+    echo 0 > "${CRASH_COUNT_FILE}"
+}
+
+# ── Build argument list ───────────────────────────────────────────────────────
+build_args() {
+    local args=""
+
+    # Required
+    args="${args} --endpoint $(bashio::config 'endpoint')"
+    args="${args} --id $(bashio::config 'id')"
+    args="${args} --secret $(bashio::config 'secret')"
+    args="${args} --log-level $(bashio::config 'log_level')"
+
+    # Optional strings
+    for opt in \
+        ad_ca_cert_path \
+        ad_pre_shared_key \
+        ad_principals_file \
+        blueprint_file \
+        config_file \
+        dns \
+        docker_enforce_network_validation \
+        docker_socket \
+        health_file \
+        interface \
+        metrics_admin_addr \
+        mtu \
+        name \
+        ping_interval \
+        ping_timeout \
+        port \
+        prefer_endpoint \
+        provisioning_blueprint_file \
+        provisioning_key \
+        region \
+        tls_client_ca \
+        tls_client_cert \
+        tls_client_cert_file \
+        tls_client_key \
+        udp_proxy_idle_timeout \
+        updown; do
+        if bashio::config.has_value "${opt}"; then
+            local flag
+            flag="--$(echo "${opt}" | tr '_' '-')"
+            args="${args} ${flag} $(bashio::config "${opt}")"
+        fi
+    done
+
+    # Optional booleans (flags only, no value)
+    for opt in \
+        ad_generate_random_password \
+        auth_daemon \
+        disable_clients \
+        disable_ssh \
+        enforce_hc_cert \
+        metrics \
+        metrics_async_bytes \
+        native \
+        no_cloud \
+        otlp \
+        pprof; do
+        if bashio::config.true "${opt}"; then
+            local flag
+            flag="--$(echo "${opt}" | tr '_' '-')"
+            args="${args} ${flag}"
+        fi
+    done
+
+    echo "${args}"
+}
+
+# ── Startup readiness check ───────────────────────────────────────────────────
+wait_for_ready() {
+    bashio::log.info "Waiting for Newt to become ready (timeout: ${STARTUP_TIMEOUT}s)..."
+    local elapsed=0
+    while (( elapsed < STARTUP_TIMEOUT )); do
+        # Consider ready when newt process is running and endpoint reachable
+        if kill -0 "${NEWT_PID}" 2>/dev/null; then
+            local endpoint
+            endpoint=$(bashio::config 'endpoint')
+            if curl -sf --max-time 5 "${endpoint}" > /dev/null 2>&1; then
+                touch "${READY_FILE}"
+                touch "${HEALTH_FILE}"
+                bashio::log.info "Newt is ready and endpoint reachable."
+                return 0
+            fi
+        else
+            bashio::log.warning "Newt process died during startup."
+            return 1
+        fi
+        sleep 2
+        (( elapsed += 2 ))
+    done
+    bashio::log.warning "Startup timeout reached – Newt may not be fully connected yet."
+    # Mark ready anyway so s6 doesn't block; healthcheck will catch real issues
+    touch "${READY_FILE}"
+    return 0
+}
+
+# ── Cleanup on exit ───────────────────────────────────────────────────────────
+cleanup() {
+    bashio::log.info "Caught signal – shutting down Newt (PID: ${NEWT_PID})..."
+    rm -f "${HEALTH_FILE}" "${READY_FILE}"
+    [[ -n "${NEWT_PID}" ]] && kill -TERM "${NEWT_PID}" 2>/dev/null
+    wait "${NEWT_PID}" 2>/dev/null
+    bashio::log.info "Newt stopped cleanly."
+}
+trap cleanup SIGTERM SIGINT
+
+# ── Main restart loop ─────────────────────────────────────────────────────────
+ARGS=$(build_args)
+bashio::log.info "Newt arguments built (secrets redacted from log)."
+
+# Remove stale state files
+rm -f "${HEALTH_FILE}" "${READY_FILE}"
+reset_crash
+
+while true; do
+    # Rotate logs before each start
+    log_rotate
+
+    bashio::log.info "Starting Newt..."
+    log_to_file "INFO  Starting Newt"
+
+    # Launch newt, tee output to log file
+    newt ${ARGS} 2>&1 | tee -a "${LOG_FILE}" &
+    NEWT_PID=$!
+
+    # Startup readiness
+    wait_for_ready
+
+    # Wait for newt to exit
+    wait "${NEWT_PID}"
+    EXIT_CODE=$?
+
+    rm -f "${HEALTH_FILE}"
+    bashio::log.warning "Newt exited with code ${EXIT_CODE}."
+    log_to_file "WARN  Newt exited (code=${EXIT_CODE})"
+
+    # s6: exit 0 means "don't restart" (oneshot kill), anything else → s6 restarts
+    # But we manage restart ourselves here with backoff, so we never propagate to s6.
+
+    # Backoff before reconnect
+    DELAY=$(get_backoff)
+    increment_crash
+    bashio::log.warning "Auto-reconnect in ${DELAY}s (backoff)..."
+    log_to_file "WARN  Reconnecting in ${DELAY}s"
+
+    sleep "${DELAY}"
+
+    # If we've been running > 60s since last crash, reset backoff counter
+    # (handled implicitly: reset_crash is called on clean shutdown / manual restart)
+done

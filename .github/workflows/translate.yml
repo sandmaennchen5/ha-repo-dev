@@ -1,0 +1,81 @@
+name: Translate Documentation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "README.md"
+      - "DOCS.md"
+      - "**/README.md"
+      - "**/DOCS.md"
+      - "**/translations/de.yaml"
+      - "**/translations/de.yml"
+      - "**/translations/de.json"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: translations
+  cancel-in-progress: false
+
+env:
+  TARGET_LANGUAGES: ${{ vars.TRANSLATION_LANGUAGES || 'en' }}
+
+jobs:
+  translate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6.0.3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.5.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Detect changed German files
+        id: changed
+        shell: bash
+        run: |
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            git ls-files > changed.txt
+          else
+            git diff --name-only "$BEFORE" "${{ github.sha }}" > changed.txt
+          fi
+
+          grep -E '(^README\.md$|^DOCS\.md$|README\.md$|DOCS\.md$|translations/de\.(yaml|yml|json)$)' \
+            changed.txt > german_changed.txt || true
+
+          if [ -s german_changed.txt ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Translate
+        if: steps.changed.outputs.found == 'true'
+        env:
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
+        run: python .github/scripts/translate.py german_changed.txt
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v8.1.1
+        with:
+          commit-message: "chore(i18n): update translations"
+          title: "🌍 Update translations"
+          branch: i18n-update
+          add-paths: |
+            **/*.en.md
+            **/translations/en.*
