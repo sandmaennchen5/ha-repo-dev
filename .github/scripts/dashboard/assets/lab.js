@@ -171,6 +171,34 @@ ${app.name}
         );
 
 
+        function fillOverrides(badge) {
+
+            document.getElementById(
+                "overrideLabel"
+            ).value =
+                badge.label || "";
+
+            document.getElementById(
+                "overrideValue"
+            ).value =
+                badge.value || "";
+
+            const colorSelect =
+                document.getElementById(
+                    "overrideColor"
+                );
+
+            const colorExists =
+                [...colorSelect.options].some(
+                    o => o.value === badge.color
+                );
+
+            colorSelect.value =
+                colorExists ? badge.color : "";
+
+        }
+
+
         function updateBadges() {
 
             badgeSelect.innerHTML =
@@ -196,6 +224,17 @@ ${badge.label}
                 }
 
             );
+
+            const firstBadge =
+                app.badges.find(
+                    x =>
+                    x.id ===
+                    badgeSelect.value
+                ) || app.badges[0];
+
+            if (firstBadge) {
+                fillOverrides(firstBadge);
+            }
 
             update();
 
@@ -332,7 +371,29 @@ logoColor: ${logoColor}`;
             updateBadges;
 
         badgeSelect.onchange =
-            update;
+            () => {
+
+                const app =
+                    apps.find(
+                        x =>
+                        x.slug ===
+                        appSelect.value
+                    );
+
+                const badge =
+                    app.badges.find(
+                        x =>
+                        x.id ===
+                        badgeSelect.value
+                    );
+
+                if (badge) {
+                    fillOverrides(badge);
+                }
+
+                update();
+
+            };
 
 
         [
@@ -399,6 +460,34 @@ logoColor: ${logoColor}`;
                     .writeText(
                         json.value
                     );
+
+
+        document.getElementById(
+            "resetOverride"
+        ).onclick =
+            () => {
+
+                const app =
+                    apps.find(
+                        x =>
+                        x.slug ===
+                        appSelect.value
+                    );
+
+                const badge =
+                    app.badges.find(
+                        x =>
+                        x.id ===
+                        badgeSelect.value
+                    );
+
+                if (badge) {
+                    fillOverrides(badge);
+                }
+
+                update();
+
+            };
 
 
         updateBadges();
