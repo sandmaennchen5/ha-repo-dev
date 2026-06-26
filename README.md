@@ -1,4 +1,4 @@
-# HassOS Apps Repository – sandmaennchen5 te7
+# HassOS Apps Repository – sandmaennchen5
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
