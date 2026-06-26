@@ -8,7 +8,7 @@ Automatic translation of German source files to multiple languages. Clean separa
 
 | Branch | Content | Purpose |
 |--------|---------|---------|
-| **i18n-update** | Translated files (*.en.md, *.fr.yaml, etc.) | Pull Request to main |
+| **i18-update** | Translated files (*.en.md, *.fr.yaml, etc.) | Pull Request to main |
 | **i18n-cache** | Translation cache (.i18n_cache/) | Performance optimization |
 | **main** | German source files (de.yaml, README.md) | Source of truth |
 
@@ -36,9 +36,9 @@ Changes to:
 2. LOAD   → Cache from i18n-cache branch
 3. FETCH  → Updated translations via DeepL/MyMemory
 4. SPLIT  → 
-   - Translations → i18n-update branch
+   - Translations → i18-update branch
    - Cache → i18n-cache branch
-5. CREATE → PR from i18n-update to main
+5. CREATE → PR from i18-update to main
 ```
 
 ## Local Development
@@ -46,7 +46,7 @@ Changes to:
 ### Setup
 ```bash
 # Fetch branches
-git fetch origin i18n-update i18n-cache
+git fetch origin i18-update i18n-cache
 
 # Create working branch
 git checkout -b feature/my-docs origin/main
@@ -170,7 +170,7 @@ git push origin i18n-cache
   ✓ README.md → README.fr.md
 ✅ Done! Generated 2 translations
 📦 Cache saved with 45 entries
-✓ Pushed to i18n-update
+✓ Pushed to i18-update
 ✓ Cache updated on i18n-cache
 ✓ Created new PR
 ```
@@ -184,7 +184,7 @@ git push origin i18n-cache
   ✓ de.yaml → fr.yaml
 ✅ Done! Generated 2 translations
 📦 Cache saved with 47 entries
-✓ Pushed to i18n-update
+✓ Pushed to i18-update
 ✓ Cache updated on i18n-cache
 ✓ PR #42 already exists (auto-updated)
 ```
