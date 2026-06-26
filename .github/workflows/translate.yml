@@ -50,41 +50,26 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             if [ "${{ github.event.inputs.translate_all }}" = "true" ]; then
               echo "translate_all=true" >> $GITHUB_OUTPUT
-              echo "🔄 Manual run: TRANSLATE ALL"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              echo "🔄 Manual: TRANSLATE ALL"
             else
               echo "translate_all=false" >> $GITHUB_OUTPUT
-              echo "🔄 Manual run: changed files only"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+              echo "🔄 Manual: changed files"
             fi
-            echo "has_changes=true" >> $GITHUB_OUTPUT
           else
             git diff --name-only HEAD~1 HEAD | grep -E '(README|DOCS|translations/de)' > /tmp/changed.txt || true
 
             if [ -s /tmp/changed.txt ]; then
               echo "has_changes=true" >> $GITHUB_OUTPUT
               echo "translate_all=false" >> $GITHUB_OUTPUT
-              echo "📌 Push detected changes:"
+              echo "📌 Push changes detected"
               cat /tmp/changed.txt
             else
               echo "has_changes=false" >> $GITHUB_OUTPUT
               echo "ℹ No translation files changed"
             fi
           fi
-
-      - name: Setup working branch
-        if: steps.check.outputs.has_changes == 'true'
-        run: |
-          git fetch origin
-          git checkout -B i18n-working origin/main
-
-          # Load cache from i18n-cache if exists
-          mkdir -p .i18n_cache
-          if git fetch origin i18n-cache 2>/dev/null; then
-            git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null || echo "{}" > .i18n_cache/translation_cache.json
-          else
-            echo "{}" > .i18n_cache/translation_cache.json
-          fi
-
-          echo "✓ Working branch ready"
 
       - name: Setup Python
         if: steps.check.outputs.has_changes == 'true'
@@ -94,11 +79,23 @@ jobs:
 
       - name: Install dependencies
         if: steps.check.outputs.has_changes == 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests pyyaml
+        run: pip install requests pyyaml
 
-      - name: Run translator
+      - name: Load cache
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          mkdir -p .i18n_cache
+
+          # Try to get cache from i18n-cache branch
+          if git fetch origin i18n-cache 2>/dev/null; then
+            git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null || echo "{}" > .i18n_cache/translation_cache.json
+            echo "✓ Cache restored from i18n-cache"
+          else
+            echo "{}" > .i18n_cache/translation_cache.json
+            echo "ℹ No cache yet (first run)"
+          fi
+
+      - name: Run translations
         if: steps.check.outputs.has_changes == 'true'
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
@@ -110,64 +107,69 @@ jobs:
             python .github/scripts/translate.py /tmp/changed.txt
           fi
 
-      - name: Commit translations
+      - name: Prepare i18n-update branch
         if: steps.check.outputs.has_changes == 'true'
-        id: trans_commit
+        id: prepare
         run: |
-          # Add ONLY translation files (*.en.md, *.fr.yaml, etc.)
-          git add -A \
-            -- \
-            "*.en.md" \
-            "*.fr.md" \
-            "*.es.md" \
-            "*.it.md" \
-            "*.pt.md" \
-            "*.nl.md" \
-            "*.pl.md" \
-            "*.ru.md" \
-            "*.ja.md" \
-            "*.zh.md" \
-            "*.en.yaml" \
-            "*.fr.yaml" \
-            "*.es.yaml" \
-            "*.en.yml" \
-            "*.fr.yml" \
-            "*.es.yml" \
-            "*.en.json" \
-            "*.fr.json" \
-            "*.es.json" \
-            2>/dev/null || true
+          git fetch origin i18n-update 2>/dev/null || true
 
-          if git diff --cached --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "✓ No translation changes"
+          # Create or reset to main
+          git checkout -B i18n-update origin/main
+
+          # Copy translation files from working directory
+          find . -type f \( \
+            -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \
+            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
+            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+          \) ! -path "./.i18n_cache/*" ! -path "./.git/*" > /tmp/trans_files.txt
+
+          FILE_COUNT=$(wc -l < /tmp/trans_files.txt)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$FILE_COUNT" -gt 0 ]; then
+            echo "Found $FILE_COUNT translation files"
+            cat /tmp/trans_files.txt | xargs -I {} git add "{}"
+            echo "has_trans=true" >> $GITHUB_OUTPUT
           else
-            git commit -m "chore(i18n): update translations"
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "✓ Translations committed"
+            echo "✗ No translation files generated"
+            echo "has_trans=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Push to i18n-update
-        if: steps.trans_commit.outputs.changed == 'true'
+      - name: Commit on i18n-update
+        if: steps.prepare.outputs.has_trans == 'true'
+        id: commit
         run: |
-          git push origin i18n-working:i18n-update --force-with-lease
-          echo "✓ Pushed to i18n-update"
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(i18n): add translations"
+            echo "committed=true" >> $GITHUB_OUTPUT
+            echo "✓ Committed $(git diff HEAD~1 --name-only | wc -l) files"
+          else
+            echo "committed=false" >> $GITHUB_OUTPUT
+            echo "✗ Nothing to commit"
+          fi
 
-      - name: Update cache on i18n-cache
+      - name: Push i18n-update
+        if: steps.commit.outputs.committed == 'true'
+        run: |
+          git push -u origin i18n-update --force-with-lease
+          echo "✓ Pushed i18n-update branch"
+
+      - name: Update i18n-cache branch
         if: steps.check.outputs.has_changes == 'true'
         run: |
-          # Check if cache was actually updated
           if [ ! -f ".i18n_cache/translation_cache.json" ]; then
             echo "ℹ No cache to update"
             exit 0
           fi
 
-          git fetch origin
+          git fetch origin i18n-cache 2>/dev/null || true
 
-          # Create/checkout i18n-cache branch
+          # Create or checkout i18n-cache
           if git rev-parse --verify origin/i18n-cache >/dev/null 2>&1; then
             git checkout -B i18n-cache origin/i18n-cache
-            git reset --hard origin/i18n-cache
           else
             git checkout --orphan i18n-cache
             git rm -rf . 2>/dev/null || true
@@ -175,38 +177,61 @@ jobs:
 
           # Copy cache
           mkdir -p .i18n_cache
-          cp .i18n_cache/translation_cache.json .i18n_cache/ 2>/dev/null || true
-
-          # Actually copy from i18n-working since we're in a different ref
-          git checkout i18n-working -- .i18n_cache/ 2>/dev/null || true
-
+          cp .i18n_cache/translation_cache.json .i18n_cache/
           git add .i18n_cache/
 
           if ! git diff --cached --quiet; then
             git commit -m "chore(i18n): update cache"
-            git push origin i18n-cache
-            echo "✓ Cache updated"
+            git push -u origin i18n-cache
+            echo "✓ Updated cache on i18n-cache branch"
           else
             echo "ℹ Cache unchanged"
           fi
 
-      - name: Find or create PR
-        if: steps.trans_commit.outputs.changed == 'true'
+      - name: Create or update PR
+        if: steps.commit.outputs.committed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check for existing PR
+          # Go back to i18n-update branch for PR check
+          git checkout i18n-update
+
           PR_ID=$(gh pr list --base main --head i18n-update --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR_ID" ]; then
+            echo "🔄 Creating new PR..."
             gh pr create \
               --base main \
               --head i18n-update \
               --title "🌍 Update translations" \
-              --body "Translation update - cache is in separate i18n-cache branch" \
+              --body "Automatic translation update
+
+**Note:** Translation cache is maintained in the separate \`i18n-cache\` branch to keep this PR clean." \
               --label i18n \
-              --label automated
-            echo "✓ Created new PR"
+              --label automated || echo "✗ PR creation failed"
+
+            PR_ID=$(gh pr list --base main --head i18n-update --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+            if [ ! -z "$PR_ID" ]; then
+              echo "✅ Created PR #$PR_ID"
+            fi
           else
-            echo "✓ PR #$PR_ID already exists (auto-updated)"
+            echo "✅ PR #$PR_ID already exists (updated with new commits)"
+          fi
+
+      - name: Summary
+        run: |
+          echo "📊 Translation Workflow Summary"
+          echo "================================"
+          if [ "${{ steps.check.outputs.has_changes }}" = "true" ]; then
+            echo "✓ Changes detected"
+            echo "✓ Files generated: ${{ steps.prepare.outputs.file_count }}"
+            if [ "${{ steps.commit.outputs.committed }}" = "true" ]; then
+              echo "✓ Committed to i18n-update"
+              echo "✓ Pushed to origin"
+              echo "✓ PR created/updated"
+            else
+              echo "✗ No translations generated"
+            fi
+          else
+            echo "ℹ No changes to process"
           fi
