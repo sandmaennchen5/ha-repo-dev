@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. MAIN auschecken
       - name: Checkout main
         uses: actions/checkout@v4
         with:
@@ -16,19 +15,26 @@ jobs:
           fetch-depth: 0
           path: main
 
-      # 2. Prüfen, ob Branch existiert – wenn nicht, erstellen
-      - name: Create branch if missing
+      # Prüfen, ob Branch existiert
+      - name: Check if branch exists
+        id: check
         run: |
           cd main
           if git ls-remote --exit-code --heads origin i18n-update; then
-            echo "Branch exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Branch missing → creating"
-            git checkout -b i18n-update
-            git push origin i18n-update
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      # 3. Ziel-Branch auschecken
+      # Branch erstellen, wenn er fehlt
+      - name: Create branch if missing
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          cd main
+          git checkout -b i18n-update
+          git push origin i18n-update
+
+      # Branch auschecken
       - name: Checkout i18n-update
         uses: actions/checkout@v4
         with:
@@ -36,11 +42,30 @@ jobs:
           fetch-depth: 0
           path: target
 
-      # 4. Dateien aus main vorbereiten
+      # Branch NUR LEEREN, wenn er NEU erstellt wurde
+      - name: Clear branch if new
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          cd target
+          find . -mindepth 1 ! -name ".git" -exec rm -rf {} +
+
+      # Dateien vorbereiten
       - name: Prepare selected files
         run: |
           mkdir selected
-          # Alle README.md in Apps/*/
           cp -r main/Apps/*/README.md selected/ 2>/dev/null || true
-          # Übersetzungen
-          cp -r main/apps/newt/translations/* selected
+
+      # Dateien überschreiben (NICHT löschen)
+      - name: Copy selected files
+        run: |
+          cp -r selected/* target/ 2>/dev/null || true
+
+      # Commit + Push
+      - name: Commit and push
+        run: |
+          cd target
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -A
+          git commit -m "i18n update" || echo "No changes"
+          git push origin i18n-update
