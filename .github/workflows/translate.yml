@@ -42,28 +42,20 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Fetch branches
-        run: |
-          git fetch origin --prune
+        run: git fetch origin --prune
 
       - name: Checkout or create i18n-update
         run: |
-
           if git ls-remote --exit-code --heads origin i18n-update; then
-
             git checkout i18n-update
             git pull origin i18n-update
-
           else
-
             git checkout -b i18n-update origin/main
-
           fi
 
       - name: Rebase on latest main
         run: |
-
           git fetch origin main
-
           if ! git rebase origin/main; then
             echo "::error::Rebase failed."
             git rebase --abort
@@ -71,9 +63,7 @@ jobs:
           fi
 
       - name: Update translate.py from main
-        run: |
-
-          git checkout origin/main -- .github/scripts/translate.py
+        run: git checkout origin/main -- .github/scripts/translate.py
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -88,11 +78,10 @@ jobs:
       - name: Get changed files
         id: changes
         run: |
+          git diff --name-only origin/main...HEAD \
+            | grep -E '(README|DOCS|translations/de)' > changed_files.txt || true
 
-          # Get files changed compared to main
-          git diff --name-only origin/main...HEAD | grep -E '(README|DOCS|translations/de)' > changed_files.txt || true
-
-          echo "Files changed:"
+          echo "=== Files changed ==="
           cat changed_files.txt || echo "(none)"
 
           if [ -s changed_files.txt ]; then
@@ -101,92 +90,53 @@ jobs:
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Prepare cache directory
-        run: |
-
-          # Restore cache files from i18n-update branch if they exist
-          mkdir -p .i18n_cache
-
-          if git cat-file -e HEAD:.i18n_cache/translation_cache.json 2>/dev/null; then
-            git show HEAD:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json
-          fi
-
-          if git cat-file -e HEAD:.i18n_cache/changed_files.json 2>/dev/null; then
-            git show HEAD:.i18n_cache/changed_files.json > .i18n_cache/changed_files.json
-          fi
-
       - name: Run translator
         if: steps.changes.outputs.has_changes == 'true'
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES }}
         run: |
+          mkdir -p .i18n_cache
+          python .github/scripts/translate.py changed_files.txt
 
-          if [ -f changed_files.txt ] && [ -s changed_files.txt ]; then
-            python .github/scripts/translate.py changed_files.txt
-          else
-            echo "No German files changed, skipping translation"
-          fi
-
-      - name: Clean up workspace
-        run: |
-
-          # Remove original German source files (keep only translations)
-          git checkout HEAD -- . || true
-
-      - name: Restore translations only
-        run: |
-
-          # Keep only the generated translation files
-          git add .i18n_cache/ || true
-
-          # Find and add all generated translation files
-          find . -name "*.en.md" -o -name "*.fr.yaml" -o -name "*.es.json" | while read f; do
-            git add "$f" || true
-          done
-
-          # Also add all language-specific files that were generated
-          git ls-files -o --exclude-standard | grep -E '\.(en|fr|es|it|pt|nl|pl|ru|ja|zh|de)\.(md|yaml|yml|json)$' | while read f; do
-            git add "$f" || true
-          done
-
-      - name: Commit translation changes
+      - name: Commit changes
         id: commit
         run: |
+          git add .i18n_cache/ 2>/dev/null || true
 
-          git add .i18n_cache/ || true
+          find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
+            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
+            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
+            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
+            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
+            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \) \
+            -exec git add {} \; 2>/dev/null || true
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit"
             exit 0
           fi
 
-          git commit \
-            -m "chore(i18n): update translations"
-
+          git commit -m "chore(i18n): update translations"
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Push i18n-update
         if: steps.commit.outputs.changed == 'true'
-        run: |
+        run: git push origin i18n-update --force-with-lease
 
-          git push origin i18n-update --force-with-lease
-
-      - name: Check for existing PR
+      - name: Find existing PR
         id: pr
         if: steps.commit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
-          NUMBER=$(
-            gh pr list \
-              --base main \
-              --head i18n-update \
-              --state open \
-              --json number \
-              --jq '.[0].number'
-          )
+          NUMBER=$(gh pr list \
+            --base main \
+            --head i18n-update \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$NUMBER" ]; then
             echo "number=" >> "$GITHUB_OUTPUT"
@@ -201,24 +151,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
           gh pr create \
             --base main \
             --head i18n-update \
             --title "chore(i18n): automatic translation update" \
-            --body "$(cat <<'EOF'
-This PR was created automatically by the translation workflow.
+            --body "This PR was created automatically by the translation workflow.
 
 ### Updated
 
 - Documentation (README, DOCS files)
-- Translation files (de.yaml, de.json)
+- Translation files (*.yaml, *.json)
 
-Only changed German source files are translated and committed.
+Only changed German source files are translated.
 
-Generated by GitHub Actions.
-EOF
-          )"
+Generated by GitHub Actions."
 
       - name: Update existing PR
         if: |
@@ -227,34 +173,28 @@ EOF
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
           PR=${{ steps.pr.outputs.number }}
 
           gh pr edit "$PR" \
-            --body "$(cat <<'EOF'
-This PR was updated automatically by the translation workflow.
+            --body "This PR was updated automatically by the translation workflow.
 
 ### Updated
 
 - Documentation (README, DOCS files)
-- Translation files (de.yaml, de.json)
+- Translation files (*.yaml, *.json)
 
-Only changed German source files are translated and committed.
+Only changed German source files are translated.
 
-Last updated: $(date -Iseconds)
-EOF
-          )"
+Last updated: $(date -Iseconds)"
 
-      - name: Update labels
+      - name: Add labels
         if: |
           steps.commit.outputs.changed == 'true' &&
           steps.pr.outputs.number != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
           PR=${{ steps.pr.outputs.number }}
-
           gh pr edit "$PR" \
             --add-label i18n \
             --add-label automated || true
@@ -266,15 +206,6 @@ EOF
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-
           PR=${{ steps.pr.outputs.number }}
-
-          # Check if comment already exists from today
-          EXISTING=$(
-            gh pr view "$PR" --json comments --jq '.comments[] | select(.author.login == "github-actions[bot]" and (.createdAt | startswith(now | todate))) | .id' | head -1
-          )
-
-          if [ -z "$EXISTING" ]; then
-            gh pr comment "$PR" \
-              -b "✅ Updated translations on $(date -Iseconds)"
-          fi
+          gh pr comment "$PR" \
+            -b "✅ Updated translations - $(date -u +%Y-%m-%dT%H:%M:%SZ)"
