@@ -109,9 +109,7 @@ jobs:
         if: steps.changes.outputs.has_changes == 'true'
         id: commit
         run: |
-          git add .i18n_cache/ 2>/dev/null || true
-
-          # Add all generated translation files
+          # Add all generated translation files (NOT cache)
           find . -type f \( -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
             -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
             -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
