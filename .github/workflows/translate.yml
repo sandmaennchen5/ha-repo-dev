@@ -124,7 +124,6 @@ jobs:
           cp -r .i18n_cache /tmp/i18n_cache_backup
           
           # Switch to i18n-cache and reset
-          git checkout main  # Go back to main first
           git checkout i18n-cache
           git pull origin i18n-cache
           
@@ -144,9 +143,8 @@ jobs:
         run: |
           git fetch origin
           
-          # Go back to main branch first
-          git checkout main
-          git pull origin main
+          # Work directly from i18n-working, don't go back to main
+          git checkout i18n-working
           
           if git fetch origin i18n-update 2>/dev/null; then
             git checkout i18n-update
