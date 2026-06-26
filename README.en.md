@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – sandma,fffl
+# 1HassOS Apps Repository – 
 
 [![Builder][builder-badge]][builder-url]
 [![Ribbon][ribbon badge]][ribbon url]
@@ -16,4 +16,5 @@ Home  Assistant app repository with fully automated badge and dashboard generati
 1. Open Home Assistant.,
 2. **Settings → Add-ons → Add-on → Store → Repositories**
 3. Add URL:
-   ``
+   ```
+   https:

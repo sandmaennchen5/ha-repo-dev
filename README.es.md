@@ -1,4 +1,4 @@
-# 1HassOS Apps Repository – sandma,fffl
+# 1HassOS Apps Repository – 
 
 [![Builder][builder-badge]][builder-url]
 [![Lint][lint-badge]][lint-url]
@@ -16,4 +16,5 @@ Repositorio de aplicaciones Home  Assistant con generación totalmente automáti
 1. Abre Home Assistant.,
 2. **Configuración → Add-ons → Add-on → Store ** → Repositorios
 3. Añadir URL:
-   ``
+   ```
+   https:
