@@ -2,118 +2,189 @@
 
 ## Overview
 
-Automatic translation workflow for maintaining multiple language versions of documentation and configuration files.
+Automatic translation of German source files to multiple languages. Clean separation between translations (for review) and cache (for performance).
 
 ## Branch Structure
 
-### `i18n-update`
-- **Purpose**: Contains translated files (README.en.md, de.yaml, fr.json, etc.)
-- **Audience**: Pull requests to main, meant for code review
-- **Contents**: ONLY translated output files
-- **Cache**: NOT included (see i18n-cache branch)
+| Branch | Content | Purpose |
+|--------|---------|---------|
+| **i18n-update** | Translated files (*.en.md, *.fr.yaml, etc.) | Pull Request to main |
+| **i18n-cache** | Translation cache (.i18n_cache/) | Performance optimization |
+| **main** | German source files (de.yaml, README.md) | Source of truth |
 
-### `i18n-cache`
-- **Purpose**: Stores translation cache for performance
-- **Audience**: Internal use only, not reviewed
-- **Contents**: `.i18n_cache/` directory with translation_cache.json
-- **Auto-synced**: Updated automatically after each translation run
+## Triggers
 
-### Workflow (Main)
-- Trigger: Push to main with changes to German source files (de.yaml, de.json, de.md)
-- Action: Automatically creates/updates translations on i18n-update and caches on i18n-cache
-
-## Working Locally
-
-### Setup
-
-```bash
-# Fetch translation branches
-git fetch origin i18n-update i18n-cache
-
-# Create temporary working branch
-git checkout -b feature/translate-docs origin/main
+### Automatic (Push to main)
+```
+Changes to:
+- README.md, DOCS.md
+- apps/**/README.md, apps/**/DOCS.md
+- apps/**/translations/de.yaml, de.yml, de.json
+- .github/scripts/translate.py
 ```
 
-### Running Translations Locally
+### Manual (workflow_dispatch)
+- Go to: Actions → Translation → Run workflow
+- Options:
+  - **Translate ALL files**: Check to translate entire repo
+  - Otherwise: Only changed files
 
+## How It Works
+
+```
+1. DETECT → Changed files or manual trigger
+2. LOAD   → Cache from i18n-cache branch
+3. FETCH  → Updated translations via DeepL/MyMemory
+4. SPLIT  → 
+   - Translations → i18n-update branch
+   - Cache → i18n-cache branch
+5. CREATE → PR from i18n-update to main
+```
+
+## Local Development
+
+### Setup
+```bash
+# Fetch branches
+git fetch origin i18n-update i18n-cache
+
+# Create working branch
+git checkout -b feature/my-docs origin/main
+```
+
+### Test Translations
 ```bash
 # Install dependencies
 pip install requests pyyaml
 
-# Get files changed vs main
-git diff --name-only origin/main...HEAD > changed_files.txt
+# Translate changed files
+TARGET_LANGUAGES=en,fr python .github/scripts/translate.py --help
 
-# Run translator
-TARGET_LANGUAGES=en,fr,de python .github/scripts/translate.py changed_files.txt
+# Translate ALL files
+TARGET_LANGUAGES=en,fr python .github/scripts/translate.py --all
+
+# Check specific changed file
+git diff --name-only origin/main...HEAD > /tmp/files.txt
+TARGET_LANGUAGES=en,fr python .github/scripts/translate.py /tmp/files.txt
 ```
 
-### Testing Translations
+### Verify Output
+```bash
+# Find generated translations
+find . -name "*.en.md" -o -name "*.fr.yaml" -o -name "*.en.json"
+
+# Check cache size
+jq 'length' .i18n_cache/translation_cache.json
+
+# View sample translations
+jq 'to_entries | .[0:3]' .i18n_cache/translation_cache.json
+```
+
+## Script Usage
 
 ```bash
-# Check generated files
-find . -type f -name "*.en.md" -o -name "*.fr.yaml"
+# Translate all files (finds German source files automatically)
+python .github/scripts/translate.py --all
 
-# Verify cache was created
-cat .i18n_cache/translation_cache.json | jq 'length'
+# Translate only changed files (from file list)
+python .github/scripts/translate.py path/to/changed_files.txt
 
-# View cached translations
-cat .i18n_cache/translation_cache.json | jq '.' | head -50
+# Show help
+python .github/scripts/translate.py --help
 ```
-
-## Files
-
-- `.github/workflows/translate.yml` - Main workflow definition
-- `.github/scripts/translate.py` - Translation script
-- `.i18n_cache/` - Local cache (in .gitignore, never committed to i18n-update)
-  - `translation_cache.json` - Cache of translated strings
-  - `changed_files.json` - Track of changed files
 
 ## Configuration
 
-Set in GitHub Actions Variables:
-- `TARGET_LANGUAGES`: Comma-separated list (e.g., "en,fr,es,de")
+**GitHub Actions Variables** (`Settings → Variables`):
+```
+TARGET_LANGUAGES = en,fr,es,it,pt,nl,pl,ru,ja,zh
+```
 
-Set in GitHub Actions Secrets:
-- `DEEPL_API_KEY`: Optional, uses free MyMemory API as fallback
+**GitHub Actions Secrets** (`Settings → Secrets`):
+```
+DEEPL_API_KEY = your-deepl-key-here
+```
 
-## How It Works
+**Without DEEPL_API_KEY:**
+- Falls back to free MyMemory API (slower, rate limited)
+- Still works, just slower
 
-1. **Change Detection**: Detect changes to German source files
-2. **Cache Restore**: Load previous translation cache from i18n-cache branch
-3. **Translate**: Use DeepL API (or free fallback) to translate changed files
-4. **Split Commit**: 
-   - Translations → i18n-update branch (for PR)
-   - Cache → i18n-cache branch (for next run)
-5. **PR Management**: Update or create pull request on i18n-update
+## Translation Files Supported
 
-## Performance Notes
+**Markdown:**
+- `README.md` → `README.en.md`, `README.fr.md`, etc.
+- `DOCS.md` → `DOCS.en.md`, `DOCS.fr.md`, etc.
+- `README_*.md` → `README_*.en.md`, `README_*.fr.md`, etc.
 
-- First run: Creates new translations and cache
-- Subsequent runs: Uses cache to avoid re-translating unchanged strings
-- Cache persists across workflow runs via i18n-cache branch
-- Free MyMemory API used as fallback when DeepL is not available
+**Config (structured):**
+- `de.yaml` → `en.yaml`, `fr.yaml`, etc.
+- `de.yml` → `en.yml`, `fr.yml`, etc.
+- `de.json` → `en.json`, `fr.json`, etc.
+
+## Cache Management
+
+### View Cache
+```bash
+# Size
+jq 'length' .i18n_cache/translation_cache.json
+
+# All entries
+jq '.' .i18n_cache/translation_cache.json
+
+# Specific language
+jq 'to_entries[] | select(.key | contains("|en"))' .i18n_cache/translation_cache.json
+```
+
+### Reset Cache
+```bash
+# Local reset
+rm .i18n_cache/translation_cache.json
+
+# Remote reset (i18n-cache branch)
+git checkout i18n-cache
+rm -rf .i18n_cache
+git add -A
+git commit -m "chore: reset translation cache"
+git push origin i18n-cache
+```
 
 ## Troubleshooting
 
-**No translations generated:**
-- Check that files match patterns: `de.yaml`, `de.json`, `README.md`, `DOCS.md`
-- Verify `TARGET_LANGUAGES` environment variable is set
+| Issue | Solution |
+|-------|----------|
+| **No translations generated** | Check files match patterns (de.yaml, README.md, etc.) and TARGET_LANGUAGES is set |
+| **Cache not loading** | i18n-cache branch doesn't exist yet - will be created on first run |
+| **Slow translations** | Add DEEPL_API_KEY for faster DeepL API (vs free fallback) |
+| **API errors in logs** | Check DEEPL_API_KEY validity and MyMemory API status |
+| **PR not created** | Check that translations were actually generated (not "No changes") |
+| **Duplicate PR** | Only one PR exists per time; updates auto-merge to it |
 
-**Cache not found:**
-- i18n-cache branch may not exist yet, will be created on first run
+## Example Workflow Runs
 
-**Translation quality issues:**
-- Check logs for API errors
-- Consider adding DeepL API key for better translations
+### First Run (All Languages)
+```
+✓ Loaded cache with 0 entries
+🔍 Scanning all files...
+📝 README.md
+  ✓ README.md → README.en.md
+  ✓ README.md → README.fr.md
+✅ Done! Generated 2 translations
+📦 Cache saved with 45 entries
+✓ Pushed to i18n-update
+✓ Cache updated on i18n-cache
+✓ Created new PR
+```
 
-## Manual Cache Management
-
-To reset cache:
-```bash
-# Delete cache on i18n-cache branch
-git checkout i18n-cache
-rm -rf .i18n_cache
-git add .
-git commit -m "chore: reset translation cache"
-git push origin i18n-cache
+### Subsequent Push (Changed Files Only)
+```
+✓ Loaded cache with 45 entries
+📌 Push detected changes: de.yaml
+📝 de.yaml
+  ✓ de.yaml → en.yaml
+  ✓ de.yaml → fr.yaml
+✅ Done! Generated 2 translations
+📦 Cache saved with 47 entries
+✓ Pushed to i18n-update
+✓ Cache updated on i18n-cache
+✓ PR #42 already exists (auto-updated)
 ```

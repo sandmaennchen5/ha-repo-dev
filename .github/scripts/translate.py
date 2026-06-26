@@ -1,91 +1,79 @@
+#!/usr/bin/env python3
+"""Translation script for maintaining multi-language documentation."""
+
 import os
 import sys
 import json
 import hashlib
+import argparse
 from pathlib import Path
-from typing import Any, Dict, Optional
-import re
+from typing import Any, Dict, Optional, List
 
 import requests
 import yaml
 
 
+# Config
 TARGET_LANGS = [
     x.strip().lower()
     for x in os.getenv("TARGET_LANGUAGES", "en").split(",")
     if x.strip()
 ]
 
-DEEPL_KEY = os.getenv("DEEPL_API_KEY")
+DEEPL_KEY = os.getenv("DEEPL_API_KEY", "").strip()
 CACHE_DIR = Path(".i18n_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 CACHE_FILE = CACHE_DIR / "translation_cache.json"
-CHANGED_CACHE_FILE = CACHE_DIR / "changed_files.json"
 
-# Chunk size for splitting long texts
-CHUNK_SIZE = 400
-OVERLAP = 50  # Overlap between chunks to preserve context
+# Patterns for files to translate
+FILE_PATTERNS = {
+    "docs": [
+        "README.md",
+        "DOCS.md",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+    ],
+    "docs_prefixed": [r"README_\w+\.md", r"DOCS_\w+\.md"],
+    "translations": [
+        "de.yaml",
+        "de.yml",
+        "de.json",
+    ],
+}
 
 
-def load_json_cache(path: Path) -> dict:
-    """Load JSON cache safely; return empty dict for missing/empty/invalid files."""
-    if not path.exists():
+def load_cache() -> Dict[str, str]:
+    """Load translation cache safely."""
+    if not CACHE_FILE.exists():
         return {}
 
     try:
-        raw = path.read_text(encoding="utf-8").strip()
+        raw = CACHE_FILE.read_text(encoding="utf-8").strip()
         if not raw:
             return {}
-
         data = json.loads(raw)
-        if isinstance(data, dict):
-            return data
-
-        print(f"Warning: Cache file {path} does not contain a JSON object, resetting.")
-        return {}
+        return data if isinstance(data, dict) else {}
     except (json.JSONDecodeError, OSError) as e:
-        print(f"Warning: Could not read cache file {path}: {e}. Resetting.")
+        print(f"⚠ Cache load error: {e}. Starting fresh.")
         return {}
 
 
-CACHE = load_json_cache(CACHE_FILE)
-CHANGED_FILES_CACHE = load_json_cache(CHANGED_CACHE_FILE)
-
-# Translation services
-TRANSLATION_CACHE = {}
+def save_cache(cache: Dict[str, str]):
+    """Save translation cache."""
+    CACHE_FILE.write_text(
+        json.dumps(cache, indent=2, ensure_ascii=False),
+        encoding="utf-8"
+    )
 
 
 def cache_key(text: str, lang: str) -> str:
-    return hashlib.sha256((text + lang).encode()).hexdigest()
-
-
-def save_cache():
-    CACHE_FILE.write_text(json.dumps(CACHE, indent=2, ensure_ascii=False), encoding="utf-8")
-    CHANGED_CACHE_FILE.write_text(json.dumps(CHANGED_FILES_CACHE, indent=2, ensure_ascii=False), encoding="utf-8")
-
-
-def split_into_chunks(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = OVERLAP) -> list[str]:
-    """Split text into chunks with overlap to preserve context."""
-    if len(text) <= chunk_size:
-        return [text]
-    
-    chunks = []
-    start = 0
-    
-    while start < len(text):
-        end = min(start + chunk_size, len(text))
-        chunk = text[start:end]
-        chunks.append(chunk)
-        
-        # Move start position, accounting for overlap
-        start = end - overlap if end < len(text) else end
-    
-    return chunks
+    """Generate cache key for text+language."""
+    return hashlib.sha256((text + "|" + lang).encode()).hexdigest()
 
 
 def deepl_translate(text: str, lang: str) -> Optional[str]:
     """Translate using DeepL API."""
-    if not DEEPL_KEY:
+    if not DEEPL_KEY or not text.strip():
         return None
 
     try:
@@ -103,317 +91,247 @@ def deepl_translate(text: str, lang: str) -> Optional[str]:
             timeout=30,
         )
 
-        if r.status_code == 429:  # Rate limited
+        if r.status_code == 429:
+            print(f"⚠ DeepL rate limited")
             return None
 
         r.raise_for_status()
         return r.json()["translations"][0]["text"]
     except Exception as e:
-        print(f"DeepL error: {e}")
+        print(f"✗ DeepL error: {e}")
         return None
 
 
-def google_translate_fallback(text: str, lang: str) -> Optional[str]:
-    """Fallback: Free MyMemory API with chunk support (no key needed)."""
+def fallback_translate(text: str, lang: str) -> Optional[str]:
+    """Fallback: Free MyMemory API."""
+    if not text.strip():
+        return None
+
+    lang_map = {
+        "en": "en", "fr": "fr", "es": "es", "it": "it", "pt": "pt",
+        "nl": "nl", "pl": "pl", "ru": "ru", "ja": "ja", "zh": "zh-CN",
+        "de": "de",
+    }
+
     try:
-        lang_map = {
-            "en": "en",
-            "fr": "fr",
-            "es": "es",
-            "it": "it",
-            "pt": "pt",
-            "nl": "nl",
-            "pl": "pl",
-            "ru": "ru",
-            "ja": "ja",
-            "zh": "zh-CN",
-            "de": "de",
-        }
-
         target = lang_map.get(lang.lower(), lang.lower())
-
-        # For long texts, split into chunks
-        if len(text) > 500:
-            chunks = split_into_chunks(text, chunk_size=400)
-            translated_chunks = []
-            
-            for chunk in chunks:
-                # MyMemory free API
-                api_url = "https://api.mymemory.translated.net/get"
-                params = {
-                    "q": chunk,
-                    "langpair": f"de|{target}",
-                }
-
-                r = requests.get(api_url, params=params, timeout=15)
-                r.raise_for_status()
-
-                data = r.json()
-                status = data.get("responseStatus")
-
-                if status == 200:
-                    translated = data.get("responseData", {}).get("translatedText", "")
-                    if translated and translated.strip():
-                        translated_chunks.append(translated)
-                    else:
-                        print(f"Fallback: Empty response from MyMemory (lang: {lang})")
-                        return None
-                else:
-                    print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
-                    return None
-            
-            # Merge chunks and remove duplicate overlap
-            result = ""
-            for i, chunk in enumerate(translated_chunks):
-                if i == 0:
-                    result = chunk
-                else:
-                    # Remove overlapping part from previous chunk
-                    if len(result) > OVERLAP:
-                        result = result[:-OVERLAP] + chunk
-                    else:
-                        result += chunk
-            
-            return result if result.strip() else None
-        else:
-            # For short texts, translate directly
-            api_url = "https://api.mymemory.translated.net/get"
-            params = {
-                "q": text,
+        r = requests.get(
+            "https://api.mymemory.translated.net/get",
+            params={
+                "q": text[:500],
                 "langpair": f"de|{target}",
-            }
+            },
+            timeout=15,
+        )
+        r.raise_for_status()
 
-            r = requests.get(api_url, params=params, timeout=15)
-            r.raise_for_status()
-
-            data = r.json()
-            status = data.get("responseStatus")
-
-            if status == 200:
-                translated = data.get("responseData", {}).get("translatedText", "")
-                if translated and translated.strip():
-                    return translated
-                else:
-                    print(f"Fallback: Empty response from MyMemory (lang: {lang})")
-                    return None
-            else:
-                print(f"Fallback: MyMemory returned status {status} (lang: {lang})")
-                return None
+        data = r.json()
+        if data.get("responseStatus") == 200:
+            result = data.get("responseData", {}).get("translatedText", "")
+            return result if result and result.strip() else None
 
     except requests.exceptions.Timeout:
-        print(f"Fallback: API timeout (lang: {lang})")
-    except requests.exceptions.RequestException as e:
-        print(f"Fallback: Network error - {e}")
+        print(f"⚠ Fallback timeout (lang: {lang})")
     except Exception as e:
-        print(f"Fallback: Unexpected error - {e}")
+        print(f"⚠ Fallback error: {e}")
 
     return None
 
 
-def translate_service(text: str, lang: str) -> str:
-    """Try DeepL first, fallback to free service with chunks."""
+def translate(text: str, lang: str, cache: Dict[str, str]) -> str:
+    """Translate text, checking cache first."""
     if not isinstance(text, str) or not text.strip():
         return text
 
     k = cache_key(text, lang)
 
-    # Check local cache first
-    if k in CACHE:
-        return CACHE[k]
+    if k in cache:
+        return cache[k]
 
-    # Try DeepL
+    # Try DeepL first
     if DEEPL_KEY:
         result = deepl_translate(text, lang)
         if result:
-            CACHE[k] = result
+            cache[k] = result
             return result
 
-    # Fallback to free translation with chunk support
-    result = google_translate_fallback(text, lang)
+    # Fallback to free service
+    result = fallback_translate(text, lang)
     if result:
-        CACHE[k] = result
+        cache[k] = result
         return result
 
-    # If all else fails, return original text
-    print(f"Warning: Could not translate text, returning original (lang: {lang})")
+    print(f"⚠ No translation for {lang}, using original")
     return text
 
 
-def walk(obj: Any, lang: str) -> Any:
-    """Recursively translate all strings in an object."""
+def walk_translate(obj: Any, lang: str, cache: Dict[str, str]) -> Any:
+    """Recursively translate all strings in object."""
     if isinstance(obj, str):
-        return translate_service(obj, lang)
+        return translate(obj, lang, cache)
 
     if isinstance(obj, dict):
-        return {k: walk(v, lang) for k, v in obj.items()}
+        return {k: walk_translate(v, lang, cache) for k, v in obj.items()}
 
     if isinstance(obj, list):
-        return [walk(i, lang) for i in obj]
+        return [walk_translate(i, lang, cache) for i in obj]
 
     return obj
 
 
-def translate_yaml(src: Path, lang: str) -> Path:
+def translate_yaml_file(src: Path, lang: str, cache: Dict[str, str]) -> Optional[Path]:
     """Translate YAML file."""
-    data = yaml.safe_load(src.read_text(encoding="utf-8"))
-    out = walk(data, lang)
-    dst = src.parent / f"{lang}{src.suffix}"
-
-    with open(dst, "w", encoding="utf-8") as f:
-        yaml.safe_dump(out, f, allow_unicode=True, sort_keys=False)
-
-    return dst
-
-
-def translate_json(src: Path, lang: str) -> Path:
-    """Translate JSON file."""
-    data = json.loads(src.read_text(encoding="utf-8"))
-    out = walk(data, lang)
-    dst = src.parent / f"{lang}.json"
-
-    with open(dst, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-
-    return dst
-
-
-def translate_md(src: Path, lang: str) -> Path:
-    """Translate Markdown file."""
-    text = src.read_text(encoding="utf-8")
-    out = translate_service(text, lang)
-    dst = src.with_name(f"{src.stem}.{lang}.md")
-    dst.write_text(out, encoding="utf-8")
-
-    return dst
-
-
-def process_file(file: Path) -> list[Path]:
-    """Process a single file and return generated translation files."""
-    generated = []
-
-    for lang in TARGET_LANGS:
-        if lang == "de":  # Skip German, it's the source
-            continue
-
-        try:
-            if file.name in ("README.md", "DOCS.md"):
-                dst = translate_md(file, lang)
-                generated.append(dst)
-
-            elif file.name in ("de.yaml", "de.yml"):
-                dst = translate_yaml(file, lang)
-                generated.append(dst)
-
-            elif file.name == "de.json":
-                dst = translate_json(file, lang)
-                generated.append(dst)
-        except Exception as e:
-            print(f"Error processing {file} to {lang}: {e}")
-
-    return generated
-
-
-def get_changed_files() -> list[Path]:
-    """Get files changed compared to main."""
     try:
-        import subprocess
+        data = yaml.safe_load(src.read_text(encoding="utf-8"))
+        out = walk_translate(data, lang, cache)
 
-        # Get the diff between current branch and origin/main
-        result = subprocess.run(
-            ["git", "diff", "--name-only", "origin/main...HEAD"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        # Keep same extension (yaml or yml)
+        ext = src.suffix
+        dst = src.parent / f"{lang}{ext}"
 
-        changed = [
-            Path(x.strip())
-            for x in result.stdout.splitlines()
-            if x.strip()
-        ]
+        with open(dst, "w", encoding="utf-8") as f:
+            yaml.safe_dump(out, f, allow_unicode=True, sort_keys=False)
 
-        return changed
+        return dst
     except Exception as e:
-        print(f"Warning: Could not get changed files: {e}")
-        return []
+        print(f"✗ YAML translation failed {src}: {e}")
+        return None
 
 
-def get_all_files() -> list[Path]:
-    """Get all files that should be translated."""
-    files = []
-    
-    # Find all README.md and DOCS.md files
-    for pattern in ["README.md", "DOCS.md", "apps/**/README.md", "apps/**/DOCS.md"]:
-        files.extend(Path(".").glob(pattern))
-    
-    # Find all de.yaml, de.yml, de.json files
-    for pattern in ["apps/**/translations/de.yaml", "apps/**/translations/de.yml", "apps/**/translations/de.json"]:
-        files.extend(Path(".").glob(pattern))
-    
-    # Remove duplicates and filter valid files
-    files = list(set(f for f in files if f.exists()))
-    
-    return sorted(files)
+def translate_json_file(src: Path, lang: str, cache: Dict[str, str]) -> Optional[Path]:
+    """Translate JSON file."""
+    try:
+        data = json.loads(src.read_text(encoding="utf-8"))
+        out = walk_translate(data, lang, cache)
+        dst = src.parent / f"{lang}.json"
+
+        with open(dst, "w", encoding="utf-8") as f:
+            json.dump(out, f, ensure_ascii=False, indent=2)
+
+        return dst
+    except Exception as e:
+        print(f"✗ JSON translation failed {src}: {e}")
+        return None
 
 
-def should_process_file(file: Path) -> bool:
-    """Check if file should be processed."""
+def translate_markdown_file(src: Path, lang: str, cache: Dict[str, str]) -> Optional[Path]:
+    """Translate Markdown file."""
+    try:
+        text = src.read_text(encoding="utf-8")
+        out = translate(text, lang, cache)
+        dst = src.with_stem(f"{src.stem}.{lang}")
+
+        dst.write_text(out, encoding="utf-8")
+        return dst
+    except Exception as e:
+        print(f"✗ Markdown translation failed {src}: {e}")
+        return None
+
+
+def should_translate(file: Path) -> bool:
+    """Check if file should be translated."""
     name = file.name
 
-    if name in ("README.md", "DOCS.md"):
+    # Markdown files
+    if name in FILE_PATTERNS["docs"]:
         return True
+    if name.endswith(".md"):
+        for pattern in FILE_PATTERNS["docs_prefixed"]:
+            if __import__("re").match(pattern, name):
+                return True
 
-    if name in ("de.yaml", "de.yml", "de.json"):
-        return True
-
-    if name.startswith("README_") and name.endswith(".md"):
-        return True
-
-    if name.startswith("DOCS_") and name.endswith(".md"):
+    # Config files
+    if name in FILE_PATTERNS["translations"]:
         return True
 
     return False
 
 
+def find_files_to_translate(translate_all: bool, changed_files_path: Optional[str] = None) -> List[Path]:
+    """Find files to translate."""
+    files = []
+
+    if translate_all:
+        print("🔍 Scanning all files...")
+        for root, dirs, filenames in os.walk("."):
+            # Skip hidden dirs
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+
+            for fname in filenames:
+                fpath = Path(root) / fname
+                if should_translate(fpath) and not fpath.as_posix().startswith(".i18n_cache"):
+                    files.append(fpath)
+    else:
+        print(f"📋 Reading changed files from {changed_files_path}...")
+        if changed_files_path and Path(changed_files_path).exists():
+            for line in Path(changed_files_path).read_text().splitlines():
+                line = line.strip()
+                if line and Path(line).exists() and should_translate(Path(line)):
+                    files.append(Path(line))
+
+    return files
+
+
+def process_file(file: Path, cache: Dict[str, str]) -> List[Path]:
+    """Translate a single file to all target languages."""
+    generated = []
+
+    for lang in TARGET_LANGS:
+        if lang == "de":
+            continue
+
+        try:
+            if file.suffix in (".md",):
+                dst = translate_markdown_file(file, lang, cache)
+            elif file.suffix in (".yml", ".yaml"):
+                dst = translate_yaml_file(file, lang, cache)
+            elif file.suffix == ".json":
+                dst = translate_json_file(file, lang, cache)
+            else:
+                continue
+
+            if dst:
+                generated.append(dst)
+                print(f"  ✓ {file.name} → {dst.name}")
+        except Exception as e:
+            print(f"  ✗ Error: {e}")
+
+    return generated
+
+
 def main():
     """Main translation workflow."""
+    parser = argparse.ArgumentParser(description="Translate German files to multiple languages")
+    parser.add_argument("--all", action="store_true", help="Translate all files (ignore change detection)")
+    parser.add_argument("files", nargs="?", help="File with list of changed files (one per line)")
 
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "--all":
-            # Translate all files
-            print("Translating ALL files...")
-            files = get_all_files()
-        else:
-            # Use provided file list
-            input_file = Path(sys.argv[1])
-            files = [
-                Path(x.strip())
-                for x in input_file.read_text().splitlines()
-                if x.strip() and Path(x.strip()).exists()
-            ]
-    else:
-        # Get changed files
-        files = get_changed_files()
+    args = parser.parse_args()
+
+    # Load cache
+    cache = load_cache()
+    print(f"📦 Loaded cache with {len(cache)} entries")
+
+    # Find files to translate
+    files = find_files_to_translate(args.all, args.files)
 
     if not files:
-        print("No files to process")
+        print("ℹ No files to translate")
+        save_cache(cache)
         return
 
-    print(f"Processing {len(files)} files")
+    print(f"\n🌍 Processing {len(files)} file(s)...\n")
 
     all_generated = []
-
     for f in files:
-        if should_process_file(f):
-            print(f"Translating {f}")
-            generated = process_file(f)
-            all_generated.extend(generated)
-        else:
-            print(f"Skipping {f}")
+        print(f"📝 {f}")
+        generated = process_file(f, cache)
+        all_generated.extend(generated)
 
-    save_cache()
+    # Save cache
+    save_cache(cache)
+    print(f"\n✅ Done! Generated {len(all_generated)} translations")
+    print(f"📦 Cache saved with {len(cache)} entries")
 
-    print(f"Generated {len(all_generated)} translation files:")
     for f in all_generated:
         print(f"  - {f}")
 
