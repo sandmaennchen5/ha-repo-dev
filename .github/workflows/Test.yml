@@ -1,10 +1,10 @@
-name: i18n Update
+name: Create empty branch
 
 on:
   workflow_dispatch:
 
 jobs:
-  update-i18n:
+  create-empty-branch:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,26 +32,17 @@ jobs:
           git checkout -b i18n-update
           git push origin i18n-update
 
-      # Jetzt Branch sauber auschecken (IMMER Git-Repo!)
-      - name: Checkout i18n-update clean
+      # Branch sauber auschecken (IMMER Git-Repo!)
+      - name: Checkout i18n-update
         uses: actions/checkout@v4
         with:
           ref: i18n-update
           fetch-depth: 0
 
-      # Branch nur beim ersten Mal leeren
-      - name: Clear branch if new
-        if: steps.check.outputs.exists == 'false'
+      # Branch komplett leeren
+      - name: Clear branch
         run: |
           find . -mindepth 1 ! -name ".git" -exec rm -rf {} +
-
-      # Dateien aus main holen
-      - name: Copy selected files
-        run: |
-          mkdir selected
-          cp -r ../main/Apps/*/README.md selected/ 2>/dev/null || true
-          cp -r ../main/Apps/Translation selected/ 2>/dev/null || true
-          cp -r selected/* ./
 
       # Commit + Push
       - name: Commit and push
@@ -59,5 +50,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add -A
-          git commit -m "i18n update" || echo "No changes"
+          git commit -m "Initialize empty branch" || echo "No changes"
           git push origin i18n-update
