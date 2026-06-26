@@ -14,13 +14,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          path: main
 
       # Prüfen, ob Branch existiert
       - name: Check if branch exists
         id: check
         run: |
-          cd main
           if git ls-remote --exit-code --heads origin i18n-update; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -31,40 +29,33 @@ jobs:
       - name: Create branch if missing
         if: steps.check.outputs.exists == 'false'
         run: |
-          cd main
           git checkout -b i18n-update
           git push origin i18n-update
 
-      # Ziel-Branch IMMER sauber auschecken
-      - name: Checkout i18n-update
+      # Jetzt Branch sauber auschecken (IMMER Git-Repo!)
+      - name: Checkout i18n-update clean
         uses: actions/checkout@v4
         with:
           ref: i18n-update
           fetch-depth: 0
-          path: target
 
-      # Branch NUR beim ersten Mal leeren
+      # Branch nur beim ersten Mal leeren
       - name: Clear branch if new
         if: steps.check.outputs.exists == 'false'
         run: |
-          cd target
           find . -mindepth 1 ! -name ".git" -exec rm -rf {} +
 
-      # Dateien aus main vorbereiten
-      - name: Prepare selected files
-        run: |
-          mkdir selected
-          cp -r main/apps/newt/README.md selected/ 2>/dev/null || true
-
-      # Dateien kopieren (überschreiben)
+      # Dateien aus main holen
       - name: Copy selected files
         run: |
-          cp -r selected/* target/ 2>/dev/null || true
+          mkdir selected
+          cp -r ../main/Apps/*/README.md selected/ 2>/dev/null || true
+          cp -r ../main/Apps/Translation selected/ 2>/dev/null || true
+          cp -r selected/* ./
 
       # Commit + Push
       - name: Commit and push
         run: |
-          cd target
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add -A
