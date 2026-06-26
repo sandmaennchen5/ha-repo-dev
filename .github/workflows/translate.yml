@@ -52,7 +52,12 @@ jobs:
           if git fetch origin i18n-update 2>/dev/null; then
             echo "i18n-update branch exists, checking out..."
             git checkout i18n-update
-            git merge --no-edit origin/main
+            git checkout origin/main -- README.md DOCS.md apps/
+            git add README.md DOCS.md apps/ || true
+            if ! git diff --cached --quiet; then
+              git commit -m "chore(i18n): sync sources from main"
+              git push origin i18n-update
+            fi
           else
             echo "i18n-update branch does not exist, creating..."
             git checkout -b i18n-update origin/main
