@@ -8,47 +8,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # MAIN auschecken
       - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      # Prüfen, ob Branch existiert
-      - name: Check if branch exists
-        id: check
+      - name: Create empty branch
         run: |
-          if git ls-remote --exit-code --heads origin i18n-update; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+          # Prüfen, ob Branch existiert
+          if git ls-remote --exit-code --heads origin leerer-branch; then
+            echo "Branch exists, recreating empty version"
+            git checkout leerer-branch
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Branch missing, creating new empty branch"
+            git checkout --orphan leerer-branch
           fi
 
-      # Branch erstellen, wenn er fehlt
-      - name: Create branch if missing
-        if: steps.check.outputs.exists == 'false'
-        run: |
-          git checkout -b i18n-update
-          git push origin i18n-update
+          # Alles löschen
+          git rm -rf . || true
 
-      # Branch sauber auschecken (IMMER Git-Repo!)
-      - name: Checkout i18n-update
-        uses: actions/checkout@v4
-        with:
-          ref: i18n-update
-          fetch-depth: 0
+          # Leeren Commit erstellen
+          git commit --allow-empty -m "Initialize empty branch"
 
-      # Branch komplett leeren
-      - name: Clear branch
-        run: |
-          find . -mindepth 1 ! -name ".git" -exec rm -rf {} +
-
-      # Commit + Push
-      - name: Commit and push
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add -A
-          git commit -m "Initialize empty branch" || echo "No changes"
-          git push origin i18n-update
+          # Push erzwingen
+          git push -f origin leerer-branch
