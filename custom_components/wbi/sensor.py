@@ -1,13 +1,16 @@
 import aiohttp
 import async_timeout
+import logging
+from datetime import timedelta
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
-from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, CONF_STATION, BASE_URL_WBI, BASE_URL_GFI
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
     station = entry.data[CONF_STATION]
@@ -24,9 +27,9 @@ class DwdCoordinator(DataUpdateCoordinator):
     def __init__(self, hass, station):
         super().__init__(
             hass,
-            logger=hass.logger,
+            logger=_LOGGER,
             name="DWD Gefahrenindex",
-            update_interval=dt_util.timedelta(minutes=60),
+            update_interval=timedelta(minutes=60),
         )
         self.station = station
 
