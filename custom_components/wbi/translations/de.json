@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "DWD Gefahrenindex",
+        "description": "Station-ID für Waldbrand- & Graslandfeuerindex eingeben",
+        "data": {
+          "station": "Stations-ID (z.B. 123)"
+        }
+      }
+    }
+  }
+}

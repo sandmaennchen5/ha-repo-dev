@@ -1,0 +1,19 @@
+blueprint:
+  name: WBI Map Card
+  description: Leaflet Map für Waldbrand- & Graslandfeuerindex
+  domain: lovelace
+
+cards:
+  type: custom:leaflet-map
+  layers:
+    - type: marker
+      name: Waldbrandindex
+      latitude: {{ station_lat }}
+      longitude: {{ station_lon }}
+      icon: mdi:fire-alert
+
+    - type: marker
+      name: Graslandfeuerindex
+      latitude: {{ station_lat }}
+      longitude: {{ station_lon }}
+      icon: mdi:grass

@@ -1,0 +1,14 @@
+{
+  "domain": "wbi",
+  "name": "DWD Waldbrand- & Graslandfeuerindex",
+  "version": "1.0.0",
+  "documentation": "https://github.com/deinuser/wbi-hacs-integration",
+  "requirements": [
+    "aiohttp",
+    "async_timeout"
+  ],
+  "codeowners": [
+    "@deinuser"
+  ],
+  "iot_class": "cloud_polling"
+}
