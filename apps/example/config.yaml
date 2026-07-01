@@ -1,0 +1,16 @@
+name: "Example App"
+version: "1.0.0"
+slug: "example"
+description: "Example app – use as blueprint for new apps."
+url: "https://github.com/sandmaennchen5/ha-repo-dev/tree/main/apps/example"
+arch:
+  - aarch64
+  - amd64
+init: false
+map:
+  - share:rw
+options:
+  message: "Hello world..."
+schema:
+  message: "str?"
+image: "ghcr.io/sandmaennchen5/ha-example"

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}
+Health
+{% endblock %}
+
+{% block titlebar %}
+Health
+{% endblock %}
+
+{% block content %}
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Health Score
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.health_score }}%
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🟢 Green
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.green }}
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🟡 Yellow
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.yellow }}
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🔴 Red
+
+        </div>
+
+        <div class="card-value">
+
+            {{ stats.red }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Health Chart
+
+    </h2>
+
+    <canvas id="healthChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Beste Apps
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                App
+
+            </th>
+
+            <th>
+
+                Score
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for app in apps|sort(attribute='score', reverse=True) %}
+
+        {% if loop.index <= 10 %}
+
+        <tr>
+
+            <td>
+
+                <a href="{{ base_url }}/apps/{{ app.slug }}/">
+
+                    {{ app.name }}
+
+                </a>
+
+            </td>
+
+            <td>
+
+                {{ app.score }}%
+
+            </td>
+
+        </tr>
+
+        {% endif %}
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+const healthStats = {
+
+    green: {{ stats.green }},
+    yellow: {{ stats.yellow }},
+    red: {{ stats.red }}
+
+};
+
+</script>
+
+{% endblock %}

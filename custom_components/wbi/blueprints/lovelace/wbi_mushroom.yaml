@@ -1,0 +1,27 @@
+blueprint:
+  name: WBI Mushroom Card
+  description: Waldbrand- & Graslandfeuerindex Mushroom Card
+  domain: lovelace
+
+cards:
+  type: horizontal-stack
+  cards:
+    - type: custom:mushroom-template-card
+      entity: sensor.waldbrandindex
+      primary: Waldbrandindex
+      secondary: >
+        Stufe: {{ states('sensor.waldbrandindex') }}
+      icon: mdi:fire-alert
+      badge_color: >
+        {% set v = states('sensor.waldbrandindex') | int %}
+        {% if v == 1 %} green {% elif v == 2 %} light-green {% elif v == 3 %} orange {% elif v == 4 %} red {% elif v == 5 %} purple {% else %} grey {% endif %}
+
+    - type: custom:mushroom-template-card
+      entity: sensor.graslandfeuerindex
+      primary: Graslandfeuerindex
+      secondary: >
+        Stufe: {{ states('sensor.graslandfeuerindex') }}
+      icon: mdi:grass
+      badge_color: >
+        {% set v = states('sensor.graslandfeuerindex') | int %}
+        {% if v == 1 %} green {% elif v == 2 %} yellow {% elif v == 3 %} orange {% elif v == 4 %} red {% elif v == 5 %} purple {% else %} grey {% endif %}

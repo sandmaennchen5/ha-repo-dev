@@ -1,0 +1,59 @@
+name: Generate Dashboard
+
+on:
+  workflow_run:
+    workflows:
+      - "Update README Badges"
+    types:
+      - completed
+
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/config.yaml"
+      - ".github/scripts/dashboard/**"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dashboard
+  cancel-in-progress: true
+
+jobs:
+  dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.5.0
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install pyyaml jinja2
+
+      - name: Generate history snapshot
+        run: python .github/scripts/dashboard/history_generator.py
+
+      - name: Export health data
+        run: python .github/scripts/dashboard/health_export.py
+
+      - name: Generate dashboard HTML
+        run: python .github/scripts/dashboard/dashboard_generator.py
+
+      - name: Publish to dashboard branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: dashboard
+          publish_dir: .dashboard
+          force_orphan: true

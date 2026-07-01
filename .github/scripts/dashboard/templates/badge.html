@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ badge.label }}
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <h2>
+
+        {{ badge.label }}
+
+    </h2>
+
+    <p>
+
+        {{ badge.group }}
+
+    </p>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Vorschau
+
+    </h2>
+
+    <img
+        src="{{ badge.url }}"
+        alt="{{ badge.label }}">
+
+</div>
+
+
+<div class="panel">
+
+    <table>
+
+        <tbody>
+
+        <tr>
+
+            <th>
+
+                Label
+
+            </th>
+
+            <td>
+
+                {{ badge.label }}
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <th>
+
+                Value
+
+            </th>
+
+            <td>
+
+                {{ badge.value }}
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <th>
+
+                Group
+
+            </th>
+
+            <td>
+
+                {{ badge.group }}
+
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <th>
+
+                URL
+
+            </th>
+
+            <td>
+
+                <code>
+
+                    {{ badge.url }}
+
+                </code>
+
+            </td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

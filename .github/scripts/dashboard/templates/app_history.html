@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ app.name }} History
+{% endblock %}
+
+{% block content %}
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-title">
+
+            App
+
+        </div>
+
+        <div class="card-value">
+
+            {{ app.name }}
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Version
+
+        </div>
+
+        <div class="card-value">
+
+            {{ app.version }}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Score Verlauf
+
+    </h2>
+
+    <canvas id="scoreChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Badge Verlauf
+
+    </h2>
+
+    <canvas id="badgeChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Green / Yellow / Red
+
+    </h2>
+
+    <canvas id="statusChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Snapshots
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Zeit</th>
+            <th>Score</th>
+            <th>Badges</th>
+            <th>🟢</th>
+            <th>🟡</th>
+            <th>🔴</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for snapshot in history|reverse %}
+
+        <tr>
+
+            <td>{{ snapshot.timestamp }}</td>
+
+            <td>{{ snapshot.score }}%</td>
+
+            <td>{{ snapshot.badges }}</td>
+
+            <td>{{ snapshot.green }}</td>
+
+            <td>{{ snapshot.yellow }}</td>
+
+            <td>{{ snapshot.red }}</td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+const scoreHistory = [
+
+{% for snapshot in history %}
+
+{
+
+timestamp:"{{ snapshot.timestamp }}",
+
+score:{{ snapshot.score }},
+
+badges:{{ snapshot.badges }},
+
+green:{{ snapshot.green }},
+
+yellow:{{ snapshot.yellow }},
+
+red:{{ snapshot.red }}
+
+}
+
+{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+];
+
+</script>
+
+{% endblock %}

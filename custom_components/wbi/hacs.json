@@ -1,0 +1,6 @@
+{
+  "name": "DWD Waldbrand- & Graslandfeuerindex",
+  "content_in_root": false,
+  "domains": ["wbi"],
+  "country": "DE"
+}

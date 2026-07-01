@@ -1,0 +1,948 @@
+:root {
+
+    --bg: #f5f7fb;
+    --sidebar: #111827;
+    --card: #ffffff;
+    --border: #e5e7eb;
+
+    --text: #111827;
+    --muted: #6b7280;
+
+    --blue: #2563eb;
+
+    --green: #16a34a;
+    --yellow: #f59e0b;
+    --red: #dc2626;
+
+}
+
+
+body[data-theme="dark"] {
+
+    --bg: #111827;
+
+    --sidebar: #030712;
+
+    --card: #1f2937;
+
+    --border: #374151;
+
+    --text: #f3f4f6;
+
+    --muted: #9ca3af;
+
+}
+
+
+* {
+
+    box-sizing: border-box;
+
+}
+
+
+body {
+
+    margin: 0;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+}
+
+
+.layout {
+
+    display: flex;
+
+    min-height: 100vh;
+
+}
+
+
+.sidebar {
+
+    width: 260px;
+
+    background: var(--sidebar);
+
+    color: white;
+
+    padding: 25px;
+
+}
+
+
+.logo h1 {
+
+    margin: 0;
+
+    font-size: 28px;
+
+}
+
+
+.subtitle {
+
+    margin-top: 10px;
+
+    color: #94a3b8;
+
+}
+
+
+.sidebar nav {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 40px;
+
+}
+
+
+.sidebar a {
+
+    color: white;
+
+    text-decoration: none;
+
+    padding: 14px;
+
+    border-radius: 14px;
+
+    transition: .2s;
+
+}
+
+
+.sidebar a:hover {
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .1
+        );
+
+}
+
+
+.main {
+
+    flex: 1;
+
+}
+
+
+.topbar {
+
+    padding: 30px 40px;
+
+}
+
+
+.content {
+
+    padding: 0 40px 40px;
+
+}
+
+
+.cards {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap: 20px;
+
+}
+
+
+.card {
+
+    background: var(--card);
+
+    border-radius: 18px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 4px 14px
+        rgba(
+            0,
+            0,
+            0,
+            .05
+        );
+
+    transition: .2s;
+
+}
+
+
+.card:hover {
+
+    transform:
+        translateY(
+            -3px
+        );
+
+}
+
+
+.card-title {
+
+    color: var(--muted);
+
+    font-size: 14px;
+
+}
+
+
+.card-value {
+
+    margin-top: 15px;
+
+    font-size: 34px;
+
+    font-weight: bold;
+
+}
+
+
+.panel {
+
+    background: var(--card);
+
+    border-radius: 18px;
+
+    margin-top: 25px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 4px 14px
+        rgba(
+            0,
+            0,
+            0,
+            .05
+        );
+
+}
+
+/*
+ * Tables
+ */
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+}
+
+
+th {
+
+    text-align: left;
+
+    padding: 16px;
+
+    border-bottom:
+        1px solid
+        var(--border);
+
+}
+
+
+td {
+
+    padding: 16px;
+
+    border-bottom:
+        1px solid
+        var(--border);
+
+}
+
+
+tr:hover {
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            .03
+        );
+
+}
+
+
+/*
+ * Matrix
+ */
+
+.matrix-tools {
+
+    display: flex;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 20px;
+
+}
+
+
+.table-scroll {
+
+    overflow-x: auto;
+
+}
+
+
+.table-scroll table {
+
+    min-width: 900px;
+
+}
+
+
+#matrixTable {
+
+    white-space: nowrap;
+
+}
+
+
+.sticky-column {
+
+    position: sticky;
+
+    left: 0;
+
+    background: var(--card);
+
+    z-index: 2;
+
+}
+
+
+#matrixTable thead th {
+
+    position: sticky;
+
+    top: 0;
+
+    background: var(--card);
+
+    z-index: 3;
+
+}
+
+
+/*
+ * Heatmap
+ */
+
+.matrix-green {
+
+    background: #dcfce7;
+
+}
+
+
+.matrix-yellow {
+
+    background: #fef9c3;
+
+}
+
+
+.matrix-red {
+
+    background: #fee2e2;
+
+}
+
+
+.matrix-green,
+.matrix-yellow,
+.matrix-red {
+
+    text-align: center;
+
+    font-weight: bold;
+
+}
+
+
+/*
+ * Health Bar
+ */
+
+.health-bar {
+
+    width: 120px;
+
+    height: 12px;
+
+    background: #e5e7eb;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin-bottom: 8px;
+
+}
+
+
+.health-fill {
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #16a34a,
+            #22c55e
+        );
+
+}
+
+
+/*
+ * Charts
+ */
+
+canvas {
+
+    width: 100% !important;
+
+    min-height: 350px;
+
+}
+
+
+.panel canvas {
+
+    margin-top: 20px;
+
+}
+
+
+/*
+ * Buttons
+ */
+
+button {
+
+    border: none;
+
+    background: var(--blue);
+
+    color: white;
+
+    border-radius: 12px;
+
+    padding: 10px 16px;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+}
+
+
+button:hover {
+
+    opacity: .9;
+
+}
+
+
+/*
+ * Code
+ */
+
+code {
+
+    background: #f3f4f6;
+
+    padding: 4px 8px;
+
+    border-radius: 8px;
+
+}
+
+
+pre {
+
+    background: #f8fafc;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    overflow-x: auto;
+
+}
+
+
+/*
+ * Search
+ */
+
+.panel-header input {
+
+    width: 260px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        var(--border);
+
+}
+
+
+/*
+ * YAML / JSON
+ */
+
+#labYaml,
+#labJson {
+
+    min-height: 180px;
+
+}
+
+
+#labDiff {
+
+    min-height: 120px;
+
+}
+
+/*
+ * Badge Lab
+ */
+
+.lab-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                300px,
+                1fr
+            )
+        );
+
+    gap: 20px;
+
+}
+
+
+.lab-grid label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+
+}
+
+
+/*
+ * Override Grid
+ */
+
+.override-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap: 20px;
+
+}
+
+
+.override-grid label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+
+}
+
+
+/*
+ * Preview
+ */
+
+.override-preview {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+}
+
+
+.override-preview img {
+
+    max-height: 60px;
+
+}
+
+
+/*
+ * Form Controls
+ */
+
+select {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        var(--border);
+
+    background: var(--card);
+
+    color: var(--text);
+
+}
+
+
+input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        var(--border);
+
+    background: var(--card);
+
+    color: var(--text);
+
+}
+
+
+textarea {
+
+    width: 100%;
+
+    min-height: 120px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid
+        var(--border);
+
+    background: var(--card);
+
+    color: var(--text);
+
+    font-family:
+        monospace;
+
+    resize: vertical;
+
+}
+
+
+/*
+ * Utilities
+ */
+
+.flex {
+
+    display: flex;
+
+}
+
+
+.flex-between {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+}
+
+
+.gap-10 {
+
+    gap: 10px;
+
+}
+
+
+.gap-20 {
+
+    gap: 20px;
+
+}
+
+
+.mt-10 {
+
+    margin-top: 10px;
+
+}
+
+
+.mt-20 {
+
+    margin-top: 20px;
+
+}
+
+
+.mt-30 {
+
+    margin-top: 30px;
+
+}
+
+
+.mb-10 {
+
+    margin-bottom: 10px;
+
+}
+
+
+.mb-20 {
+
+    margin-bottom: 20px;
+
+}
+
+
+.text-center {
+
+    text-align: center;
+
+}
+
+
+/*
+ * Links
+ */
+
+a {
+
+    color: var(--blue);
+
+    text-decoration: none;
+
+}
+
+
+.card-value a {
+
+    color: inherit;
+
+}
+
+
+/*
+ * Images
+ */
+
+table img {
+
+    vertical-align: middle;
+
+    max-width: 100%;
+
+}
+
+
+/*
+ * Panels
+ */
+
+.panel h2 {
+
+    margin-top: 0;
+
+}
+
+
+.panel p:last-child {
+
+    margin-bottom: 0;
+
+}
+
+
+/*
+ * Footer
+ */
+
+footer {
+
+    color: var(--muted);
+
+    padding: 40px;
+
+}
+
+
+/*
+ * Responsive
+ */
+
+@media (
+max-width: 1000px
+) {
+
+    .layout {
+
+        flex-direction: column;
+
+    }
+
+    .sidebar {
+
+        width: 100%;
+
+    }
+
+    .content {
+
+        padding: 20px;
+
+    }
+
+    .cards {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .lab-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .override-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+    .matrix-tools {
+
+        flex-direction: column;
+
+    }
+
+}
+
+.rounded .card {
+    border-radius: 16px;
+}
+
+.compact-tables table td,
+.compact-tables table th {
+
+    padding: 4px 8px;
+
+}
+
+.no-cards .card {
+
+    border: none;
+
+    box-shadow: none;
+
+}
+
+.theme-dark {
+
+    background: #111;
+
+    color: #eee;
+
+}
+
+.theme-dark .card,
+.theme-dark .panel {
+
+    background: #1b1b1b;
+
+    border-color: #333;
+
+}
+
+.theme-dark a {
+
+    color: #7db4ff;
+
+}

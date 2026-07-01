@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}
+History
+{% endblock %}
+
+{% block titlebar %}
+History
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <h2>
+
+        Verlauf
+
+    </h2>
+
+    <canvas id="historyChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Snapshots
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Zeit</th>
+            <th>Apps</th>
+            <th>Badges</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for item in history|reverse %}
+
+        <tr>
+
+            <td>
+
+                {{ item.timestamp }}
+
+            </td>
+
+            <td>
+
+                {{ item.apps }}
+
+            </td>
+
+            <td>
+
+                {{ item.badges }}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+const historyData = [
+
+{% for item in history %}
+
+{
+    timestamp: "{{ item.timestamp }}",
+    apps: {{ item.apps }}
+}
+
+{% if not loop.last %},{% endif %}
+
+{% endfor %}
+
+];
+
+</script>
+
+{% endblock %}

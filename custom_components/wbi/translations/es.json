@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Índice de riesgo DWD",
+        "description": "Introduzca el ID de estación para el índice de incendios forestales y de pastizales",
+        "data": {
+          "station": "ID de la estación (por ejemplo, 123)"
+        }
+      }
+    }
+  }
+}

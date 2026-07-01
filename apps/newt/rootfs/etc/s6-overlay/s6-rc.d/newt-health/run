@@ -1,0 +1,57 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Newt Healthcheck Service (runs alongside main newt service)
+# Checks every 30s: process alive + endpoint reachable
+# Writes /tmp/newt_healthy as watchdog token
+# ==============================================================================
+
+readonly HEALTH_FILE="/tmp/newt_healthy"
+readonly READY_FILE="/tmp/newt_ready"
+readonly CHECK_INTERVAL=30
+readonly MAX_FAILURES=3
+
+fail_count=0
+
+bashio::log.info "Healthcheck service started."
+
+while true; do
+    sleep "${CHECK_INTERVAL}"
+
+    # Don't check until startup readiness is confirmed
+    if [[ ! -f "${READY_FILE}" ]]; then
+        bashio::log.debug "Waiting for startup readiness before health checks..."
+        continue
+    fi
+
+    healthy=true
+
+    # 1. Check newt process is running
+    if ! pgrep -x "newt" > /dev/null 2>&1; then
+        bashio::log.warning "Healthcheck: newt process not found."
+        healthy=false
+    fi
+
+    # 2. Check endpoint is reachable
+    endpoint=$(bashio::config 'endpoint')
+    if ! curl -sf --max-time 10 "${endpoint}" > /dev/null 2>&1; then
+        bashio::log.warning "Healthcheck: endpoint ${endpoint} not reachable."
+        healthy=false
+    fi
+
+    if ${healthy}; then
+        touch "${HEALTH_FILE}"
+        fail_count=0
+        bashio::log.debug "Healthcheck: OK"
+    else
+        rm -f "${HEALTH_FILE}"
+        (( fail_count++ ))
+        bashio::log.warning "Healthcheck: failure ${fail_count}/${MAX_FAILURES}"
+
+        if (( fail_count >= MAX_FAILURES )); then
+            bashio::log.error "Healthcheck: ${MAX_FAILURES} consecutive failures – signalling run loop."
+            # Kill newt so run.sh restart loop triggers auto-reconnect
+            pkill -TERM newt 2>/dev/null || true
+            fail_count=0
+        fi
+    fi
+done

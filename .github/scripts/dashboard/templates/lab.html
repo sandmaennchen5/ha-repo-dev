@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}
+Badge Lab
+{% endblock %}
+
+{% block titlebar %}
+Badge Lab
+{% endblock %}
+
+{% block content %}
+
+<div class="panel">
+
+    <h2>
+
+        Badge auswählen
+
+    </h2>
+
+    <div class="lab-grid">
+
+        <div>
+
+            <label>
+
+                App
+
+            </label>
+
+            <select id="labApp"></select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Badge
+
+            </label>
+
+            <select id="labBadge"></select>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Override
+
+    </h2>
+
+    <div class="override-grid">
+
+        <div>
+
+            <label>
+
+                Label
+
+            </label>
+
+            <input id="overrideLabel">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Value
+
+            </label>
+
+            <input id="overrideValue">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Color
+
+            </label>
+
+            <select id="overrideColor">
+
+                <option value=""></option>
+
+                <option>brightgreen</option>
+                <option>green</option>
+                <option>yellow</option>
+                <option>orange</option>
+                <option>red</option>
+                <option>blue</option>
+                <option>lightgrey</option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Style
+
+            </label>
+
+            <select id="overrideStyle">
+
+                <option value="flat">flat</option>
+                <option value="flat-square">flat-square</option>
+                <option value="plastic">plastic</option>
+                <option value="for-the-badge">for-the-badge</option>
+                <option value="social">social</option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Logo
+
+            </label>
+
+            <input id="overrideLogo">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                LogoColor
+
+            </label>
+
+            <input id="overrideLogoColor">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Vorschau
+
+    </h2>
+
+    <div class="override-preview">
+
+        <img id="labPreview">
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            URL
+
+        </h2>
+
+        <button id="copyUrl">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labUrl"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            Markdown
+
+        </h2>
+
+        <button id="copyMarkdown">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labMarkdown"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Original
+
+    </h2>
+
+    <pre id="labDefinition"></pre>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            Änderungen
+
+        </h2>
+
+        <button id="resetOverride">
+
+            Reset
+
+        </button>
+
+    </div>
+
+    <pre id="labDiff"></pre>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            YAML
+
+        </h2>
+
+        <button id="copyYaml">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labYaml"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            JSON
+
+        </h2>
+
+        <button id="copyJson">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labJson"></textarea>
+
+</div>
+
+{% endblock %}

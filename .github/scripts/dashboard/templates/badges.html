@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Badges{% endblock %}
+{% block content %}
+<h2>Global Badge Registry</h2>
+<input id="badgeSearch" placeholder="Search">
+<table id="badgesTable">
+<thead><tr><th>App</th><th>Badge</th><th>Value</th><th>Status</th></tr></thead>
+<tbody></tbody>
+</table>
+<script src="{{ base_url }}/assets/badges.js"></script>
+{% endblock %}

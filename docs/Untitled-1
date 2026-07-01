@@ -1,0 +1,31 @@
+ha-repo-dev/
+├── .github/
+│   ├── config.yaml          ← Zentrale Konfiguration: Badges + Dashboard (in einer Datei)
+│   ├── schema/              ← JSON-Schemas für Validierung
+│   ├── scripts/
+│   │   ├── utils.py         ← NEU: Transform-Pipeline (replace, join, split, prefix, …)
+│   │   ├── badge_generator.py
+│   │   ├── readme_generator.py
+│   │   ├── health_check.py
+│   │   ├── plugins/         ← Erweiterbares Plugin-System
+│   │   └── dashboard/       ← Generator + HTML-Templates + Assets
+│   └── workflows/
+│       ├── hasos_app.yml         ← App bauen (manuell + automatisch)
+│       ├── update_readme.yml     ← README-Badges aktualisieren
+│       ├── generate_dashboard.yml ← Dashboard generieren
+│       ├── badge-lint.yml        ← Schema & Health-Check
+│       ├── yaml-lint.yaml
+│       ├── docker-lint.yaml
+│       └── translate.yml
+├── apps/
+│   ├── newt/                ← Newt Pangolin-App (vollständig)
+│   └── example/             ← Blueprint für neue Apps
+├── blueprints/              ← Für zukünftige Home Assistant Blueprints
+├── custom_components/       ← Für zukünftige HACS
+├── themes/                  ← Für zukünftige HACS
+├── python_scripts/          ← Für zukünftige HACS
+├── hacs.json
+├── docs/                    ← Dokumentation (BADGES, CONFIG, DASHBOARD, VAR, …)
+├── repository.yaml
+├── README.md                ← Badges werden automatisch eingefügt
+└── LICENSE

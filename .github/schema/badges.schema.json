@@ -1,0 +1,73 @@
+{
+  "type": "object",
+  "properties": {
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "color": { "type": "string" },
+        "style": { "type": "string" },
+        "separator": { "type": "string" },
+        "replacements": { "type": "object" },
+        "query": { "type": "object" },
+        "shields": { "type": "object" }
+      }
+    },
+    "groups": { "type": "object" },
+    "badges": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "source": { "type": "string" },
+          "label": { "type": "string" },
+          "group": { "type": "string" },
+          "order": { "type": "integer" },
+          "color": { "type": "string" },
+          "color_true": { "type": "string" },
+          "color_false": { "type": "string" },
+          "text_true": { "type": "string" },
+          "text_false": { "type": "string" },
+          "separator": { "type": "string" },
+          "style": { "type": "string" },
+          "logo": { "type": "string" },
+          "logoColor": { "type": "string" },
+          "logoUrl": { "type": "string" },
+          "plugin": { "type": "string" },
+          "text": {},
+          "shield": { "type": "string" },
+          "url": { "type": "string" },
+          "query": { "type": "object" },
+          "repo": { "type": "string" },
+          "prefix": { "type": "string" },
+          "suffix": { "type": "string" },
+          "template": { "type": "string" },
+          "enabled": { "type": "boolean" },
+          "show_empty": { "type": "boolean" },
+          "empty_value": {},
+          "fallback": {},
+          "uppercase": { "type": "boolean" },
+          "lowercase": { "type": "boolean" },
+          "transforms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "from": { "type": "string" },
+                "to": { "type": "string" },
+                "separator": { "type": "string" },
+                "value": {},
+                "pattern": { "type": "string" },
+                "replacement": { "type": "string" }
+              },
+              "required": ["type"]
+            }
+          }
+        },
+        "required": ["type"]
+      }
+    }
+  },
+  "required": ["groups", "badges"]
+}

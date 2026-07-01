@@ -1,0 +1,17 @@
+blueprint:
+  name: WBI ApexCharts Card
+  description: Verlaufskarte für Waldbrand- & Graslandfeuerindex
+  domain: lovelace
+
+cards:
+  type: custom:apexcharts-card
+  graph_span: 7d
+  header:
+    title: DWD Gefahrenindex Verlauf
+  series:
+    - entity: sensor.waldbrandindex
+      name: Waldbrandindex
+      color: red
+    - entity: sensor.graslandfeuerindex
+      name: Graslandfeuerindex
+      color: green

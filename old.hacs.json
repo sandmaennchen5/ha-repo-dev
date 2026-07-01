@@ -1,0 +1,9 @@
+{
+  "name": "HassOS Apps",
+  "description": "Home Assistant Add-ons and HACS components by sandmaennchen5",
+  "documentation": "https://github.com/sandmaennchen5/ha-repo-dev",
+  "country": "DE",
+  "domains": [],
+  "iot_class": "local_polling",
+  "render_readme": true
+}

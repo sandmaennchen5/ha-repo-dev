@@ -1,0 +1,17 @@
+blueprint:
+  name: WBI Tile Card
+  description: Native Tile Card für Waldbrand- & Graslandfeuerindex
+  domain: lovelace
+
+cards:
+  type: horizontal-stack
+  cards:
+    - type: tile
+      entity: sensor.waldbrandindex
+      name: Waldbrandindex
+      icon: mdi:fire-alert
+
+    - type: tile
+      entity: sensor.graslandfeuerindex
+      name: Graslandfeuerindex
+      icon: mdi:grass

@@ -1,0 +1,48 @@
+name: Check Docker Lint
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/**/Dockerfile"
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  find:
+    name: Find Dockerfiles
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.find.outputs.dockerfiles }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.0
+
+      - name: Find all Dockerfiles
+        id: find
+        run: |
+          dockerfiles=$(find . -type f -name 'Dockerfile' -not -path './.git/*' | jq -R -s -c 'split("\n")[:-1]')
+          echo "dockerfiles=${dockerfiles}" >> $GITHUB_OUTPUT
+
+  lint:
+    name: Lint ${{ matrix.dockerfile }}
+    runs-on: ubuntu-latest
+    needs: find
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile: ${{ fromJson(needs.find.outputs.dockerfiles) }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.0
+
+      - name: Run hadolint on ${{ matrix.dockerfile }}
+        uses: hadolint/hadolint-action@v3.3.0
+        with:
+          dockerfile: ${{ matrix.dockerfile }}
+          config: .hadolint.yaml
+          failure-threshold: warning

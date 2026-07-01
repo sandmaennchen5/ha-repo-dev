@@ -1,0 +1,438 @@
+##############################################################################
+# HassOS Apps Repository – Zentrale Konfiguration
+#
+# Diese Datei steuert:
+#   - Badge-Generierung (defaults, groups, badges)
+#   - Dashboard-Generierung (site, theme, navigation, seiten-optionen)
+##############################################################################
+
+# ===========================================================================
+# BADGE-KONFIGURATION
+# ===========================================================================
+
+defaults:
+  color: blue
+  style: flat-square
+  separator: ', '
+  # Shields-Presets: Kurzname → URL-Template mit {value}
+  shields:
+    python: https://img.shields.io/badge/python-{value}-blue
+    node: https://img.shields.io/badge/node-{value}-green
+    go: https://img.shields.io/badge/go-{value}-blue
+    base: https://img.shields.io/badge/base-{value}-informational
+    arch: https://img.shields.io/badge/arch-{value}-green
+
+# Gruppen zum Sortieren der Badges in READMEs und Dashboard
+groups:
+  runtime:
+    order: 10
+    title: Runtime
+  ha:
+    order: 20
+    title: Home Assistant
+  system:
+    order: 30
+    title: System
+  security:
+    order: 40
+    title: Security
+  meta:
+    order: 50
+    title: Meta
+  upstream:
+    order: 60
+    title: Upstream
+  custom:
+    order: 70
+    title: Custom
+
+badges:
+  # ── Runtime ──────────────────────────────────────────────────────────────
+  python_version:
+    type: field
+    group: runtime
+    label: Python
+    source: python
+    shield: https://img.shields.io/badge/python-{value}-blue
+    logo: python
+    show_empty: false
+
+  node_version:
+    type: field
+    group: runtime
+    label: Node
+    source: node
+    shield: https://img.shields.io/badge/node-{value}-green
+    logo: nodedotjs
+    show_empty: false
+
+  go_version:
+    type: field
+    group: runtime
+    label: Go
+    source: go
+    shield: https://img.shields.io/badge/go-{value}-blue
+    logo: go
+    show_empty: false
+
+  base_image:
+    type: field
+    group: runtime
+    label: Base
+    source: base
+    shield: https://img.shields.io/badge/base-{value}-informational
+    show_empty: false
+
+  alpine_version:
+    type: field
+    group: runtime
+    label: Alpine
+    source: alpine
+    shield: https://img.shields.io/badge/alpine-{value}-blue
+    logo: alpinelinux
+    show_empty: false
+
+  # ── Home Assistant ────────────────────────────────────────────────────────
+  ingress:
+    type: field
+    group: ha
+    label: Ingress
+    source: ingress
+    shield: https://img.shields.io/badge/ingress-{value}-blue
+    show_empty: false
+
+  panel:
+    type: field
+    group: ha
+    label: Panel
+    source: panel
+    shield: https://img.shields.io/badge/panel-{value}-blue
+    show_empty: false
+
+  watchdog:
+    type: field
+    group: ha
+    label: Watchdog
+    source: watchdog
+    shield: https://img.shields.io/badge/watchdog-{value}-green
+    show_empty: false
+
+  auto_update:
+    type: field
+    group: ha
+    label: Auto Update
+    source: auto_update
+    shield: https://img.shields.io/badge/auto_update-{value}-green
+    show_empty: false
+
+  hassio_api:
+    type: field
+    group: ha
+    label: Hass.io API
+    source: hassio_api
+    shield: https://img.shields.io/badge/hassio_api-{value}-blue
+    show_empty: false
+
+  homeassistant_api:
+    type: field
+    group: ha
+    label: HA API
+    source: homeassistant_api
+    shield: https://img.shields.io/badge/ha_api-{value}-blue
+    show_empty: false
+
+  # ── System ────────────────────────────────────────────────────────────────
+  arch:
+    type: list
+    group: system
+    label: Arch
+    source: arch
+    transforms:
+      - type: join
+        separator: ","
+    shield: https://img.shields.io/badge/arch-{value}-green
+    show_empty: false
+
+  host_network:
+    type: field
+    group: system
+    label: Host Network
+    source: host_network
+    shield: https://img.shields.io/badge/host_network-{value}-blue
+    show_empty: false
+
+  docker_api:
+    type: field
+    group: system
+    label: Docker API
+    source: docker_api
+    shield: https://img.shields.io/badge/docker_api-{value}-blue
+    show_empty: false
+
+  kernel_modules:
+    type: field
+    group: system
+    label: Kernel Modules
+    source: kernel_modules
+    shield: https://img.shields.io/badge/kernel_modules-{value}-blue
+    show_empty: false
+
+  image_size:
+    type: field
+    group: system
+    label: Image Size
+    source: image_size
+    shield: https://img.shields.io/badge/size-{value}-informational
+    show_empty: false
+
+  # ── Security ─────────────────────────────────────────────────────────────
+  privileged:
+    type: field
+    group: security
+    label: Privileged
+    source: privileged
+    transforms:
+      - type: join
+        separator: "|"
+    shield: https://img.shields.io/badge/privileged-{value}-red
+    show_empty: false
+
+  apparmor:
+    type: field
+    group: security
+    label: AppArmor
+    source: apparmor
+    shield: https://img.shields.io/badge/apparmor-{value}-blue
+    show_empty: false
+
+  # ── Meta ─────────────────────────────────────────────────────────────────
+  version:
+    type: field
+    group: meta
+    label: Version
+    source: version
+    transforms:
+      - type: prefix
+        value: "v"
+    shield: https://img.shields.io/badge/version-{value}-blue
+    logo: tag
+    show_empty: false
+
+  updated:
+    type: field
+    group: meta
+    label: Updated
+    source: updated
+    transforms:
+      - type: replace
+        from: "-"
+        to: "--"
+    shield: https://img.shields.io/badge/updated-{value}-green
+    show_empty: false
+
+  maintainer:
+    type: field
+    group: meta
+    label: Maintainer
+    source: maintainer
+    shield: https://img.shields.io/badge/maintainer-{value}-blue
+    show_empty: false
+
+  stage:
+    type: field
+    group: meta
+    label: Stage
+    source: stage
+    shield: https://img.shields.io/badge/stage-{value}-orange
+    show_empty: false
+
+  build_status:
+    type: field
+    group: meta
+    label: Build
+    source: build
+    shield: https://img.shields.io/badge/build-{value}-green
+    show_empty: false
+
+  lint_status:
+    type: field
+    group: meta
+    label: Lint
+    source: lint
+    shield: https://img.shields.io/badge/lint-{value}-yellow
+    show_empty: false
+
+  yaml_lint:
+    type: field
+    group: meta
+    label: YAML Lint
+    source: yaml_lint
+    shield: https://img.shields.io/badge/yaml_lint-{value}-green
+    show_empty: false
+
+  code_quality:
+    type: field
+    group: meta
+    label: Code Quality
+    source: code_quality
+    shield: https://img.shields.io/badge/code_quality-{value}-blue
+    show_empty: false
+
+  # ── Upstream ──────────────────────────────────────────────────────────────
+  upstream_version:
+    type: field
+    group: upstream
+    label: Upstream
+    source: upstream_version
+    transforms:
+      - type: prefix
+        value: "v"
+    shield: https://img.shields.io/badge/upstream-{value}-yellow
+    show_empty: false
+
+  upstream_repo:
+    type: field
+    group: upstream
+    label: Repo
+    source: upstream_repo
+    shield: https://img.shields.io/badge/repo-{value}-informational
+    show_empty: false
+
+  upstream_commit:
+    type: field
+    group: upstream
+    label: Commit
+    source: upstream_commit
+    shield: https://img.shields.io/badge/commit-{value}-informational
+    show_empty: false
+
+  # ── Custom ────────────────────────────────────────────────────────────────
+  custom_shield:
+    type: field
+    group: custom
+    label: Custom
+    source: custom_shield
+    shield: '{value}'
+    show_empty: false
+
+  custom_flag:
+    type: field
+    group: custom
+    label: Flag
+    source: custom_flag
+    shield: https://img.shields.io/badge/flag-{value}-blue
+    show_empty: false
+
+---
+# ===========================================================================
+# DASHBOARD-KONFIGURATION
+# ===========================================================================
+
+site:
+  title: HassOS Apps Dashboard
+  subtitle: Home Assistant Apps & Add-ons
+  branch: dashboard
+  base_url: "/ha-repo-dev"
+  asset_path: assets
+  footer: "Generated automatically by HassOS Apps Repository"
+
+theme:
+  cards: true
+  rounded: true
+  compact_tables: false
+  show_icons: true
+
+navigation:
+  enabled: true
+  items:
+    - title: Dashboard
+      icon: 📊
+      url: /
+    - title: Apps
+      icon: 📦
+      url: /apps/
+    - title: Matrix
+      icon: 🧩
+      url: /matrix.html
+    - title: Health
+      icon: 🏥
+      url: /health.html
+    - title: History
+      icon: 📈
+      url: /history.html
+    - title: Badge Lab
+      icon: 🔬
+      url: /lab.html
+    - title: Settings
+      icon: ⚙️
+      url: /settings.html
+
+overview:
+  cards:
+    total_apps: true
+    total_badges: true
+    health_score: true
+    green: true
+    yellow: true
+    red: true
+
+matrix:
+  enabled: true
+  max_badges: 0
+  show_health: true
+  hide_empty_default: true
+  empty_values:
+    - ""
+    - none
+    - null
+    - "-"
+    - n/a
+
+history:
+  enabled: true
+  keep_days: 365
+  charts: true
+
+health:
+  enabled: true
+  warnings: true
+  errors: true
+  score: true
+
+apps:
+  enabled: true
+  hide_empty_default: true
+  empty_values:
+    - ""
+    - none
+    - null
+    - "-"
+    - n/a
+  sort_by: name
+  show_description: true
+  show_badges: true
+  show_health: true
+  show_history: true
+
+badges:
+  show_markdown: true
+  show_url: true
+  show_variables: true
+  show_definition: true
+
+lab:
+  enabled: true
+  show_diff: true
+  show_markdown: true
+  show_url: true
+  allow_overrides: true
+
+charts:
+  enabled: true
+  library: chartjs
+
+assets:
+  css:
+    - assets/dashboard.css
+  js:
+    - assets/dashboard.js

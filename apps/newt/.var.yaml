@@ -1,0 +1,40 @@
+# -----------------------------------------
+# Allgemeine App-Metadaten
+# -----------------------------------------
+
+hidden: false
+icon: "🛰️"
+stage: "stable"
+
+# -----------------------------------------
+# Upstream-Informationen
+# -----------------------------------------
+
+upstream_version: "1.13.0"
+upstream_repo: "github.com/fosrl/newt"
+upstream_commit: ""
+
+# -----------------------------------------
+# Build / Lint / QA
+# -----------------------------------------
+
+build: ""
+lint: ""
+yaml_lint: ""
+code_quality: ""
+
+# -----------------------------------------
+# Image
+# -----------------------------------------
+
+image_size: ""
+
+# -----------------------------------------
+# Custom Badges
+# -----------------------------------------
+
+custom_shield: ""
+custom_flag: ""
+
+updated: "2026-06-26"
+source: "github.com/fosrl/newt"
