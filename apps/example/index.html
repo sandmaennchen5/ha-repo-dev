@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        
+Example App
+
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/ha-repo-dev/assets/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+
+rounded
+
+
+
+
+
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                HassOS Apps Dashboard
+
+            </h1>
+
+            <div class="subtitle">
+
+                Home Assistant Apps & Add-ons
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        
+
+            
+
+            <a href="/ha-repo-dev/">
+
+                
+                📊
+                
+
+                Dashboard
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/apps/">
+
+                
+                📦
+                
+
+                Apps
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/matrix.html">
+
+                
+                🧩
+                
+
+                Matrix
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/health.html">
+
+                
+                🏥
+                
+
+                Health
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/history.html">
+
+                
+                📈
+                
+
+                History
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/lab.html">
+
+                
+                🔬
+                
+
+                Badge Lab
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/settings.html">
+
+                
+                ⚙️
+                
+
+                Settings
+
+            </a>
+
+            
+
+        
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                
+                Dashboard
+                
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Version
+
+        </div>
+
+        <div class="card-value">
+
+            1.0.0
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Health Score
+
+        </div>
+
+        <div class="card-value">
+
+            50%
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🟢 Green
+
+        </div>
+
+        <div class="card-value">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🟡 Yellow
+
+        </div>
+
+        <div class="card-value">
+
+            5
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            🔴 Red
+
+        </div>
+
+        <div class="card-value">
+
+            0
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Verlauf
+
+        </div>
+
+        <div class="card-value">
+
+            <a href="/ha-repo-dev/apps/example/history.html">
+
+                📈
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Aktive Badges
+
+        </div>
+
+        <div class="card-value">
+
+            5
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="panel">
+
+    <h2>
+
+        Beschreibung
+
+    </h2>
+
+    <p>
+
+        Example app – use as blueprint for new apps.
+
+    </p>
+
+</div>
+
+<div class="panel">
+
+    <h2>
+
+        Health
+
+    </h2>
+
+    <div class="health-bar">
+
+        <div
+            class="health-fill"
+            style="width: 50%;">
+
+        </div>
+
+    </div>
+
+    <strong>
+
+        50%
+
+    </strong>
+
+</div>
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <h2>
+
+            Badges
+
+        </h2>
+
+        <input
+            id="badgeSearch"
+            placeholder="Badge suchen">
+
+        <label>
+
+            <input
+                type="checkbox"
+                id="hideEmptyBadges"
+
+                
+                checked
+                >
+
+            Leere Badges ausblenden
+
+        </label>
+
+    </div>
+
+    <table id="badgesTable">
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                Badge
+
+            </th>
+
+            <th>
+
+                Preview
+
+            </th>
+
+            <th>
+
+                Value
+
+            </th>
+
+            <th>
+
+                Group
+
+            </th>
+
+            <th>
+
+                Link
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        
+
+        <tr
+            data-label="version"
+            data-value="v1.0.0">
+
+            <td>
+
+                Version
+
+            </td>
+
+            <td>
+
+                <img
+                    src="https://img.shields.io/badge/version-v1.0.0-blue"
+                    alt="Version">
+
+            </td>
+
+            <td>
+
+                v1.0.0
+
+            </td>
+
+            <td>
+
+                meta
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/badges/version.html">
+
+                    Details
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        
+
+        <tr
+            data-label="updated"
+            data-value="2026--06--26">
+
+            <td>
+
+                Updated
+
+            </td>
+
+            <td>
+
+                <img
+                    src="https://img.shields.io/badge/updated-2026--06--26-green"
+                    alt="Updated">
+
+            </td>
+
+            <td>
+
+                2026--06--26
+
+            </td>
+
+            <td>
+
+                meta
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/badges/updated.html">
+
+                    Details
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        
+
+        <tr
+            data-label="stage"
+            data-value="lab">
+
+            <td>
+
+                Stage
+
+            </td>
+
+            <td>
+
+                <img
+                    src="https://img.shields.io/badge/stage-lab-orange"
+                    alt="Stage">
+
+            </td>
+
+            <td>
+
+                lab
+
+            </td>
+
+            <td>
+
+                meta
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/badges/stage.html">
+
+                    Details
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        
+
+        <tr
+            data-label="arch"
+            data-value="aarch64, amd64">
+
+            <td>
+
+                Arch
+
+            </td>
+
+            <td>
+
+                <img
+                    src="https://img.shields.io/badge/arch-aarch64%2C%20amd64-green"
+                    alt="Arch">
+
+            </td>
+
+            <td>
+
+                aarch64, amd64
+
+            </td>
+
+            <td>
+
+                system
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/badges/arch.html">
+
+                    Details
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        
+
+        <tr
+            data-label="upstream"
+            data-value="v">
+
+            <td>
+
+                Upstream
+
+            </td>
+
+            <td>
+
+                <img
+                    src="https://img.shields.io/badge/upstream-v-yellow"
+                    alt="Upstream">
+
+            </td>
+
+            <td>
+
+                v
+
+            </td>
+
+            <td>
+
+                upstream
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/badges/upstream_version.html">
+
+                    Details
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div class="panel">
+
+    <h2>
+
+        History
+
+    </h2>
+
+    <p>
+
+        <a href="/ha-repo-dev/apps/example/history.html">
+
+            Verlauf anzeigen →
+
+        </a>
+
+    </p>
+
+</div>
+
+<script>
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    () => {
+
+        const search =
+            document.getElementById(
+                "badgeSearch"
+            );
+
+        const hideEmpty =
+            document.getElementById(
+                "hideEmptyBadges"
+            );
+
+        const rows =
+            document.querySelectorAll(
+                "#badgesTable tbody tr"
+            );
+
+        function updateBadges() {
+
+            const filter =
+                (
+                    search?.value ||
+                    ""
+                )
+                .toLowerCase();
+
+            rows.forEach(
+
+                row => {
+
+                    const label =
+                        (
+                            row.dataset.label ||
+                            ""
+                        )
+                        .toLowerCase();
+
+                    const value =
+                        (
+                            row.dataset.value ||
+                            ""
+                        )
+                        .toLowerCase();
+
+                    let visible =
+                        true;
+
+                    if (
+
+                        filter &&
+                        !label.includes(
+                            filter
+                        )
+
+                    ) {
+
+                        visible =
+                            false;
+
+                    }
+
+                    if (
+
+                        hideEmpty?.checked &&
+                        (
+                            value === "" ||
+                            value === "none" ||
+                            value === "null" ||
+                            value === "-" ||
+                            value === "n/a"
+                        )
+
+                    ) {
+
+                        visible =
+                            false;
+
+                    }
+
+                    row.style.display =
+                        visible
+                        ? ""
+                        : "none";
+
+                }
+
+            );
+
+        }
+
+        search?.addEventListener(
+
+            "input",
+
+            updateBadges
+
+        );
+
+        hideEmpty?.addEventListener(
+
+            "change",
+
+            updateBadges
+
+        );
+
+        updateBadges();
+
+    }
+
+);
+
+</script>
+
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "/ha-repo-dev";
+
+</script>
+
+<script src="/ha-repo-dev/assets/dashboard.js"></script>
+
+<script src="/ha-repo-dev/assets/charts.js"></script>
+
+<script src="/ha-repo-dev/assets/matrix.js"></script>
+
+<script src="/ha-repo-dev/assets/lab.js"></script>
+
+<script src="/ha-repo-dev/assets/theme.js"></script>
+
+<script src="/ha-repo-dev/assets/favorites.js"></script>
+
+<script src="/ha-repo-dev/assets/settings.js"></script>
+
+</body>
+
+</html>

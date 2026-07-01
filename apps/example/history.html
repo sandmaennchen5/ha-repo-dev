@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        
+Example App History
+
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/ha-repo-dev/assets/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+
+rounded
+
+
+
+
+
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                HassOS Apps Dashboard
+
+            </h1>
+
+            <div class="subtitle">
+
+                Home Assistant Apps & Add-ons
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        
+
+            
+
+            <a href="/ha-repo-dev/">
+
+                
+                📊
+                
+
+                Dashboard
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/apps/">
+
+                
+                📦
+                
+
+                Apps
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/matrix.html">
+
+                
+                🧩
+                
+
+                Matrix
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/health.html">
+
+                
+                🏥
+                
+
+                Health
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/history.html">
+
+                
+                📈
+                
+
+                History
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/lab.html">
+
+                
+                🔬
+                
+
+                Badge Lab
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/settings.html">
+
+                
+                ⚙️
+                
+
+                Settings
+
+            </a>
+
+            
+
+        
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                
+                Dashboard
+                
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-title">
+
+            App
+
+        </div>
+
+        <div class="card-value">
+
+            Example App
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-title">
+
+            Version
+
+        </div>
+
+        <div class="card-value">
+
+            1.0.0
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Score Verlauf
+
+    </h2>
+
+    <canvas id="scoreChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Badge Verlauf
+
+    </h2>
+
+    <canvas id="badgeChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Green / Yellow / Red
+
+    </h2>
+
+    <canvas id="statusChart">
+
+    </canvas>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Snapshots
+
+    </h2>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Zeit</th>
+            <th>Score</th>
+            <th>Badges</th>
+            <th>🟢</th>
+            <th>🟡</th>
+            <th>🔴</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        
+
+        <tr>
+
+            <td>2026-07-01T16:03:17.779595+00:00</td>
+
+            <td>100%</td>
+
+            <td>5</td>
+
+            <td>0</td>
+
+            <td>0</td>
+
+            <td>0</td>
+
+        </tr>
+
+        
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+const scoreHistory = [
+
+
+
+{
+
+timestamp:"2026-07-01T16:03:17.779595+00:00",
+
+score:100,
+
+badges:5,
+
+green:0,
+
+yellow:0,
+
+red:0
+
+}
+
+
+
+
+
+];
+
+</script>
+
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "/ha-repo-dev";
+
+</script>
+
+<script src="/ha-repo-dev/assets/dashboard.js"></script>
+
+<script src="/ha-repo-dev/assets/charts.js"></script>
+
+<script src="/ha-repo-dev/assets/matrix.js"></script>
+
+<script src="/ha-repo-dev/assets/lab.js"></script>
+
+<script src="/ha-repo-dev/assets/theme.js"></script>
+
+<script src="/ha-repo-dev/assets/favorites.js"></script>
+
+<script src="/ha-repo-dev/assets/settings.js"></script>
+
+</body>
+
+</html>

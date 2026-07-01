@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        
+Matrix
+
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/ha-repo-dev/assets/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+
+rounded
+
+
+
+
+
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                HassOS Apps Dashboard
+
+            </h1>
+
+            <div class="subtitle">
+
+                Home Assistant Apps & Add-ons
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        
+
+            
+
+            <a href="/ha-repo-dev/">
+
+                
+                📊
+                
+
+                Dashboard
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/apps/">
+
+                
+                📦
+                
+
+                Apps
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/matrix.html">
+
+                
+                🧩
+                
+
+                Matrix
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/health.html">
+
+                
+                🏥
+                
+
+                Health
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/history.html">
+
+                
+                📈
+                
+
+                History
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/lab.html">
+
+                
+                🔬
+                
+
+                Badge Lab
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/settings.html">
+
+                
+                ⚙️
+                
+
+                Settings
+
+            </a>
+
+            
+
+        
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                
+Matrix
+
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            
+
+<div class="panel-header">
+<h2>Badge Matrix</h2>
+<input
+    id="matrixSearch"
+    placeholder="Suche (App, Badge, Value, Group)">
+</div>
+
+<div class="panel">
+<div class="matrix-tools">
+    <button id="exportCsv">CSV</button>
+    <button id="exportMarkdown">Markdown</button>
+</div>
+
+<div class="table-scroll">
+    <table id="matrixTable">
+        <thead>
+        <tr>
+            <th class="sortable" data-column="0">App</th>
+            <th class="sortable" data-column="1">Badge</th>
+            <th class="sortable" data-column="2">Value</th>
+            <th class="sortable" data-column="3">Group</th>
+            <th data-column="4">Preview</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/example/">
+                    Example App
+                </a>
+            </td>
+            <td>Version</td>
+            <td>v1.0.0</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/version-v1.0.0-blue"
+                    height="20"
+                    alt="Version"
+                    title="Version">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/example/">
+                    Example App
+                </a>
+            </td>
+            <td>Updated</td>
+            <td>2026--06--26</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/updated-2026--06--26-green"
+                    height="20"
+                    alt="Updated"
+                    title="Updated">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/example/">
+                    Example App
+                </a>
+            </td>
+            <td>Stage</td>
+            <td>lab</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/stage-lab-orange"
+                    height="20"
+                    alt="Stage"
+                    title="Stage">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/example/">
+                    Example App
+                </a>
+            </td>
+            <td>Arch</td>
+            <td>aarch64, amd64</td>
+            <td>system</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/arch-aarch64%2C%20amd64-green"
+                    height="20"
+                    alt="Arch"
+                    title="Arch">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/example/">
+                    Example App
+                </a>
+            </td>
+            <td>Upstream</td>
+            <td>v</td>
+            <td>upstream</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/upstream-v-yellow"
+                    height="20"
+                    alt="Upstream"
+                    title="Upstream">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Version</td>
+            <td>v1.13.0</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/version-v1.13.0-blue"
+                    height="20"
+                    alt="Version"
+                    title="Version">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Updated</td>
+            <td>2026--06--26</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/updated-2026--06--26-green"
+                    height="20"
+                    alt="Updated"
+                    title="Updated">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Stage</td>
+            <td>stable</td>
+            <td>meta</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/stage-stable-orange"
+                    height="20"
+                    alt="Stage"
+                    title="Stage">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Privileged</td>
+            <td>NET_ADMIN|SYS_MODULE</td>
+            <td>security</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red"
+                    height="20"
+                    alt="Privileged"
+                    title="Privileged">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Arch</td>
+            <td>aarch64, amd64</td>
+            <td>system</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/arch-aarch64%2C%20amd64-green"
+                    height="20"
+                    alt="Arch"
+                    title="Arch">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Host Network</td>
+            <td>True</td>
+            <td>system</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/host_network-True-blue"
+                    height="20"
+                    alt="Host Network"
+                    title="Host Network">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Docker API</td>
+            <td>True</td>
+            <td>system</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/docker_api-True-blue"
+                    height="20"
+                    alt="Docker API"
+                    title="Docker API">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Kernel Modules</td>
+            <td>True</td>
+            <td>system</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/kernel_modules-True-blue"
+                    height="20"
+                    alt="Kernel Modules"
+                    title="Kernel Modules">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Upstream</td>
+            <td>v1.13.0</td>
+            <td>upstream</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/upstream-v1.13.0-yellow"
+                    height="20"
+                    alt="Upstream"
+                    title="Upstream">
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <a href="/ha-repo-dev/apps/newt/">
+                    Newt - Pangolin Tunnels
+                </a>
+            </td>
+            <td>Repo</td>
+            <td>github.com/fosrl/newt</td>
+            <td>upstream</td>
+            <td>
+                
+                <img
+                    src="https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational"
+                    height="20"
+                    alt="Repo"
+                    title="Repo">
+                
+            </td>
+        </tr>
+        
+        </tbody>
+    </table>
+</div>
+</div>
+
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "/ha-repo-dev";
+
+</script>
+
+<script src="/ha-repo-dev/assets/dashboard.js"></script>
+
+<script src="/ha-repo-dev/assets/charts.js"></script>
+
+<script src="/ha-repo-dev/assets/matrix.js"></script>
+
+<script src="/ha-repo-dev/assets/lab.js"></script>
+
+<script src="/ha-repo-dev/assets/theme.js"></script>
+
+<script src="/ha-repo-dev/assets/favorites.js"></script>
+
+<script src="/ha-repo-dev/assets/settings.js"></script>
+
+</body>
+
+</html>

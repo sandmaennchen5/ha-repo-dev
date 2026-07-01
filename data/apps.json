@@ -1,0 +1,178 @@
+[
+  {
+    "slug": "example",
+    "name": "Example App",
+    "description": "Example app – use as blueprint for new apps.",
+    "version": "1.0.0",
+    "badges": [
+      {
+        "id": "version",
+        "label": "Version",
+        "value": "v1.0.0",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/version-v1.0.0-blue",
+        "markdown": "![Version](https://img.shields.io/badge/version-v1.0.0-blue)",
+        "color": "blue"
+      },
+      {
+        "id": "updated",
+        "label": "Updated",
+        "value": "2026--06--26",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/updated-2026--06--26-green",
+        "markdown": "![Updated](https://img.shields.io/badge/updated-2026--06--26-green)",
+        "color": "blue"
+      },
+      {
+        "id": "stage",
+        "label": "Stage",
+        "value": "lab",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/stage-lab-orange",
+        "markdown": "![Stage](https://img.shields.io/badge/stage-lab-orange)",
+        "color": "blue"
+      },
+      {
+        "id": "arch",
+        "label": "Arch",
+        "value": "aarch64, amd64",
+        "group": "system",
+        "order": 100,
+        "url": "https://img.shields.io/badge/arch-aarch64%2C%20amd64-green",
+        "markdown": "![Arch](https://img.shields.io/badge/arch-aarch64%2C%20amd64-green)",
+        "color": "blue"
+      },
+      {
+        "id": "upstream_version",
+        "label": "Upstream",
+        "value": "v",
+        "group": "upstream",
+        "order": 100,
+        "url": "https://img.shields.io/badge/upstream-v-yellow",
+        "markdown": "![Upstream](https://img.shields.io/badge/upstream-v-yellow)",
+        "color": "blue"
+      }
+    ],
+    "real_badges": 5,
+    "green": 0,
+    "yellow": 5,
+    "red": 0,
+    "score": 50
+  },
+  {
+    "slug": "newt",
+    "name": "Newt - Pangolin Tunnels",
+    "description": "Secure remote access with Pangolin tunnels.",
+    "version": "1.13.0",
+    "badges": [
+      {
+        "id": "version",
+        "label": "Version",
+        "value": "v1.13.0",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/version-v1.13.0-blue",
+        "markdown": "![Version](https://img.shields.io/badge/version-v1.13.0-blue)",
+        "color": "blue"
+      },
+      {
+        "id": "updated",
+        "label": "Updated",
+        "value": "2026--06--26",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/updated-2026--06--26-green",
+        "markdown": "![Updated](https://img.shields.io/badge/updated-2026--06--26-green)",
+        "color": "blue"
+      },
+      {
+        "id": "stage",
+        "label": "Stage",
+        "value": "stable",
+        "group": "meta",
+        "order": 100,
+        "url": "https://img.shields.io/badge/stage-stable-orange",
+        "markdown": "![Stage](https://img.shields.io/badge/stage-stable-orange)",
+        "color": "blue"
+      },
+      {
+        "id": "privileged",
+        "label": "Privileged",
+        "value": "NET_ADMIN|SYS_MODULE",
+        "group": "security",
+        "order": 100,
+        "url": "https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red",
+        "markdown": "![Privileged](https://img.shields.io/badge/privileged-NET_ADMIN%7CSYS_MODULE-red)",
+        "color": "blue"
+      },
+      {
+        "id": "arch",
+        "label": "Arch",
+        "value": "aarch64, amd64",
+        "group": "system",
+        "order": 100,
+        "url": "https://img.shields.io/badge/arch-aarch64%2C%20amd64-green",
+        "markdown": "![Arch](https://img.shields.io/badge/arch-aarch64%2C%20amd64-green)",
+        "color": "blue"
+      },
+      {
+        "id": "host_network",
+        "label": "Host Network",
+        "value": "True",
+        "group": "system",
+        "order": 100,
+        "url": "https://img.shields.io/badge/host_network-True-blue",
+        "markdown": "![Host Network](https://img.shields.io/badge/host_network-True-blue)",
+        "color": "blue"
+      },
+      {
+        "id": "docker_api",
+        "label": "Docker API",
+        "value": "True",
+        "group": "system",
+        "order": 100,
+        "url": "https://img.shields.io/badge/docker_api-True-blue",
+        "markdown": "![Docker API](https://img.shields.io/badge/docker_api-True-blue)",
+        "color": "blue"
+      },
+      {
+        "id": "kernel_modules",
+        "label": "Kernel Modules",
+        "value": "True",
+        "group": "system",
+        "order": 100,
+        "url": "https://img.shields.io/badge/kernel_modules-True-blue",
+        "markdown": "![Kernel Modules](https://img.shields.io/badge/kernel_modules-True-blue)",
+        "color": "blue"
+      },
+      {
+        "id": "upstream_version",
+        "label": "Upstream",
+        "value": "v1.13.0",
+        "group": "upstream",
+        "order": 100,
+        "url": "https://img.shields.io/badge/upstream-v1.13.0-yellow",
+        "markdown": "![Upstream](https://img.shields.io/badge/upstream-v1.13.0-yellow)",
+        "color": "blue"
+      },
+      {
+        "id": "upstream_repo",
+        "label": "Repo",
+        "value": "github.com/fosrl/newt",
+        "group": "upstream",
+        "order": 100,
+        "url": "https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational",
+        "markdown": "![Repo](https://img.shields.io/badge/repo-github.com%2Ffosrl%2Fnewt-informational)",
+        "color": "blue"
+      }
+    ],
+    "real_badges": 10,
+    "green": 0,
+    "yellow": 10,
+    "red": 0,
+    "score": 50
+  }
+]

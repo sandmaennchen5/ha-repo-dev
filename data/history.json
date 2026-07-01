@@ -1,0 +1,25 @@
+[
+  {
+    "timestamp": "2026-07-01T16:03:17.779595+00:00",
+    "apps": [
+      {
+        "slug": "example",
+        "name": "Example App",
+        "score": 100,
+        "green": 0,
+        "yellow": 0,
+        "red": 0,
+        "badges": 5
+      },
+      {
+        "slug": "newt",
+        "name": "Newt - Pangolin Tunnels",
+        "score": 100,
+        "green": 0,
+        "yellow": 0,
+        "red": 0,
+        "badges": 10
+      }
+    ]
+  }
+]

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        
+Apps
+
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/ha-repo-dev/assets/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+
+rounded
+
+
+
+
+
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                HassOS Apps Dashboard
+
+            </h1>
+
+            <div class="subtitle">
+
+                Home Assistant Apps & Add-ons
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        
+
+            
+
+            <a href="/ha-repo-dev/">
+
+                
+                📊
+                
+
+                Dashboard
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/apps/">
+
+                
+                📦
+                
+
+                Apps
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/matrix.html">
+
+                
+                🧩
+                
+
+                Matrix
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/health.html">
+
+                
+                🏥
+                
+
+                Health
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/history.html">
+
+                
+                📈
+                
+
+                History
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/lab.html">
+
+                
+                🔬
+                
+
+                Badge Lab
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/settings.html">
+
+                
+                ⚙️
+                
+
+                Settings
+
+            </a>
+
+            
+
+        
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                
+Apps
+
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            
+
+<div class="panel-header">
+
+    <h2>
+
+        Apps
+
+    </h2>
+
+    <input
+        id="appsSearch"
+        placeholder="App suchen">
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="hideEmpty"
+
+            
+            checked
+            >
+
+        Leere Apps ausblenden
+
+    </label>
+
+    <label>
+
+        <input
+            type="checkbox"
+            id="favoritesOnly">
+
+        Nur Favoriten
+
+    </label>
+
+</div>
+
+<div class="panel">
+
+    <table id="appsTable">
+
+        <thead>
+
+        <tr>
+
+            <th>
+
+                ★
+
+            </th>
+
+            <th>
+
+                Name
+
+            </th>
+
+            <th>
+
+                Version
+
+            </th>
+
+            <th>
+
+                Score
+
+            </th>
+
+            <th>
+
+                Green
+
+            </th>
+
+            <th>
+
+                Yellow
+
+            </th>
+
+            <th>
+
+                Red
+
+            </th>
+
+            <th>
+
+                Badges
+
+            </th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        
+
+        <tr
+            data-slug="example"
+            data-score="50"
+            data-badges="5">
+
+            <td>
+
+                <button
+                    class="favorite-btn"
+                    data-slug="example">
+
+                    ☆
+
+                </button>
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/example/">
+
+                    Example App
+
+                </a>
+
+            </td>
+
+            <td>
+
+                1.0.0
+
+            </td>
+
+            <td>
+
+                50%
+
+            </td>
+
+            <td>
+
+                0
+
+            </td>
+
+            <td>
+
+                5
+
+            </td>
+
+            <td>
+
+                0
+
+            </td>
+
+            <td>
+
+                5
+
+            </td>
+
+        </tr>
+
+        
+
+        <tr
+            data-slug="newt"
+            data-score="50"
+            data-badges="10">
+
+            <td>
+
+                <button
+                    class="favorite-btn"
+                    data-slug="newt">
+
+                    ☆
+
+                </button>
+
+            </td>
+
+            <td>
+
+                <a href="/ha-repo-dev/apps/newt/">
+
+                    Newt - Pangolin Tunnels
+
+                </a>
+
+            </td>
+
+            <td>
+
+                1.13.0
+
+            </td>
+
+            <td>
+
+                50%
+
+            </td>
+
+            <td>
+
+                0
+
+            </td>
+
+            <td>
+
+                10
+
+            </td>
+
+            <td>
+
+                0
+
+            </td>
+
+            <td>
+
+                10
+
+            </td>
+
+        </tr>
+
+        
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+document.addEventListener(
+
+    "DOMContentLoaded",
+
+    () => {
+
+        const search =
+            document.getElementById(
+                "appsSearch"
+            );
+
+        const table =
+            document.getElementById(
+                "appsTable"
+            );
+
+        const hideEmpty =
+            document.getElementById(
+                "hideEmpty"
+            );
+
+        const favoritesOnly =
+            document.getElementById(
+                "favoritesOnly"
+            );
+
+        function applyFilters() {
+
+            const filter =
+                (
+                    search?.value ||
+                    ""
+                )
+                .toLowerCase();
+
+            table
+                .querySelectorAll(
+                    "tbody tr"
+                )
+                .forEach(
+
+                    row => {
+
+                        let visible =
+                            true;
+
+                        if (
+
+                            filter &&
+                            !row.innerText
+                                .toLowerCase()
+                                .includes(
+                                    filter
+                                )
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        const badges =
+                            Number(
+                                row.dataset.badges
+                            );
+
+                        if (
+
+                            hideEmpty?.checked &&
+                            badges === 0
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        if (
+
+                            favoritesOnly?.checked &&
+                            typeof isFavorite === "function" &&
+                            !isFavorite(
+                                row.dataset.slug
+                            )
+
+                        ) {
+
+                            visible =
+                                false;
+
+                        }
+
+                        row.style.display =
+                            visible
+                            ? ""
+                            : "none";
+
+                    }
+
+                );
+
+        }
+
+        search?.addEventListener(
+
+            "input",
+
+            applyFilters
+
+        );
+
+        hideEmpty?.addEventListener(
+
+            "change",
+
+            applyFilters
+
+        );
+
+        favoritesOnly?.addEventListener(
+
+            "change",
+
+            applyFilters
+
+        );
+
+        applyFilters();
+
+    }
+
+);
+
+</script>
+
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "/ha-repo-dev";
+
+</script>
+
+<script src="/ha-repo-dev/assets/dashboard.js"></script>
+
+<script src="/ha-repo-dev/assets/charts.js"></script>
+
+<script src="/ha-repo-dev/assets/matrix.js"></script>
+
+<script src="/ha-repo-dev/assets/lab.js"></script>
+
+<script src="/ha-repo-dev/assets/theme.js"></script>
+
+<script src="/ha-repo-dev/assets/favorites.js"></script>
+
+<script src="/ha-repo-dev/assets/settings.js"></script>
+
+</body>
+
+</html>

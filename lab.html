@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        
+Badge Lab
+
+
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/ha-repo-dev/assets/dashboard.css">
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js">
+
+    </script>
+
+</head>
+
+<body
+
+class="
+
+
+rounded
+
+
+
+
+
+
+">
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <h1>
+
+                HassOS Apps Dashboard
+
+            </h1>
+
+            <div class="subtitle">
+
+                Home Assistant Apps & Add-ons
+
+            </div>
+
+        </div>
+
+        <nav>
+
+        
+
+            
+
+            <a href="/ha-repo-dev/">
+
+                
+                📊
+                
+
+                Dashboard
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/apps/">
+
+                
+                📦
+                
+
+                Apps
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/matrix.html">
+
+                
+                🧩
+                
+
+                Matrix
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/health.html">
+
+                
+                🏥
+                
+
+                Health
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/history.html">
+
+                
+                📈
+                
+
+                History
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/lab.html">
+
+                
+                🔬
+                
+
+                Badge Lab
+
+            </a>
+
+            
+
+            <a href="/ha-repo-dev/settings.html">
+
+                
+                ⚙️
+                
+
+                Settings
+
+            </a>
+
+            
+
+        
+
+        </nav>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <h1>
+
+                
+Badge Lab
+
+
+            </h1>
+
+        </div>
+
+        <div class="content">
+
+            
+
+<div class="panel">
+
+    <h2>
+
+        Badge auswählen
+
+    </h2>
+
+    <div class="lab-grid">
+
+        <div>
+
+            <label>
+
+                App
+
+            </label>
+
+            <select id="labApp"></select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Badge
+
+            </label>
+
+            <select id="labBadge"></select>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Override
+
+    </h2>
+
+    <div class="override-grid">
+
+        <div>
+
+            <label>
+
+                Label
+
+            </label>
+
+            <input id="overrideLabel">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Value
+
+            </label>
+
+            <input id="overrideValue">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Color
+
+            </label>
+
+            <select id="overrideColor">
+
+                <option value=""></option>
+
+                <option>brightgreen</option>
+                <option>green</option>
+                <option>yellow</option>
+                <option>orange</option>
+                <option>red</option>
+                <option>blue</option>
+                <option>lightgrey</option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Style
+
+            </label>
+
+            <select id="overrideStyle">
+
+                <option value="flat">flat</option>
+                <option value="flat-square">flat-square</option>
+                <option value="plastic">plastic</option>
+                <option value="for-the-badge">for-the-badge</option>
+                <option value="social">social</option>
+
+            </select>
+
+        </div>
+
+        <div>
+
+            <label>
+
+                Logo
+
+            </label>
+
+            <input id="overrideLogo">
+
+        </div>
+
+        <div>
+
+            <label>
+
+                LogoColor
+
+            </label>
+
+            <input id="overrideLogoColor">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Vorschau
+
+    </h2>
+
+    <div class="override-preview">
+
+        <img id="labPreview">
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            URL
+
+        </h2>
+
+        <button id="copyUrl">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labUrl"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            Markdown
+
+        </h2>
+
+        <button id="copyMarkdown">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labMarkdown"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <h2>
+
+        Original
+
+    </h2>
+
+    <pre id="labDefinition"></pre>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            Änderungen
+
+        </h2>
+
+        <button id="resetOverride">
+
+            Reset
+
+        </button>
+
+    </div>
+
+    <pre id="labDiff"></pre>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            YAML
+
+        </h2>
+
+        <button id="copyYaml">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labYaml"></textarea>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="flex-between">
+
+        <h2>
+
+            JSON
+
+        </h2>
+
+        <button id="copyJson">
+
+            Copy
+
+        </button>
+
+    </div>
+
+    <textarea id="labJson"></textarea>
+
+</div>
+
+
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+const BASE_URL = "/ha-repo-dev";
+
+</script>
+
+<script src="/ha-repo-dev/assets/dashboard.js"></script>
+
+<script src="/ha-repo-dev/assets/charts.js"></script>
+
+<script src="/ha-repo-dev/assets/matrix.js"></script>
+
+<script src="/ha-repo-dev/assets/lab.js"></script>
+
+<script src="/ha-repo-dev/assets/theme.js"></script>
+
+<script src="/ha-repo-dev/assets/favorites.js"></script>
+
+<script src="/ha-repo-dev/assets/settings.js"></script>
+
+</body>
+
+</html>

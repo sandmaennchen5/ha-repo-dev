@@ -1,0 +1,122 @@
+[
+  {
+    "app": "example",
+    "app_name": "Example App",
+    "label": "Version",
+    "value": "v1.0.0",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "example",
+    "app_name": "Example App",
+    "label": "Updated",
+    "value": "2026--06--26",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "example",
+    "app_name": "Example App",
+    "label": "Stage",
+    "value": "lab",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "example",
+    "app_name": "Example App",
+    "label": "Arch",
+    "value": "aarch64, amd64",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "example",
+    "app_name": "Example App",
+    "label": "Upstream",
+    "value": "v",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Version",
+    "value": "v1.13.0",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Updated",
+    "value": "2026--06--26",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Stage",
+    "value": "stable",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Privileged",
+    "value": "NET_ADMIN|SYS_MODULE",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Arch",
+    "value": "aarch64, amd64",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Host Network",
+    "value": "True",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Docker API",
+    "value": "True",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Kernel Modules",
+    "value": "True",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Upstream",
+    "value": "v1.13.0",
+    "color": "blue",
+    "status": "OK"
+  },
+  {
+    "app": "newt",
+    "app_name": "Newt - Pangolin Tunnels",
+    "label": "Repo",
+    "value": "github.com/fosrl/newt",
+    "color": "blue",
+    "status": "OK"
+  }
+]
