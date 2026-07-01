@@ -75,28 +75,49 @@ jobs:
         if: steps.detect.outputs.mode != 'skip'
         run: pip install requests pyyaml
 
-      - name: Load cache
+      - name: Prepare branch
         if: steps.detect.outputs.mode != 'skip'
+        id: branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p .i18n_cache
+          # Fetch latest remote state
+          git fetch origin main 2>/dev/null || true
+          git fetch origin i18n-update 2>/dev/null || true
 
-          # Fetch cache branch
-          git fetch origin i18n-cache --depth=1 2>/dev/null || true
+          # Check if there is already an open PR for i18n-update → main
+          PR_NUMBER=$(gh pr list --base main --head i18n-update --state open \
+            --json number --jq '.[0].number // ""' 2>/dev/null || echo "")
 
-          # Try to get cache from remote
-          if git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null; then
-            ENTRIES=$(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" 2>/dev/null || echo "?")
-            echo "✅ Cache loaded: $ENTRIES entries"
+          if [ -n "$PR_NUMBER" ] && git show-ref --verify refs/remotes/origin/i18n-update 2>/dev/null; then
+            # Open PR exists – continue building on the existing branch so the
+            # cache committed there is automatically available
+            git checkout -B i18n-update origin/i18n-update
+            # Merge latest main so new source files are picked up (translation
+            # files only live in i18n-update, so conflicts are extremely unlikely)
+            git merge origin/main --no-edit -m "chore(i18n): sync with main" 2>/dev/null || \
+              git merge --abort 2>/dev/null || true
+            echo "pr_exists=true" >> $GITHUB_OUTPUT
+            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+            echo "✅ Open PR #$PR_NUMBER found – continuing on existing branch"
           else
-            echo "{}" > .i18n_cache/translation_cache.json
-            echo "✅ Fresh cache created"
+            # No open PR – start fresh from main
+            git checkout -B i18n-update origin/main
+            echo "pr_exists=false" >> $GITHUB_OUTPUT
+            echo "✅ No open PR – starting fresh from main"
           fi
 
-      - name: Prepare PR branch
-        if: steps.detect.outputs.mode != 'skip'
-        run: |
-          git fetch origin i18n-update 2>/dev/null || true
-          git checkout -B i18n-update origin/main
+          # Ensure cache directory exists
+          mkdir -p .i18n_cache
+          if [ ! -f ".i18n_cache/translation_cache.json" ]; then
+            echo "{}" > .i18n_cache/translation_cache.json
+            echo "📦 Fresh cache initialised"
+          else
+            ENTRIES=$(python3 -c \
+              "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" \
+              2>/dev/null || echo "?")
+            echo "📦 Cache loaded: $ENTRIES entries"
+          fi
 
       - name: Translate
         if: steps.detect.outputs.mode != 'skip'
@@ -110,7 +131,7 @@ jobs:
           echo "  TARGET_LANGUAGES: ${TARGET_LANGUAGES}"
           echo "  DEEPL_API_KEY: $([ -z '${{ secrets.DEEPL_API_KEY }}' ] && echo '❌ NOT SET' || echo '✅ SET')"
           echo ""
-          
+
           if [ "${{ steps.detect.outputs.mode }}" = "all" ]; then
             echo "📝 Running: translate ALL files"
             python3 .github/scripts/translate.py --all
@@ -119,51 +140,36 @@ jobs:
             python3 .github/scripts/translate.py /tmp/files.txt
           fi
 
-      - name: Get changed files
-        id: changes
-        run: |
-          # Read generated files from Python script output
-          if [ -f ".i18n_cache/generated_files.txt" ]; then
-            STAGED=$(cat .i18n_cache/generated_files.txt | grep -v '^$' | wc -l)
-          else
-            STAGED=0
-          fi
-
-          echo "staged=$STAGED" >> $GITHUB_OUTPUT
-          echo ""
-          echo "📄 Files to stage: $STAGED"
-          if [ -f ".i18n_cache/generated_files.txt" ] && [ $STAGED -gt 0 ]; then
-            echo ""
-            cat .i18n_cache/generated_files.txt | head -20
-          fi
-
-      - name: Stage only changed translations
-        if: steps.changes.outputs.staged != '0'
-        run: |
-          git reset
-          if [ -f ".i18n_cache/generated_files.txt" ]; then
-            cat .i18n_cache/generated_files.txt | grep -v '^$' | xargs -I {} git add "{}" 2>/dev/null || true
-          fi
-          echo ""
-          echo "✅ Staged: $(git diff --cached --name-only | wc -l) files"
-          echo ""
-          git diff --cached --name-only
-
-      - name: Commit
-        if: steps.changes.outputs.staged != '0'
+      - name: Stage and commit
+        if: steps.detect.outputs.mode != 'skip'
         id: commit
         run: |
-          if [ -n "$(git diff --cached)" ]; then
-            MSG="chore(i18n): update translations"
-            MSG="$MSG"$'\n\n'"- Updated German source files triggered translation generation"
-            MSG="$MSG"$'\n'"- Only changed translations staged and committed"
-            MSG="$MSG"$'\n'"- Cache maintained for efficiency"
-            git commit -m "$MSG" 2>/dev/null || true
+          # Stage generated translation files
+          if [ -f ".i18n_cache/generated_files.txt" ]; then
+            grep -v '^$' .i18n_cache/generated_files.txt | \
+              xargs -I {} git add "{}" 2>/dev/null || true
+          fi
+
+          # Force-add cache files into the branch so the next run can reuse them
+          git add -f .i18n_cache/translation_cache.json 2>/dev/null || true
+          git add -f .i18n_cache/translation_manifest.json 2>/dev/null || true
+
+          STAGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+          echo "staged=$STAGED" >> $GITHUB_OUTPUT
+
+          echo "📄 Staged $STAGED file(s):"
+          git diff --cached --name-only
+
+          if [ "$STAGED" -gt 0 ]; then
+            git commit \
+              -m "chore(i18n): update translations" \
+              -m "Mode: ${{ steps.detect.outputs.mode }}" \
+              -m "Translations updated; cache committed for next run"
             echo "done=true" >> $GITHUB_OUTPUT
-            echo "✅ Commit created"
+            echo "✅ Committed"
           else
             echo "done=false" >> $GITHUB_OUTPUT
-            echo "⚠️ No changes to commit"
+            echo "⚠️ Nothing to commit"
           fi
 
       - name: Push
@@ -172,68 +178,48 @@ jobs:
           git push origin i18n-update -f
           echo "✅ Pushed to i18n-update"
 
-      - name: Save cache
-        if: steps.detect.outputs.mode != 'skip'
-        run: |
-          git fetch origin i18n-cache 2>/dev/null || true
-          git checkout -B i18n-cache origin/i18n-cache 2>/dev/null || git checkout --orphan i18n-cache
-
-          # Clean repo but keep .i18n_cache
-          find . -type f ! -path "./.i18n_cache/*" ! -path "./.git/*" -delete 2>/dev/null || true
-          find . -type d ! -path "./.i18n_cache" ! -path "./.git*" -type d -delete 2>/dev/null || true
-
-          # Add cache files
-          git add .i18n_cache 2>/dev/null || true
-
-          # Only commit if there are changes
-          if [ -n "$(git diff --cached)" ]; then
-            git commit -m "chore(i18n): cache update" 2>/dev/null || true
-            git push origin i18n-cache -f 2>/dev/null || true
-            echo "✅ Cache updated"
-          else
-            echo "ℹ️ Cache unchanged"
-          fi
-
-      - name: Create or Update PR
+      - name: Create or update PR
         if: steps.commit.outputs.done == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git checkout i18n-update
+          if [ "${{ steps.branch.outputs.pr_exists }}" = "true" ]; then
+            echo "✅ PR #${{ steps.branch.outputs.pr_number }} updated with new commits"
+          else
+            BODY="$(cat <<'PREOF'
+Automated translations from German source files.
 
-          # Check if PR exists
-          PR=$(gh pr list -B main -H i18n-update --json number -q '.[0].number' 2>/dev/null || echo "")
+- Translations regenerated using cache
+- Only changed files included
+- Ready to merge when reviewed
 
-          if [ -z "$PR" ]; then
-            # Create new PR with body
-            BODY="Automated translations from German source files"
-            BODY="$BODY"$'\n\n'"- Regenerated translations using cache"
-            BODY="$BODY"$'\n'"- Only changed files included"
-            BODY="$BODY"$'\n'"- Ready to merge when reviewed"
-
+> **Note:** `.i18n_cache/` is committed to this branch to persist the translation
+> cache across runs. It is safe to merge – the directory is listed in `.gitignore`
+> and will not be accidentally re-committed after the merge.
+PREOF
+)"
             gh pr create \
-              -B main \
-              -H i18n-update \
+              --base main \
+              --head i18n-update \
               --title "Translation updates" \
               --body "$BODY" \
               --label i18n \
               --draft || true
             echo "✅ Created new PR"
-          else
-            echo "✅ PR #$PR will be updated with new commits"
           fi
 
       - name: Summary
         if: steps.detect.outputs.mode != 'skip'
         run: |
           echo "=== 📊 Translation Summary ==="
-          echo "Mode: ${{ steps.detect.outputs.mode }}"
-          echo "Staged: ${{ steps.changes.outputs.staged }} files"
+          echo "Mode:      ${{ steps.detect.outputs.mode }}"
+          echo "Staged:    ${{ steps.commit.outputs.staged }} file(s)"
           echo "Committed: ${{ steps.commit.outputs.done }}"
+          echo "PR exists: ${{ steps.branch.outputs.pr_exists }}"
 
           if [ -f ".i18n_cache/translation_cache.json" ]; then
-            CACHE_SIZE=$(python3 -c "import json; f=open('.i18n_cache/translation_cache.json'); print(len(json.load(f)))" 2>/dev/null || echo "?")
-          else
-            CACHE_SIZE="0"
+            CACHE_SIZE=$(python3 -c \
+              "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" \
+              2>/dev/null || echo "?")
+            echo "Cache:     $CACHE_SIZE entries"
           fi
-          echo "Cache entries: $CACHE_SIZE"

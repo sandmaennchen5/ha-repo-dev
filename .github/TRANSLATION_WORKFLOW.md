@@ -2,15 +2,20 @@
 
 ## Overview
 
-Automatic translation of German source files to multiple languages. Clean separation between translations (for review) and cache (for performance).
+Automatic translation of German source files to multiple languages.
+The `i18n-update` branch holds both the translated files **and** the
+translation cache, so every run can continue exactly where the last one
+left off.
 
 ## Branch Structure
 
 | Branch | Content | Purpose |
 |--------|---------|---------|
-| **i18-update** | Translated files (*.en.md, *.fr.yaml, etc.) | Pull Request to main |
-| **i18n-cache** | Translation cache (.i18n_cache/) | Performance optimization |
+| **i18n-update** | Translated files + `.i18n_cache/` | Single open PR → main |
 | **main** | German source files (de.yaml, README.md) | Source of truth |
+
+> The old `i18n-cache` orphan branch is no longer used.
+> The cache now lives directly in `i18n-update`.
 
 ## Triggers
 
@@ -32,13 +37,14 @@ Changes to:
 ## How It Works
 
 ```
-1. DETECT → Changed files or manual trigger
-2. LOAD   → Cache from i18n-cache branch
-3. FETCH  → Updated translations via DeepL/MyMemory
-4. SPLIT  → 
-   - Translations → i18-update branch
-   - Cache → i18n-cache branch
-5. CREATE → PR from i18-update to main
+1. DETECT  → Changed files or manual trigger
+2. PREPARE → Check for open PR on i18n-update
+             • PR open  → checkout i18n-update (cache already there) + merge latest main
+             • No PR    → fresh checkout from main (start clean)
+3. FETCH   → Updated translations via DeepL/MyMemory
+4. COMMIT  → Translation files + .i18n_cache/ committed to i18n-update
+5. PR      → Create new PR  (if none open)
+             Update existing PR (if already open, just push new commits)
 ```
 
 ## Local Development
@@ -46,7 +52,7 @@ Changes to:
 ### Setup
 ```bash
 # Fetch branches
-git fetch origin i18-update i18n-cache
+git fetch origin i18n-update
 
 # Create working branch
 git checkout -b feature/my-docs origin/main
@@ -140,12 +146,12 @@ jq 'to_entries[] | select(.key | contains("|en"))' .i18n_cache/translation_cache
 # Local reset
 rm .i18n_cache/translation_cache.json
 
-# Remote reset (i18n-cache branch)
-git checkout i18n-cache
+# Remote reset – delete the cache committed in i18n-update
+git fetch origin i18n-update
+git checkout i18n-update
 rm -rf .i18n_cache
-git add -A
-git commit -m "chore: reset translation cache"
-git push origin i18n-cache
+git commit -am "chore: reset translation cache"
+git push origin i18n-update -f
 ```
 
 ## Troubleshooting
@@ -153,38 +159,39 @@ git push origin i18n-cache
 | Issue | Solution |
 |-------|----------|
 | **No translations generated** | Check files match patterns (de.yaml, README.md, etc.) and TARGET_LANGUAGES is set |
-| **Cache not loading** | i18n-cache branch doesn't exist yet - will be created on first run |
+| **Cache not loading** | First run always starts fresh; cache grows with each commit to i18n-update |
 | **Slow translations** | Add DEEPL_API_KEY for faster DeepL API (vs free fallback) |
 | **API errors in logs** | Check DEEPL_API_KEY validity and MyMemory API status |
 | **PR not created** | Check that translations were actually generated (not "No changes") |
-| **Duplicate PR** | Only one PR exists per time; updates auto-merge to it |
+| **Duplicate PR** | Only one PR exists at a time; new runs push additional commits to the same open PR |
 
 ## Example Workflow Runs
 
 ### First Run (All Languages)
 ```
-✓ Loaded cache with 0 entries
+📦 Fresh cache initialised
+✅ No open PR – starting fresh from main
+📝 Running: translate ALL files
 🔍 Scanning all files...
 📝 README.md
   ✓ README.md → README.en.md
   ✓ README.md → README.fr.md
 ✅ Done! Generated 2 translations
 📦 Cache saved with 45 entries
-✓ Pushed to i18-update
-✓ Cache updated on i18n-cache
-✓ Created new PR
+✅ Pushed to i18n-update
+✅ Created new PR
 ```
 
 ### Subsequent Push (Changed Files Only)
 ```
-✓ Loaded cache with 45 entries
-📌 Push detected changes: de.yaml
+📦 Cache loaded: 45 entries
+✅ Open PR #42 found – continuing on existing branch
+📝 Running: translate changed files
 📝 de.yaml
   ✓ de.yaml → en.yaml
   ✓ de.yaml → fr.yaml
 ✅ Done! Generated 2 translations
 📦 Cache saved with 47 entries
-✓ Pushed to i18-update
-✓ Cache updated on i18n-cache
-✓ PR #42 already exists (auto-updated)
+✅ Pushed to i18n-update
+✅ PR #42 updated with new commits
 ```
