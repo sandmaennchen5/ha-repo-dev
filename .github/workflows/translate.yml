@@ -73,9 +73,17 @@ jobs:
           mkdir -p .i18n_cache
           git fetch origin i18n-cache 2>/dev/null || true
           git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null || echo '{}' > .i18n_cache/translation_cache.json
+          echo "Cache entries: $(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))")"
+
+      - name: Prepare PR branch
+        if: steps.detect.outputs.mode != 'skip'
+        run: |
+          git fetch origin i18n-update 2>/dev/null || true
+          git checkout -B i18n-update origin/main
 
       - name: Translate
         if: steps.detect.outputs.mode != 'skip'
+        id: translate
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES || 'en' }}
@@ -86,35 +94,49 @@ jobs:
             python3 .github/scripts/translate.py /tmp/files.txt
           fi
 
-      - name: Prepare PR branch
-        if: steps.detect.outputs.mode != 'skip'
-        id: prep
+      - name: Get changed files
+        id: changes
         run: |
-          git fetch origin i18-update 2>/dev/null || true
-          git checkout -B i18-update origin/main
+          # Read generated files from Python script output
+          if [ -f ".i18n_cache/generated_files.txt" ]; then
+            STAGED=$(cat .i18n_cache/generated_files.txt | grep -v '^$' | wc -l)
+          else
+            STAGED=0
+          fi
 
-          # Stage translation files
-          find . -type f \( \
-            -name "*.en.md" -o -name "*.fr.md" -o -name "*.es.md" \
-            -o -name "*.it.md" -o -name "*.pt.md" -o -name "*.nl.md" \
-            -o -name "*.pl.md" -o -name "*.ru.md" -o -name "*.ja.md" -o -name "*.zh.md" \
-            -o -name "*.en.yaml" -o -name "*.fr.yaml" -o -name "*.es.yaml" \
-            -o -name "*.en.yml" -o -name "*.fr.yml" -o -name "*.es.yml" \
-            -o -name "*.en.json" -o -name "*.fr.json" -o -name "*.es.json" \
-          \) ! -path "./.git/*" ! -path "./.i18n_cache/*" -print0 | xargs -0 git add 2>/dev/null || true
+          echo "staged=$STAGED" >> $GITHUB_OUTPUT
+          echo "Files to stage:"
+          [ -f ".i18n_cache/generated_files.txt" ] && cat .i18n_cache/generated_files.txt | head -20 || echo "None"
 
-          echo "staged=$(git diff --cached --name-only | wc -l)" >> $GITHUB_OUTPUT
+      - name: Stage only changed translations
+        if: steps.changes.outputs.staged != '0'
+        run: |
+          git reset
+          if [ -f ".i18n_cache/generated_files.txt" ]; then
+            cat .i18n_cache/generated_files.txt | grep -v '^$' | xargs -I {} git add "{}" 2>/dev/null || true
+          fi
+          echo "Staged: $(git diff --cached --name-only | wc -l) files"
+          echo "Files:"
+          git diff --cached --name-only
 
       - name: Commit
-        if: steps.prep.outputs.staged != '0'
+        if: steps.changes.outputs.staged != '0'
         id: commit
         run: |
-          git commit -m "chore(i18n): update translations" 2>/dev/null
-          echo "done=true" >> $GITHUB_OUTPUT
+          if [ -n "$(git diff --cached)" ]; then
+            git commit -m "chore(i18n): update translations
+
+- Updated German source files triggered translation generation
+- Only changed translations staged and committed
+- Cache maintained for efficiency" 2>/dev/null || true
+            echo "done=true" >> $GITHUB_OUTPUT
+          else
+            echo "done=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Push
         if: steps.commit.outputs.done == 'true'
-        run: git push origin i18-update -f
+        run: git push origin i18n-update -f
 
       - name: Save cache
         if: steps.detect.outputs.mode != 'skip'
@@ -124,20 +146,46 @@ jobs:
           git rm -rf . 2>/dev/null || true
 
           mkdir -p .i18n_cache
-          git checkout i18-update -- .i18n_cache 2>/dev/null || true
+          git checkout i18n-update -- .i18n_cache 2>/dev/null || true
           git add .i18n_cache 2>/dev/null || true
-          git commit -m "chore(i18n): cache" 2>/dev/null || true
+          git commit -m "chore(i18n): cache update" 2>/dev/null || true
           git push origin i18n-cache -f 2>/dev/null || true
 
-      - name: PR
+      - name: Create or Update PR
         if: steps.commit.outputs.done == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git checkout i18-update
+          git checkout i18n-update
 
-          PR=$(gh pr list -B main -H i18-update --json number -q '.[0].number' 2>/dev/null || echo "")
+          # Check if PR exists
+          PR=$(gh pr list -B main -H i18n-update --json number -q '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR" ]; then
-            gh pr create -B main -H i18-update --title "Update translations" --body "Auto translation" --label i18n || true
+            # Create new PR
+            gh pr create \
+              -B main \
+              -H i18n-update \
+              --title "Translation updates" \
+              --body "Automated translations from German source files
+
+- Regenerated translations using cache
+- Only changed files included
+- Ready to merge when reviewed" \
+              --label i18n \
+              --draft || true
+            echo "✅ Created new PR"
+          else
+            # Update existing PR with new commits
+            echo "✅ PR #$PR will be updated with new commits"
           fi
+
+      - name: Summary
+        if: steps.detect.outputs.mode != 'skip'
+        run: |
+          echo "=== Translation Summary ==="
+          echo "Mode: ${{ steps.detect.outputs.mode }}"
+          echo "Staged: ${{ steps.changes.outputs.staged }} files"
+          echo "Committed: ${{ steps.commit.outputs.done }}"
+          CACHE_SIZE=$(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" 2>/dev/null || echo "0")
+          echo "Cache entries: $CACHE_SIZE"

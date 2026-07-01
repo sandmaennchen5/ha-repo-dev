@@ -1,23 +1,16 @@
 document.addEventListener(
-
     "DOMContentLoaded",
-
     () => {
-
         const table =
             document.getElementById(
                 "matrixTable"
             );
 
         if (!table) {
-
             return;
-
         }
 
-        /*
-         * Search
-         */
+        let sortState = {};
 
         const search =
             document.getElementById(
@@ -25,11 +18,8 @@ document.addEventListener(
             );
 
         search?.addEventListener(
-
             "input",
-
             () => {
-
                 const filter =
                     search.value
                     .toLowerCase();
@@ -39,233 +29,136 @@ document.addEventListener(
                         "tbody tr"
                     )
                     .forEach(
-
                         row => {
-
                             row.style.display =
-
                                 row.innerText
                                     .toLowerCase()
                                     .includes(
                                         filter
                                     )
-
                                 ? ""
-
                                 : "none";
-
                         }
-
                     );
-
             }
-
         );
 
-        /*
-         * Sort by Name
-         */
-
-        const sortByName =
-            document.getElementById(
-                "sortByName"
+        const sortableHeaders =
+            table.querySelectorAll(
+                "th.sortable"
             );
 
-        sortByName?.addEventListener(
+        sortableHeaders.forEach(
+            header => {
+                header.style.cursor =
+                    "pointer";
 
-            "click",
+                header.addEventListener(
+                    "click",
+                    () => {
+                        const columnIndex =
+                            parseInt(
+                                header.dataset
+                                    .column
+                            );
 
-            () => {
+                        const isAscending =
+                            sortState[columnIndex]
+                            === "asc";
 
-                const tbody =
-                    table.querySelector(
-                        "tbody"
-                    );
+                        const direction =
+                            isAscending
+                            ? "desc"
+                            : "asc";
 
-                const rows =
-                    Array.from(
-                        tbody.rows
-                    );
+                        sortTable(
+                            columnIndex,
+                            direction
+                        );
 
-                rows.sort(
+                        sortState = {};
+                        sortState[columnIndex] =
+                            direction;
 
-                    (a, b) =>
-
-                        a.cells[0]
-                            .innerText
-                            .localeCompare(
-                                b.cells[0]
-                                    .innerText
-                            )
-
+                        updateSortIndicators();
+                    }
                 );
-
-                rows.forEach(
-
-                    row =>
-                        tbody.appendChild(
-                            row
-                        )
-
-                );
-
             }
-
         );
 
-        /*
-         * Sort by Score
-         */
-
-        const sortByScore =
-            document.getElementById(
-                "sortByScore"
-            );
-
-        sortByScore?.addEventListener(
-
-            "click",
-
-            () => {
-
-                const tbody =
-                    table.querySelector(
-                        "tbody"
-                    );
-
-                const rows =
-                    Array.from(
-                        tbody.rows
-                    );
-
-                rows.sort(
-
-                    (a, b) =>
-
-                        Number(
-                            b.dataset.score || 0
-                        )
-
-                        -
-
-                        Number(
-                            a.dataset.score || 0
-                        )
-
+        function sortTable(
+            columnIndex,
+            direction
+        ) {
+            const tbody =
+                table.querySelector(
+                    "tbody"
                 );
-
-                rows.forEach(
-
-                    row =>
-                        tbody.appendChild(
-                            row
-                        )
-
-                );
-
-            }
-
-        );
-
-        /*
-         * Hide Empty Columns
-         */
-
-        const hideEmpty =
-            document.getElementById(
-                "hideEmpty"
-            );
-
-        function updateEmptyColumns() {
 
             const rows =
                 Array.from(
-                    table.rows
+                    tbody.rows
                 );
 
-            if (
-                rows.length === 0
-            ) {
+            rows.sort(
+                (a, b) => {
+                    const aVal =
+                        a.cells[columnIndex]
+                        ?.innerText
+                        .trim() || "";
 
-                return;
+                    const bVal =
+                        b.cells[columnIndex]
+                        ?.innerText
+                        .trim() || "";
 
-            }
+                    const comparison =
+                        aVal.localeCompare(
+                            bVal,
+                            undefined,
+                            {
+                                numeric: true
+                            }
+                        );
 
-            const cols =
-                rows[0].cells.length;
-
-            for (
-                let c = 1;
-                c < cols;
-                c++
-            ) {
-
-                let hasValue =
-                    false;
-
-                for (
-                    let r = 1;
-                    r < rows.length;
-                    r++
-                ) {
-
-                    if (
-                        rows[r]
-                            .cells[c]
-                            ?.querySelector(
-                                "img"
-                            )
-                    ) {
-
-                        hasValue =
-                            true;
-
-                        break;
-
-                    }
-
+                    return direction === "asc"
+                        ? comparison
+                        : -comparison;
                 }
+            );
 
-                const display =
-
-                    hideEmpty?.checked &&
-                    !hasValue
-
-                    ? "none"
-                    : "";
-
-                rows.forEach(
-
-                    row => {
-
-                        if (
-                            row.cells[c]
-                        ) {
-
-                            row.cells[c]
-                                .style.display =
-                                display;
-
-                        }
-
-                    }
-
-                );
-
-            }
-
+            rows.forEach(
+                row =>
+                    tbody.appendChild(
+                        row
+                    )
+            );
         }
 
-        hideEmpty?.addEventListener(
-            "change",
-            updateEmptyColumns
-        );
+        function updateSortIndicators() {
+            sortableHeaders.forEach(
+                header => {
+                    const columnIndex =
+                        parseInt(
+                            header.dataset
+                            .column
+                        );
 
-        updateEmptyColumns();
+                    const direction =
+                        sortState[columnIndex];
 
-        /*
-         * CSV Export
-         */
+                    header.style.color =
+                        direction
+                        ? "#0066cc"
+                        : "inherit";
+
+                    header.title =
+                        direction
+                        ? `Sortiert ${direction}`
+                        : "Klicken zum Sortieren";
+                }
+            );
+        }
 
         const exportCsv =
             document.getElementById(
@@ -273,37 +166,27 @@ document.addEventListener(
             );
 
         exportCsv?.addEventListener(
-
             "click",
-
             () => {
-
                 let csv = "";
 
                 Array.from(
                     table.rows
                 ).forEach(
-
                     row => {
-
                         const values =
-
                             Array.from(
                                 row.cells
                             ).map(
-
                                 cell => {
-
                                     const text =
                                         cell.innerText
-                                            .trim();
+                                        .trim();
 
                                     if (
                                         text
                                     ) {
-
                                         return text;
-
                                     }
 
                                     return cell.querySelector(
@@ -311,21 +194,15 @@ document.addEventListener(
                                     )
                                         ? "✓"
                                         : "";
-
                                 }
-
                             );
 
                         csv +=
-
                             values.join(
                                 ";"
                             )
-
                             + "\n";
-
                     }
-
                 );
 
                 const blob =
@@ -351,14 +228,8 @@ document.addEventListener(
                     "matrix.csv";
 
                 link.click();
-
             }
-
         );
-
-        /*
-         * Markdown Export
-         */
 
         const exportMarkdown =
             document.getElementById(
@@ -366,40 +237,30 @@ document.addEventListener(
             );
 
         exportMarkdown?.addEventListener(
-
             "click",
-
             async () => {
-
                 let md = "";
 
                 Array.from(
                     table.rows
                 ).forEach(
-
                     (
                         row,
                         index
                     ) => {
-
                         const values =
-
                             Array.from(
                                 row.cells
                             ).map(
-
                                 cell => {
-
                                     const text =
                                         cell.innerText
-                                            .trim();
+                                        .trim();
 
                                     if (
                                         text
                                     ) {
-
                                         return text;
-
                                     }
 
                                     return cell.querySelector(
@@ -407,9 +268,7 @@ document.addEventListener(
                                     )
                                         ? "✓"
                                         : "";
-
                                 }
-
                             );
 
                         md +=
@@ -422,7 +281,6 @@ document.addEventListener(
                         if (
                             index === 0
                         ) {
-
                             md +=
                                 "| " +
                                 values
@@ -434,11 +292,8 @@ document.addEventListener(
                                         " | "
                                     ) +
                                 " |\n";
-
                         }
-
                     }
-
                 );
 
                 await navigator
@@ -448,13 +303,9 @@ document.addEventListener(
                     );
 
                 alert(
-                    "Markdown copied to clipboard"
+                    "Markdown in die Zwischenablage kopiert"
                 );
-
             }
-
         );
-
     }
-
 );

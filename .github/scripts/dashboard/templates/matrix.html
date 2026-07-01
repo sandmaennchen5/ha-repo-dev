@@ -11,145 +11,54 @@ Matrix
 {% block content %}
 
 <div class="panel-header">
-
-```
-<h2>
-
-    Badge Matrix
-
-</h2>
-
+<h2>Badge Matrix</h2>
 <input
     id="matrixSearch"
-    placeholder="App suchen">
-```
-
+    placeholder="Suche (App, Badge, Value, Group)">
 </div>
 
 <div class="panel">
-
-```
 <div class="matrix-tools">
-
-    <button id="sortByName">
-
-        App
-
-    </button>
-
-    <button id="sortByScore">
-
-        Score
-
-    </button>
-
-    <button id="exportCsv">
-
-        CSV
-
-    </button>
-
-    <button id="exportMarkdown">
-
-        Markdown
-
-    </button>
-
-    <label>
-
-        <input
-            type="checkbox"
-            id="hideEmpty"
-
-            {% if config.matrix.hide_empty_default %}
-            checked
-            {% endif %}>
-
-        Leere Spalten ausblenden
-
-    </label>
-
+    <button id="exportCsv">CSV</button>
+    <button id="exportMarkdown">Markdown</button>
 </div>
-
 
 <div class="table-scroll">
-
     <table id="matrixTable">
-
         <thead>
-
         <tr>
-
-            <th class="sticky-column">
-
-                App
-
-            </th>
-
-            {% for badge in matrix_badges %}
-
-            <th>
-
-                {{ badge }}
-
-            </th>
-
-            {% endfor %}
-
+            <th class="sortable" data-column="0">App</th>
+            <th class="sortable" data-column="1">Badge</th>
+            <th class="sortable" data-column="2">Value</th>
+            <th class="sortable" data-column="3">Group</th>
+            <th data-column="4">Preview</th>
         </tr>
-
         </thead>
-
         <tbody>
-
-        {% for app in apps %}
-
-        <tr data-score="{{ app.score }}">
-
-            <td class="sticky-column">
-
-                <a href="{{ base_url }}/apps/{{ app.slug }}/">
-
-                    {{ app.name }}
-
-                </a>
-
-            </td>
-
-            {% for badge_name in matrix_badges %}
-
+        {% for badge in badges_list %}
+        <tr>
             <td>
-
-                {% for badge in app.badges %}
-
-                    {% if badge.label == badge_name
-                          and badge.value %}
-
-                        <img
-                            src="{{ badge.url }}"
-                            height="20"
-                            alt="{{ badge.label }}"
-                            title="{{ badge.label }}">
-
-                    {% endif %}
-
-                {% endfor %}
-
+                <a href="{{ base_url }}/apps/{{ badge.app_slug }}/">
+                    {{ badge.app_name }}
+                </a>
             </td>
-
-            {% endfor %}
-
+            <td>{{ badge.label }}</td>
+            <td>{{ badge.value }}</td>
+            <td>{{ badge.group }}</td>
+            <td>
+                {% if badge.url %}
+                <img
+                    src="{{ badge.url }}"
+                    height="20"
+                    alt="{{ badge.label }}"
+                    title="{{ badge.label }}">
+                {% endif %}
+            </td>
         </tr>
-
         {% endfor %}
-
         </tbody>
-
     </table>
-
 </div>
-```
-
 </div>
 
 {% endblock %}

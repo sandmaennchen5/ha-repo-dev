@@ -25,7 +25,7 @@ def render_matrix(
 
     }
 
-    matrix_badges = []
+    badges_list = []
 
     for app in apps:
 
@@ -42,28 +42,14 @@ def render_matrix(
 
                 continue
 
-            label = badge["label"]
-
-            if label not in matrix_badges:
-
-                matrix_badges.append(
-                    label
-                )
-
-    matrix_badges = sorted(
-        matrix_badges
-    )
-
-    max_badges = matrix_cfg.get(
-        "max_badges",
-        0
-    )
-
-    if max_badges:
-
-        matrix_badges = (
-            matrix_badges[:max_badges]
-        )
+            badges_list.append({
+                "app_name": app["name"],
+                "app_slug": app["slug"],
+                "label": badge["label"],
+                "value": badge["value"],
+                "group": badge.get("group", ""),
+                "url": badge.get("url", ""),
+            })
 
     render(
         "matrix.html",
@@ -71,5 +57,5 @@ def render_matrix(
         "matrix.html",
         config=config,
         apps=apps,
-        matrix_badges=matrix_badges
+        badges_list=badges_list
     )

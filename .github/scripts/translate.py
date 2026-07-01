@@ -24,6 +24,7 @@ DEEPL_KEY = os.getenv("DEEPL_API_KEY", "").strip()
 CACHE_DIR = Path(".i18n_cache")
 CACHE_DIR.mkdir(exist_ok=True)
 CACHE_FILE = CACHE_DIR / "translation_cache.json"
+MANIFEST_FILE = CACHE_DIR / "translation_manifest.json"
 
 # Patterns for files to translate
 FILE_PATTERNS = {
@@ -62,6 +63,24 @@ def save_cache(cache: Dict[str, str]):
     """Save translation cache."""
     CACHE_FILE.write_text(
         json.dumps(cache, indent=2, ensure_ascii=False),
+        encoding="utf-8"
+    )
+
+
+def load_manifest() -> Dict[str, List[str]]:
+    """Load previous translation manifest."""
+    if not MANIFEST_FILE.exists():
+        return {}
+    try:
+        return json.loads(MANIFEST_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_manifest(manifest: Dict[str, List[str]]):
+    """Save translation manifest."""
+    MANIFEST_FILE.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
 
@@ -307,9 +326,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Load cache
+    # Load cache and manifest
     cache = load_cache()
+    manifest = load_manifest()
     print(f"📦 Loaded cache with {len(cache)} entries")
+    print(f"📋 Loaded manifest with {len(manifest)} source files")
 
     # Find files to translate
     files = find_files_to_translate(args.all, args.files)
@@ -322,18 +343,34 @@ def main():
     print(f"\n🌍 Processing {len(files)} file(s)...\n")
 
     all_generated = []
+    manifest_new = {}
+
     for f in files:
         print(f"📝 {f}")
         generated = process_file(f, cache)
         all_generated.extend(generated)
 
-    # Save cache
+        # Track generated files in manifest
+        src_key = str(f)
+        manifest_new[src_key] = [str(g) for g in generated]
+
+    # Save cache and manifest
     save_cache(cache)
+    save_manifest(manifest_new)
+
     print(f"\n✅ Done! Generated {len(all_generated)} translations")
     print(f"📦 Cache saved with {len(cache)} entries")
+    print(f"📋 Manifest saved with {len(manifest_new)} source files")
 
+    # Output generated files for GitHub Actions
+    print("\n📄 Generated files:")
     for f in all_generated:
         print(f"  - {f}")
+
+    # Write to file for workflow to pick up
+    manifest_file = Path(".i18n_cache/generated_files.txt")
+    manifest_file.write_text("\n".join(str(f) for f in all_generated), encoding="utf-8")
+    print(f"\n✅ File list written to {manifest_file}")
 
 
 if __name__ == "__main__":
