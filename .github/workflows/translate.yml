@@ -177,16 +177,17 @@ jobs:
           PR=$(gh pr list -B main -H i18n-update --json number -q '.[0].number' 2>/dev/null || echo "")
 
           if [ -z "$PR" ]; then
-            # Create new PR
+            # Create new PR with body
+            BODY="Automated translations from German source files"
+            BODY="$BODY"$'\n\n'"- Regenerated translations using cache"
+            BODY="$BODY"$'\n'"- Only changed files included"
+            BODY="$BODY"$'\n'"- Ready to merge when reviewed"
+
             gh pr create \
               -B main \
               -H i18n-update \
               --title "Translation updates" \
-              --body "Automated translations from German source files
-
-- Regenerated translations using cache
-- Only changed files included
-- Ready to merge when reviewed" \
+              --body "$BODY" \
               --label i18n \
               --draft || true
             echo "✅ Created new PR"
