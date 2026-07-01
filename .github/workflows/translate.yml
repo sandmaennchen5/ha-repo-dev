@@ -71,9 +71,18 @@ jobs:
         if: steps.detect.outputs.mode != 'skip'
         run: |
           mkdir -p .i18n_cache
-          git fetch origin i18n-cache 2>/dev/null || true
-          git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null || echo '{}' > .i18n_cache/translation_cache.json
-          echo "Cache entries: $(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))")"
+
+          # Fetch cache branch
+          git fetch origin i18n-cache --depth=1 2>/dev/null || true
+
+          # Try to get cache from remote
+          if git show origin/i18n-cache:.i18n_cache/translation_cache.json > .i18n_cache/translation_cache.json 2>/dev/null; then
+            ENTRIES=$(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" 2>/dev/null || echo "?")
+            echo "✅ Cache loaded: $ENTRIES entries"
+          else
+            echo "{}" > .i18n_cache/translation_cache.json
+            echo "✅ Fresh cache created"
+          fi
 
       - name: Prepare PR branch
         if: steps.detect.outputs.mode != 'skip'
@@ -124,11 +133,14 @@ jobs:
         id: commit
         run: |
           if [ -n "$(git diff --cached)" ]; then
-            git commit -m "chore(i18n): update translations
+            git commit -m "$(cat <<'EOF'
+chore(i18n): update translations
 
 - Updated German source files triggered translation generation
 - Only changed translations staged and committed
-- Cache maintained for efficiency" 2>/dev/null || true
+- Cache maintained for efficiency
+EOF
+)" 2>/dev/null || true
             echo "done=true" >> $GITHUB_OUTPUT
           else
             echo "done=false" >> $GITHUB_OUTPUT
@@ -143,13 +155,19 @@ jobs:
         run: |
           git fetch origin i18n-cache 2>/dev/null || true
           git checkout -B i18n-cache origin/i18n-cache 2>/dev/null || git checkout --orphan i18n-cache
-          git rm -rf . 2>/dev/null || true
 
-          mkdir -p .i18n_cache
-          git checkout i18n-update -- .i18n_cache 2>/dev/null || true
+          # Clean repo but keep .i18n_cache
+          find . -type f ! -path "./.i18n_cache/*" ! -path "./.git/*" -delete 2>/dev/null || true
+          find . -type d ! -path "./.i18n_cache" ! -path "./.git*" -type d -delete 2>/dev/null || true
+
+          # Add cache files
           git add .i18n_cache 2>/dev/null || true
-          git commit -m "chore(i18n): cache update" 2>/dev/null || true
-          git push origin i18n-cache -f 2>/dev/null || true
+
+          # Only commit if there are changes
+          if [ -n "$(git diff --cached)" ]; then
+            git commit -m "chore(i18n): cache update" 2>/dev/null || true
+            git push origin i18n-cache -f 2>/dev/null || true
+          fi
 
       - name: Create or Update PR
         if: steps.commit.outputs.done == 'true'
@@ -187,5 +205,10 @@ jobs:
           echo "Mode: ${{ steps.detect.outputs.mode }}"
           echo "Staged: ${{ steps.changes.outputs.staged }} files"
           echo "Committed: ${{ steps.commit.outputs.done }}"
-          CACHE_SIZE=$(python3 -c "import json; print(len(json.load(open('.i18n_cache/translation_cache.json'))))" 2>/dev/null || echo "0")
+
+          if [ -f ".i18n_cache/translation_cache.json" ]; then
+            CACHE_SIZE=$(python3 -c "import json; f=open('.i18n_cache/translation_cache.json'); print(len(json.load(f)))" 2>/dev/null || echo "?")
+          else
+            CACHE_SIZE="0"
+          fi
           echo "Cache entries: $CACHE_SIZE"
