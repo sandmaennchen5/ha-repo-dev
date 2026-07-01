@@ -133,14 +133,11 @@ jobs:
         id: commit
         run: |
           if [ -n "$(git diff --cached)" ]; then
-            git commit -m "$(cat <<'EOF'
-chore(i18n): update translations
-
-- Updated German source files triggered translation generation
-- Only changed translations staged and committed
-- Cache maintained for efficiency
-EOF
-)" 2>/dev/null || true
+            MSG="chore(i18n): update translations"
+            MSG="$MSG"$'\n\n'"- Updated German source files triggered translation generation"
+            MSG="$MSG"$'\n'"- Only changed translations staged and committed"
+            MSG="$MSG"$'\n'"- Cache maintained for efficiency"
+            git commit -m "$MSG" 2>/dev/null || true
             echo "done=true" >> $GITHUB_OUTPUT
           else
             echo "done=false" >> $GITHUB_OUTPUT
