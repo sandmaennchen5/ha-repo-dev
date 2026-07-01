@@ -45,16 +45,24 @@ jobs:
         id: detect
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "mode=${{ github.event.inputs.translate_all }}" >> $GITHUB_OUTPUT
-            echo "Run: manual"
-          else
-            git diff --name-only HEAD~1 HEAD > /tmp/files.txt 2>/dev/null || true
-            if grep -qE "(README|DOCS|de.yaml|de.yml|de.json)" /tmp/files.txt 2>/dev/null; then
-              echo "mode=false" >> $GITHUB_OUTPUT
-              echo "Run: push detected changes"
+            TRANSLATE_ALL="${{ github.event.inputs.translate_all }}"
+            if [ "$TRANSLATE_ALL" = "true" ]; then
+              echo "mode=all" >> $GITHUB_OUTPUT
+              echo "✅ Run: manual translate ALL"
             else
               echo "mode=skip" >> $GITHUB_OUTPUT
-              echo "Run: skip (no changes)"
+              echo "⏭️ Run: manual mode disabled, skipping"
+            fi
+          else
+            git diff --name-only HEAD~1 HEAD > /tmp/files.txt 2>/dev/null || true
+            if grep -qE "(README|DOCS|de\.yaml|de\.yml|de\.json)" /tmp/files.txt 2>/dev/null; then
+              echo "mode=changed" >> $GITHUB_OUTPUT
+              echo "✅ Run: push detected changes"
+              echo "📋 Changed files:"
+              cat /tmp/files.txt | head -10
+            else
+              echo "mode=skip" >> $GITHUB_OUTPUT
+              echo "⏭️ Run: skip (no translation files changed)"
             fi
           fi
 
@@ -97,9 +105,17 @@ jobs:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES || 'en' }}
         run: |
-          if [ "${{ steps.detect.outputs.mode }}" = "true" ]; then
+          echo "🌍 Environment:"
+          echo "  MODE: ${{ steps.detect.outputs.mode }}"
+          echo "  TARGET_LANGUAGES: ${TARGET_LANGUAGES}"
+          echo "  DEEPL_API_KEY: $([ -z '${{ secrets.DEEPL_API_KEY }}' ] && echo '❌ NOT SET' || echo '✅ SET')"
+          echo ""
+          
+          if [ "${{ steps.detect.outputs.mode }}" = "all" ]; then
+            echo "📝 Running: translate ALL files"
             python3 .github/scripts/translate.py --all
           else
+            echo "📝 Running: translate changed files"
             python3 .github/scripts/translate.py /tmp/files.txt
           fi
 
@@ -114,8 +130,12 @@ jobs:
           fi
 
           echo "staged=$STAGED" >> $GITHUB_OUTPUT
-          echo "Files to stage:"
-          [ -f ".i18n_cache/generated_files.txt" ] && cat .i18n_cache/generated_files.txt | head -20 || echo "None"
+          echo ""
+          echo "📄 Files to stage: $STAGED"
+          if [ -f ".i18n_cache/generated_files.txt" ] && [ $STAGED -gt 0 ]; then
+            echo ""
+            cat .i18n_cache/generated_files.txt | head -20
+          fi
 
       - name: Stage only changed translations
         if: steps.changes.outputs.staged != '0'
@@ -124,8 +144,9 @@ jobs:
           if [ -f ".i18n_cache/generated_files.txt" ]; then
             cat .i18n_cache/generated_files.txt | grep -v '^$' | xargs -I {} git add "{}" 2>/dev/null || true
           fi
-          echo "Staged: $(git diff --cached --name-only | wc -l) files"
-          echo "Files:"
+          echo ""
+          echo "✅ Staged: $(git diff --cached --name-only | wc -l) files"
+          echo ""
           git diff --cached --name-only
 
       - name: Commit
@@ -139,13 +160,17 @@ jobs:
             MSG="$MSG"$'\n'"- Cache maintained for efficiency"
             git commit -m "$MSG" 2>/dev/null || true
             echo "done=true" >> $GITHUB_OUTPUT
+            echo "✅ Commit created"
           else
             echo "done=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No changes to commit"
           fi
 
       - name: Push
         if: steps.commit.outputs.done == 'true'
-        run: git push origin i18n-update -f
+        run: |
+          git push origin i18n-update -f
+          echo "✅ Pushed to i18n-update"
 
       - name: Save cache
         if: steps.detect.outputs.mode != 'skip'
@@ -164,6 +189,9 @@ jobs:
           if [ -n "$(git diff --cached)" ]; then
             git commit -m "chore(i18n): cache update" 2>/dev/null || true
             git push origin i18n-cache -f 2>/dev/null || true
+            echo "✅ Cache updated"
+          else
+            echo "ℹ️ Cache unchanged"
           fi
 
       - name: Create or Update PR
@@ -192,14 +220,13 @@ jobs:
               --draft || true
             echo "✅ Created new PR"
           else
-            # Update existing PR with new commits
             echo "✅ PR #$PR will be updated with new commits"
           fi
 
       - name: Summary
         if: steps.detect.outputs.mode != 'skip'
         run: |
-          echo "=== Translation Summary ==="
+          echo "=== 📊 Translation Summary ==="
           echo "Mode: ${{ steps.detect.outputs.mode }}"
           echo "Staged: ${{ steps.changes.outputs.staged }} files"
           echo "Committed: ${{ steps.commit.outputs.done }}"
