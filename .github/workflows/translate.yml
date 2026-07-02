@@ -186,25 +186,26 @@ jobs:
           if [ "${{ steps.branch.outputs.pr_exists }}" = "true" ]; then
             echo "✅ PR #${{ steps.branch.outputs.pr_number }} updated with new commits"
           else
-            BODY="$(cat <<'PREOF'
-            Automated translations from German source files.
+            cat > pr-body.md <<'EOF'
+Automated translations from German source files.
 
-            - Translations regenerated using cache
-            - Only changed files included
-            - Ready to merge when reviewed
+- Translations regenerated using cache
+- Only changed files included
+- Ready to merge when reviewed
 
-            > **Note:** `.i18n_cache/` is committed to this branch to persist the translation
-            > cache across runs. It is safe to merge – the directory is listed in `.gitignore`
-            > and will not be accidentally re-committed after the merge.
-            PREOF
-            )"
+> **Note:** `.i18n_cache/` is committed to this branch to persist the translation
+> cache across runs. It is safe to merge – the directory is listed in `.gitignore`
+> and will not be accidentally re-committed after the merge.
+EOF
+
             gh pr create \
               --base main \
               --head i18n-update \
               --title "Translation updates" \
-              --body "$BODY" \
+              --body-file pr-body.md \
               --label i18n \
               --draft || true
+
             echo "✅ Created new PR"
           fi
 
