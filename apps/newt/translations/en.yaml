@@ -1,0 +1,135 @@
+configuration:
+  endpoint:
+    name: Pangoli1n Endpoint
+    description: URL of the Pangolin server, e.g. https://app.pangolin.net
+  id:
+    name: Newt ID
+    description: Newt ID from the Pangolin dashboard
+  secret:
+    name: Newt Secret
+    description: Newt Secret from the Pangolin Dashboard
+  client:
+    name: Client Settings
+    description: Options to control WireGuard clients and SSH access.
+    fields:
+      disable_clients:
+        name: Disable Clients
+        description: Disables clients in the WireGuard interface.
+      disable_ssh:
+        name: Disable SSH
+        description: Disables the native SSH auth daemon and SSH mode.
+  docker:
+    name: Docker integration
+    description: Options for detecting containers and validating Docker networks.
+    fields:
+      docker_socket:
+        name: Docker socket
+        description: Path to Docker socket for container detection.
+      docker_enforce_network_validation:
+        name: Docker Network Validation
+        description: Check if the destination container is on the same network as
+          Newt.
+  extras:
+    name: Additional Settings
+    fields:
+      ad_ca_cert_path:
+        name: Auth daemon CA certificate path
+        description: Path to the CA certificate file of the auth daemon.
+      ad_generate_random_password:
+        name: Auth-Daemon Random Password
+        description: Generates a random password for authenticated users.
+      ad_pre_shared_key:
+        name: Auth-Daemon Pre-shared-Key
+        description: Pre-shared key for authentication of external auth daemons.
+      ad_principals_file:
+        name: Auth-Daemon Principals File
+        description: Path to the Principals file for the auth daemon.
+      auth_daemon:
+        name: Auth daemon
+        description: Enables the auth daemon for custom authentication methods.
+      blueprint_file:
+        name: Blueprint file
+        description: Path to a declarative blueprint file that Newt permanently applies.
+      config_file:
+        name: Config. File
+        description: JSON file path where Newt stores endpoint, ID, secret and optional
+          settings.
+      dns:
+        name: DNS
+        description: DNS server for pangolin endpoint resolution.
+      enforce_hc_cert:
+        name: Force Healthcheck Certificate
+        description: Validates certificates for health checks.
+      health_file:
+        name: Health file
+        description: Path to a file that will be created on successful connection.
+      interface:
+        name: WireGuard interface
+        description: Name of the WireGuard interface.
+      log_level:
+        name: Log level
+        description: 'Log level for Newt outputs. Options: trace, debug, info, warn,
+          error'
+      metrics:
+        name: Metric
+        description: Enables the Prometheus Metrics Exporter.
+      metrics_admin_addr:
+        name: Metrics Admin Address
+        description: Bind address for admin and metrics endpoints.
+      metrics_async_bytes:
+        name: Asynchronous Metrics
+        description: Enables asynchronous byte counting for lower overhead.
+      mtu:
+        name: metric ton of uranium
+        description: MTU for the internal WireGuard interface.
+      native:
+        name: Native WireGuard interface
+        description: Use the native WireGuard interface (default `false`)
+      no_cloud:
+        name: No cloud failover
+        description: Disables cloud failover for managed nodes.
+      otlp:
+        name: OTLP
+        description: Enables OTLP exporter for metrics and traces.
+      ping_interval:
+        name: Ping interval
+        description: Interval for server pings.
+      ping_timeout:
+        name: Ping Timeout
+        description: Timeout for each server ping.
+      port:
+        name: Location
+        description: Static port through which peers reach Newt.
+      pprof:
+        name: pprof
+        description: Enables pprof debugging points on the admin server.
+      prefer_endpoint:
+        name: Preferred Endpoint
+        description: Preferred endpoint that overrides the server-side deployed endpoint.
+      provisioning_blueprint_file:
+        name: Provisioning Blueprint File
+        description: Path to a one-time applied bootstrap blueprint file.
+      region:
+        name: Region
+        description: Optional region specification for telemetry and metrics
+      tls_client_ca:
+        name: TLS Client CA
+        description: Path to one or more CA certificate files to validate the remote
+          certificate
+      tls_client_cert:
+        name: TLS Client Certificate (deprecated)
+        description: Legacy PKCS12 client certificate path.
+      tls_client_cert_file:
+        name: TLS Client Certificate File
+        description: Path to client certificate file for mTLS.
+      tls_client_key:
+        name: Client  Key
+        description: Path to client private key file for mTLS.
+      udp_proxy_idle_timeout:
+        name: UDP Proxy Idle Timeout
+        description: Idle timeout for UDP proxy sessions before cleanup.
+      updown:
+        name: Updown Script
+        description: Script that is called when adding or removing resources.
+network:
+  2112/tcp: Prometheus Metrics Port

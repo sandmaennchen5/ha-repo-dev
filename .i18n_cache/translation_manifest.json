@@ -1,0 +1,57 @@
+{
+  "README.md": [
+    "README.en.md",
+    "README.fr.md",
+    "README.es.md"
+  ],
+  "custom_components/wbi/README.md": [
+    "custom_components/wbi/README.en.md",
+    "custom_components/wbi/README.fr.md",
+    "custom_components/wbi/README.es.md"
+  ],
+  "custom_components/wbi/translations/de.json": [
+    "custom_components/wbi/translations/en.json",
+    "custom_components/wbi/translations/fr.json",
+    "custom_components/wbi/translations/es.json"
+  ],
+  "docs/CHANGELOG.md": [
+    "docs/CHANGELOG.en.md",
+    "docs/CHANGELOG.fr.md",
+    "docs/CHANGELOG.es.md"
+  ],
+  "apps/newt/README.md": [
+    "apps/newt/README.en.md",
+    "apps/newt/README.fr.md",
+    "apps/newt/README.es.md"
+  ],
+  "apps/newt/DOCS.md": [
+    "apps/newt/DOCS.en.md",
+    "apps/newt/DOCS.fr.md",
+    "apps/newt/DOCS.es.md"
+  ],
+  "apps/newt/CHANGELOG.md": [
+    "apps/newt/CHANGELOG.en.md",
+    "apps/newt/CHANGELOG.fr.md",
+    "apps/newt/CHANGELOG.es.md"
+  ],
+  "apps/newt/translations/de.yaml": [
+    "apps/newt/translations/en.yaml",
+    "apps/newt/translations/fr.yaml",
+    "apps/newt/translations/es.yaml"
+  ],
+  "apps/example/README.md": [
+    "apps/example/README.en.md",
+    "apps/example/README.fr.md",
+    "apps/example/README.es.md"
+  ],
+  "apps/example/DOCS.md": [
+    "apps/example/DOCS.en.md",
+    "apps/example/DOCS.fr.md",
+    "apps/example/DOCS.es.md"
+  ],
+  "apps/example/CHANGELOG.md": [
+    "apps/example/CHANGELOG.en.md",
+    "apps/example/CHANGELOG.fr.md",
+    "apps/example/CHANGELOG.es.md"
+  ]
+}

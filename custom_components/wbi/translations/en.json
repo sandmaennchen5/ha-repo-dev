@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "DWD Fire Danger Index",
-        "description": "Enter station ID for forest & grassland fire index",
+        "title": "DWD Hazard Index",
+        "description": "Enter Station ID for Forest Fire & Grassland Fire Index",
         "data": {
           "station": "Station ID (e.g. 123)"
         }

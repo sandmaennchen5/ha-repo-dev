@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Indice de danger DWD",
+        "description": "Saisir l'ID de la station pour l'indice des feux de forêt et des prairies",
+        "data": {
+          "station": "ID de la station (p. ex. 123)"
+        }
+      }
+    }
+  }
+}

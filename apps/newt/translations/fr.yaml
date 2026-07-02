@@ -1,0 +1,144 @@
+configuration:
+  endpoint:
+    name: Point final Pangoli1n
+    description: URL du serveur Pangolin, par exemple https ://app.pangolin.net
+  id:
+    name: Newt ID
+    description: Identifiant Newt du tableau de bord Pangolin
+  secret:
+    name: Newt Secret
+    description: Newt-Secret du tableau de bord Pangolin
+  client:
+    name: Paramètres client
+    description: Options pour contrôler les clients WireGuard et l'accès SSH.
+    fields:
+      disable_clients:
+        name: Désactiver les clients
+        description: Désactive les clients dans l'interface WireGuard.
+      disable_ssh:
+        name: Désactiver SSH
+        description: Désactive le démon SSH-Auth natif et le mode SSH.
+  docker:
+    name: Intégration Docker
+    description: Options de détection des conteneurs et de validation des réseaux
+      Docker.
+    fields:
+      docker_socket:
+        name: Docker Socket
+        description: Chemin d'accès au socket Docker pour la détection des conteneurs.
+      docker_enforce_network_validation:
+        name: Validation du réseau Docker
+        description: Vérifier que le conteneur de destination se trouve dans le même
+          réseau que Newt.
+  extras:
+    name: Embauches supplémentaires
+    fields:
+      ad_ca_cert_path:
+        name: Chemin du certificat CA Auth-Daemon
+        description: Chemin d'accès au fichier de certificat CA du démon Auth.
+      ad_generate_random_password:
+        name: Mot de passe aléatoire Auth-Daemon
+        description: Génère un mot de passe aléatoire pour les utilisateurs authentifiés.
+      ad_pre_shared_key:
+        name: Auth-Daemon Pre-shared-Key
+        description: Clé pré-partagée pour authentifier les démons d'authentification
+          externes.
+      ad_principals_file:
+        name: Fichier Auth-Daemon Principals
+        description: Chemin d'accès au fichier Principals pour le démon Auth.
+      auth_daemon:
+        name: Auth-Daemon
+        description: Active le démon d'authentification pour les méthodes d'authentification
+          personnalisées.
+      blueprint_file:
+        name: Fichier Blueprint
+        description: Chemin d'accès à un fichier de Blueprint déclaratif que Newt
+          applique en permanence.
+      config_file:
+        name: Fichier de configuration
+        description: Chemin d'accès au fichier JSON dans lequel Newt stocke le terminal,
+          l'ID, le secret et les paramètres facultatifs.
+      dns:
+        name: ADN,
+        description: Serveur DNS pour la résolution du point de terminaison Pangolin.
+      enforce_hc_cert:
+        name: Forcer le certificat HealthCheck
+        description: Valide les certificats pour les contrôles de santé.
+      health_file:
+        name: Fichier santé
+        description: Chemin d'accès à un fichier créé en cas de connexion réussie.
+      interface:
+        name: Interface WireGuard
+        description: Nom de l'interface WireGuard.
+      log_level:
+        name: Niveau de log
+        description: 'Niveaux de log pour les sorties Newt. Options : trace, debug,
+          info, warn, error'
+      metrics:
+        name: Mesures
+        description: Active l'exportateur de métriques Prometheus.
+      metrics_admin_addr:
+        name: Adresse admin métrique
+        description: Adresse de liaison pour les points de terminaison d'administration
+          et de mesure.
+      metrics_async_bytes:
+        name: Métriques asynchrones
+        description: Active le comptage asynchrone d'octets pour réduire les frais
+          généraux.
+      mtu:
+        name: MTU
+        description: MTU pour l'interface interne WireGuard.
+      native:
+        name: Interface WireGuard native
+        description: Utilisez l'interface WireGuard native (par défaut `false`)
+      no_cloud:
+        name: Pas de basculement vers le cloud
+        description: Désactive le basculement vers le cloud pour les nœuds gérés.
+      otlp:
+        name: OTLP
+        description: Active l'exportateur OTLP pour les métriques et les traces.
+      ping_interval:
+        name: Intervalle de ping
+        description: Intervalle pour les pings du serveur.
+      ping_timeout:
+        name: Ping timeout
+        description: Délai d'expiration pour chaque ping du serveur.
+      port:
+        name: Port
+        description: Port statique par lequel les pairs atteignent Newt.
+      pprof:
+        name: pprof
+        description: Active les points de building pprof sur le serveur d'administration.
+      prefer_endpoint:
+        name: Point final préféré
+        description: Point de terminaison préféré qui écrase le point de terminaison
+          fourni côté serveur.
+      provisioning_blueprint_file:
+        name: Fichier de Blueprint de provisioning
+        description: Chemin d'accès à un fichier de Blueprint Bootstrap appliqué une
+          seule fois.
+      region:
+        name: Région
+        description: Indication de région facultative pour la télémétrie et les métriques
+      tls_client_ca:
+        name: TLS-Client-CA
+        description: Chemin d'accès à un ou plusieurs fichiers de certificat CA pour
+          valider le certificat distant
+      tls_client_cert:
+        name: Certificat client TLS (obsolète)
+        description: Chemin de certificat client PKCS12 obsolète.
+      tls_client_cert_file:
+        name: Fichier de certificat client TLS
+        description: Chemin d'accès au fichier de certificat client pour mTLS.
+      tls_client_key:
+        name: TLS-Client-Schlüssel
+        description: Pfaad zur Client Privatkey-Datei für mTLS.
+      udp_proxy_idle_timeout:
+        name: UDP-Proxy-Idle-Timeout
+        description: Leerlauf-Timeout für UDP-Proxy-Sitzungen vor der Bereinigung.
+      updown:
+        name: Updown-Skript
+        description: Skript das beim Hinzufügen oder Entfernen von Ressourcen aufgerufen
+          wird.
+network:
+  2112/tcp: Port für Prometheus-Metriken
