@@ -124,7 +124,7 @@ jobs:
         id: translate
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
-          TARGET_LANGUAGES: ${{ coalesce(vars.TARGET_LANGUAGES, 'en') }}
+          TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES || 'en' }}
         run: |
           echo "🌍 Environment:"
           echo "  MODE: ${{ steps.detect.outputs.mode }}"
@@ -187,17 +187,17 @@ jobs:
             echo "✅ PR #${{ steps.branch.outputs.pr_number }} updated with new commits"
           else
             BODY="$(cat <<'PREOF'
-Automated translations from German source files.
+            Automated translations from German source files.
 
-- Translations regenerated using cache
-- Only changed files included
-- Ready to merge when reviewed
+            - Translations regenerated using cache
+            - Only changed files included
+            - Ready to merge when reviewed
 
-> **Note:** `.i18n_cache/` is committed to this branch to persist the translation
-> cache across runs. It is safe to merge – the directory is listed in `.gitignore`
-> and will not be accidentally re-committed after the merge.
-PREOF
-)"
+            > **Note:** `.i18n_cache/` is committed to this branch to persist the translation
+            > cache across runs. It is safe to merge – the directory is listed in `.gitignore`
+            > and will not be accidentally re-committed after the merge.
+            PREOF
+            )"
             gh pr create \
               --base main \
               --head i18n-update \
