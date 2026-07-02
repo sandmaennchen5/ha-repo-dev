@@ -124,7 +124,7 @@ jobs:
         id: translate
         env:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
-          TARGET_LANGUAGES: ${{ vars.TARGET_LANGUAGES || 'en' }}
+          TARGET_LANGUAGES: ${{ coalesce(vars.TARGET_LANGUAGES, 'en') }}
         run: |
           echo "🌍 Environment:"
           echo "  MODE: ${{ steps.detect.outputs.mode }}"
